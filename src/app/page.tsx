@@ -3,7 +3,6 @@ import { WhatWeOfferSection } from '@/features/home/components/what-we-offer-sec
 import { ChooseCategorySection } from '@/features/home/components/choose-category-section';
 import { FeatureCardsSection } from '@/features/home/components/feature-cards-section';
 import { CTASection } from '@/features/home/components/cta-section';
-import { Footer } from '@/features/home/components/footer';
 
 export default function HomePage() {
   return (
@@ -15,7 +14,6 @@ export default function HomePage() {
         <FeatureCardsSection />
         <CTASection />
       </main>
-      <Footer />
     </div>
   );
 }
