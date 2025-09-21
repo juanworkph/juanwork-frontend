@@ -43,11 +43,11 @@ export function PublicNavbar() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-4 md:px-6">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <div className="flex h-16 items-center justify-between px-4 md:px-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="relative h-8 w-32">
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="relative h-8 w-32 transition-transform duration-200 group-hover:scale-105">
               {mounted ? (
                 <Image 
                   src={logoSrc} 
@@ -55,9 +55,10 @@ export function PublicNavbar() {
                   fill 
                   style={{ objectFit: 'contain' }}
                   priority
+                  className="transition-opacity duration-200"
                 />
               ) : (
-                <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+                <div className="h-8 w-32 bg-gradient-to-r from-muted to-muted/50 animate-pulse rounded" />
               )}
             </div>
           </Link>
@@ -65,7 +66,7 @@ export function PublicNavbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center justify-center flex-1">
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 bg-muted/30 rounded-full px-2 py-1">
             {publicNavItems.map((item) => (
               <NavbarItem key={item.href} item={item} pathname={pathname} />
             ))}
@@ -73,33 +74,44 @@ export function PublicNavbar() {
         </nav>
 
         {/* Search, Theme Toggle, and Auth Buttons (Desktop) */}
-        <div className="hidden md:flex items-center gap-4">
-          <form onSubmit={handleSearchSubmit} className="relative">
+        <div className="hidden md:flex items-center gap-3">
+          <form onSubmit={handleSearchSubmit} className="relative group">
             <Input
               type="search"
               placeholder="Search Keywords"
-              className="w-[200px] pr-8"
+              className="w-[200px] pr-8 transition-all duration-200 focus:w-[250px] bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <button 
               type="submit" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-md hover:bg-muted transition-colors duration-200"
               aria-label="Search"
             >
-              <Search className="h-4 w-4 text-muted-foreground" />
+              <Search className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
             </button>
           </form>
           
-          <ModeToggle />
-          
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/auth/login">Login</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/auth/signup">Sign Up</Link>
-            </Button>
+            <ModeToggle />
+            
+            <div className="flex items-center gap-2 ml-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                asChild
+                className="hover:bg-muted/50 transition-colors duration-200"
+              >
+                <Link href="/auth/login">Login</Link>
+              </Button>
+              <Button 
+                size="sm" 
+                asChild
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <Link href="/auth/signup">Sign Up</Link>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -111,50 +123,65 @@ export function PublicNavbar() {
             size="icon" 
             onClick={toggleMobileMenu}
             aria-label="Toggle menu"
-            className="text-foreground"
+            className="text-foreground hover:bg-muted/50 transition-colors duration-200"
           >
-            {isMobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            <div className="relative">
+              <Menu className={`size-5 transition-all duration-200 ${isMobileMenuOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'}`} />
+              <X className={`size-5 absolute inset-0 transition-all duration-200 ${isMobileMenuOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'}`} />
+            </div>
           </Button>
         </div>
       </div>
 
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t animate-in slide-in-from-top-5 duration-300">
-          <div className="py-4 space-y-4 px-4 md:px-6">
-            <form onSubmit={handleSearchSubmit} className="relative mb-4">
+        <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl animate-in slide-in-from-top-5 duration-300">
+          <div className="py-6 space-y-6 px-4 md:px-6 max-w-7xl mx-auto">
+            <form onSubmit={handleSearchSubmit} className="relative">
               <Input
                 type="search"
                 placeholder="Search Keywords"
-                className="w-full pr-8"
+                className="w-full pr-8 bg-background/50 border-border/50 focus:border-primary/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button 
                 type="submit" 
-                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-md hover:bg-muted transition-colors duration-200"
                 aria-label="Search"
               >
                 <Search className="h-4 w-4 text-muted-foreground" />
               </button>
             </form>
             
-            <div className="space-y-2">
-              {publicNavItems.map((item) => (
-                <MobileNavItem 
-                  key={item.href} 
-                  item={item} 
-                  pathname={pathname} 
-                  onClick={() => setIsMobileMenuOpen(false)} 
-                />
+            <div className="space-y-1">
+              {publicNavItems.map((item, index) => (
+                <div 
+                  key={item.href}
+                  className="animate-in fade-in-0 slide-in-from-left-2"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <MobileNavItem 
+                    item={item} 
+                    pathname={pathname} 
+                    onClick={() => setIsMobileMenuOpen(false)} 
+                  />
+                </div>
               ))}
             </div>
             
-            <div className="pt-4 border-t mt-4 flex flex-col gap-2">
-              <Button variant="outline" className="w-full justify-center" asChild>
+            <div className="pt-4 border-t border-border/40 mt-6 flex flex-col gap-3">
+              <Button 
+                variant="outline" 
+                className="w-full justify-center hover:bg-muted/50 transition-colors duration-200" 
+                asChild
+              >
                 <Link href="/auth/login">Login</Link>
               </Button>
-              <Button className="w-full justify-center" asChild>
+              <Button 
+                className="w-full justify-center bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200" 
+                asChild
+              >
                 <Link href="/auth/signup">Sign Up</Link>
               </Button>
             </div>
@@ -172,16 +199,19 @@ function NavbarItem({ item, pathname }: { item: { title: string; href: string; d
     <Link
       href={item.href}
       className={cn(
-        "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors relative",
+        "flex items-center px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 relative group",
         isActive
-          ? "text-foreground"
-          : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+          ? "text-primary bg-primary/10 shadow-sm"
+          : "text-muted-foreground hover:text-foreground hover:bg-accent/50 hover:shadow-sm",
         item.disabled && "pointer-events-none opacity-50"
       )}
     >
-      <span>{item.title}</span>
+      <span className="relative z-10">{item.title}</span>
       {isActive && (
-        <span className="absolute inset-x-0 -bottom-px h-[2px] bg-primary" />
+        <div className="absolute inset-0 bg-primary/10 rounded-full animate-in fade-in-0 duration-200" />
+      )}
+      {!isActive && (
+        <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/50 rounded-full transition-all duration-200" />
       )}
     </Link>
   );
@@ -203,14 +233,20 @@ function MobileNavItem({
       href={item.href}
       onClick={onClick}
       className={cn(
-        "flex items-center py-2 text-sm font-medium transition-colors rounded-md px-2",
+        "flex items-center py-3 px-4 text-sm font-medium transition-all duration-200 rounded-lg group relative",
         isActive
-          ? "text-primary bg-primary/10"
+          ? "text-primary bg-primary/10 shadow-sm"
           : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
         item.disabled && "pointer-events-none opacity-50"
       )}
     >
-      <span>{item.title}</span>
+      <span className="relative z-10">{item.title}</span>
+      {isActive && (
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+      )}
+      {!isActive && (
+        <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/50 rounded-lg transition-all duration-200" />
+      )}
     </Link>
   );
 }
