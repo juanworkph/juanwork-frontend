@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { PublicNavbar } from "@/features/navbar/components/public-navbar";
 import "./globals.css";
+import { Footer } from '@/features/home/components/footer';
 
 export const metadata: Metadata = {
   title: "Juanwork",
@@ -26,6 +27,7 @@ export default function RootLayout({
           <AuthProvider>
             <PublicNavbar />
             {children}
+            <Footer />
           </AuthProvider>
         </ThemeProvider>
       </body>

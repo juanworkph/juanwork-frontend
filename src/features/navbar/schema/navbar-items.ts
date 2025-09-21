@@ -11,18 +11,18 @@ export const publicNavItems: NavItem[] = [
   },
   {
     title: "About Us",
-    href: "/about",
+    href: "/landing/about",
   },
   {
     title: "Our Blog",
-    href: "/blog",
+    href: "/landing/blog",
   },
   {
     title: "Contact Us",
-    href: "/contact",
+    href: "/landing/contact",
   },
   {
     title: "Help Center",
-    href: "/help",
+    href: "/landing/help",
   },
 ];
