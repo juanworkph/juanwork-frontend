@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { redirect } from "next/navigation";
 
-export default function ClientLayout({
+export default function WorkstationLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -12,10 +12,10 @@ export default function ClientLayout({
   // Client-side role check
   const { user, setUserRole } = useAuth();
 
-  // Set the role to client when accessing client routes
+  // Set the role to workstation when accessing workstation routes
   useEffect(() => {
-    if (user && user.role !== 'client') {
-      setUserRole('client');
+    if (user && user.role !== 'workstation') {
+      setUserRole('workstation');
     }
   }, [user, setUserRole]);
 
