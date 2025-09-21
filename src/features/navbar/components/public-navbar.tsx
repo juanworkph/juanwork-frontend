@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -14,11 +14,18 @@ import { Search, Menu, X } from 'lucide-react';
 
 export function PublicNavbar() {
   const pathname = usePathname();
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mounted, setMounted] = useState(false);
 
-  const logoSrc = theme === 'dark' ? '/images/logo white.png' : '/images/logo black.png';
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Use resolvedTheme for more accurate theme detection
+  const logoSrc = mounted && resolvedTheme === 'dark' ? '/images/logo white.png' : '/images/logo black.png';
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,17 +44,21 @@ export function PublicNavbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between">
+      <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
             <div className="relative h-8 w-32">
-              <Image 
-                src={logoSrc} 
-                alt="JuanWork Logo" 
-                fill 
-                style={{ objectFit: 'contain' }}
-                priority
-              />
+              {mounted ? (
+                <Image 
+                  src={logoSrc} 
+                  alt="JuanWork Logo" 
+                  fill 
+                  style={{ objectFit: 'contain' }}
+                  priority
+                />
+              ) : (
+                <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+              )}
             </div>
           </Link>
         </div>
@@ -110,7 +121,7 @@ export function PublicNavbar() {
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t animate-in slide-in-from-top-5 duration-300">
-          <div className="py-4 space-y-4">
+          <div className="py-4 space-y-4 px-4 md:px-6">
             <form onSubmit={handleSearchSubmit} className="relative mb-4">
               <Input
                 type="search"
