@@ -20,9 +20,9 @@ export default function FreelancerLayout({
   }, [user, setUserRole]);
 
   // This is a client-side check, but we should also implement server-side auth checks
-  if (!user) {
-    redirect('/auth/login');
-  }
+  // if (!user) {
+  //   redirect('/auth/login');
+  // }
 
   return <>{children}</>;
 }
