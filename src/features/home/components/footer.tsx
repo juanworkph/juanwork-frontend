@@ -1,7 +1,10 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/auth-context';
 import { 
   Mail, 
   Phone, 
@@ -22,6 +25,13 @@ import {
 } from 'lucide-react';
 
 export function Footer() {
+  const { currentRole } = useAuth();
+  
+  // Only render footer for guest users
+  if (currentRole !== 'guest') {
+    return null;
+  }
+
   const footerLinks = {
     platform: [
       { name: 'How it Works', href: '/how-it-works' },
