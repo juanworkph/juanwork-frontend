@@ -86,7 +86,7 @@ export const navigation: Record<UserRole, NavSection> = {
       { label: "Messages", href: "/freelancer/messages" },
     ],
     feature: [
-      { label: "Post a Service", href: "/freelancer/services/post-service" },
+      { label: "Post a Service", href: "/freelancer/services/post-service", variant: "secondary" },
       { label: "Workstation", href: "/freelancer/workstation" },
     ],
   },
@@ -110,15 +110,15 @@ export const navigationWhereRole = (
   userRole: UserRole
 ): NavSection => {
   switch (userRole) {
-      case "guest":
-          return navigation.guest;
-      case "freelancer":
-          return navigation.freelancer;
-      case "client":
-          return navigation.client;
-      case "admin":
-          return navigation.admin;
-      default:
-          return navigation.guest;
+    case "guest":
+      return navigation.guest;
+    case "freelancer":
+      return navigation.freelancer;
+    case "client":
+      return navigation.client;
+    case "admin":
+      return navigation.admin;
+    default:
+      return navigation.guest;
   }
 };
