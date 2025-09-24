@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
-import { PublicNavbar } from "@/features/navbar/components/public-navbar";
-import "./globals.css";
+import { Navbar } from "@/components/layout/navbar";
 import { Footer } from '@/features/home/components/footer';
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Juanwork",
@@ -25,7 +25,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <PublicNavbar />
+            <Navbar />
             {children}
             <Footer />
           </AuthProvider>

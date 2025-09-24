@@ -1,183 +1,124 @@
 import { UserRole } from "@/types/user";
 
 export interface NavItem {
-  title: string;
+  label: string;
   href: string;
   icon?: string;
   disabled?: boolean;
   external?: boolean;
+
+  isButton?: boolean;
+  variant?: "default" | "ghost" | "outline" | "secondary" | "destructive" | "link";
+  isDropdown?: boolean;
+  dropdownMenu?: DropdownMenuItem[];
 }
 
 export interface NavSection {
-  title?: string;
-  items: NavItem[];
+  common: NavItem[];
+  feature?: NavItem[];
 }
 
-// Define navigation items for each user role
-export const navigationConfig: Record<UserRole, NavSection[]> = {
-  client: [
-    {
-      items: [
-        {
-          title: "Dashboard",
-          href: "/client",
-          icon: "dashboard",
-        },
-        {
-          title: "Projects",
-          href: "/client/projects",
-          icon: "projects",
-        },
-        {
-          title: "Freelancers",
-          href: "/client/freelancers",
-          icon: "users",
-        },
-        {
-          title: "Messages",
-          href: "/client/messages",
-          icon: "messages",
-        },
-        {
-          title: "Settings",
-          href: "/client/settings",
-          icon: "settings",
-        },
-      ],
-    },
-  ],
-  freelancer: [
-    {
-      items: [
-        {
-          title: "Dashboard",
-          href: "/freelancer",
-          icon: "dashboard",
-        },
-        {
-          title: "Jobs",
-          href: "/freelancer/jobs",
-          icon: "briefcase",
-        },
-        {
-          title: "Proposals",
-          href: "/freelancer/proposals",
-          icon: "file",
-        },
-        {
-          title: "Clients",
-          href: "/freelancer/clients",
-          icon: "users",
-        },
-        {
-          title: "Messages",
-          href: "/freelancer/messages",
-          icon: "messages",
-        },
-        {
-          title: "Settings",
-          href: "/freelancer/settings",
-          icon: "settings",
-        },
-      ],
-    },
-  ],
-  public_client: [
-    {
-      items: [
-        {
-          title: "Home",
-          href: "/",
-          icon: "home",
-        },
-        {
-          title: "Post a Job",
-          href: "/post-job",
-          icon: "plus",
-        },
-        {
-          title: "Find Freelancers",
-          href: "/freelancers",
-          icon: "search",
-        },
-        {
-          title: "How it Works",
-          href: "/how-it-works",
-          icon: "info",
-        },
-        {
-          title: "Login",
-          href: "/auth/login",
-          icon: "login",
-        },
-        {
-          title: "Sign Up",
-          href: "/auth/register",
-          icon: "user-plus",
-        },
-      ],
-    },
-  ],
-  public_freelancer: [
-    {
-      items: [
-        {
-          title: "Home",
-          href: "/",
-          icon: "home",
-        },
-        {
-          title: "Find Jobs",
-          href: "/jobs",
-          icon: "search",
-        },
-        {
-          title: "How it Works",
-          href: "/how-it-works-freelancer",
-          icon: "info",
-        },
-        {
-          title: "Login",
-          href: "/auth/login",
-          icon: "login",
-        },
-        {
-          title: "Sign Up",
-          href: "/auth/register",
-          icon: "user-plus",
-        },
-      ],
-    },
-  ],
-  workstation: [
-    {
-      items: [
-        {
-          title: "Dashboard",
-          href: "/workstation",
-          icon: "dashboard",
-        },
-        {
-          title: "Projects",
-          href: "/workstation/projects",
-          icon: "projects",
-        },
-        {
-          title: "Users",
-          href: "/workstation/users",
-          icon: "users",
-        },
-        {
-          title: "Reports",
-          href: "/workstation/reports",
-          icon: "chart",
-        },
-        {
-          title: "Settings",
-          href: "/workstation/settings",
-          icon: "settings",
-        },
-      ],
-    },
-  ],
+export interface DropdownMenuItem {
+  label: string;
+  href: string;
+}
+
+/**
+ * Navigation configuration for each user role
+ */
+export const navigation: Record<UserRole, NavSection> = {
+  guest: {
+    common: [
+      { label: "Home", href: "/" },
+      { label: "About Us", href: "/landing/about" },
+      { label: "Our Blog", href: "/landing/blog" },
+      { label: "Contact Us", href: "/landing/contact" },
+      { label: "Help Center", href: "/landing/help" },
+    ],
+    feature: [
+      { label: "Login", href: "/auth/login", isButton: true, variant: "ghost" },
+      { label: "Sign Up", href: "/auth/signup", isButton: true },
+    ],
+  },
+
+  client: {
+    common: [
+      { label: "Dashboard", href: "/client" },
+      {
+        label: "Hire Talent",
+        href: "javascript:void(0)",
+        isDropdown: true,
+        dropdownMenu: [
+          { label: "Discover Services", href: "/client/hire-talent/discover-services" },
+          { label: "Discover Freelancers", href: "/client/hire-talent/discover-freelancers" },
+        ],
+      },
+      {
+        label: "Project Manage",
+        href: "javascript:void(0)",
+        isDropdown: true,
+        dropdownMenu: [
+          { label: "Post a Project", href: "/client/projects/post-project" },
+          { label: "My Projects", href: "/client/projects/my-projects" },
+        ],
+      },
+      { label: "Messages", href: "/client/messages" },
+    ],
+    feature: [
+      { label: "Post a Project", href: "/client/projects/post-project" },
+      { label: "Workstation", href: "/client/workstation" },
+    ],
+  },
+
+  freelancer: {
+    common: [
+      { label: "Dashboard", href: "/freelancer" },
+      { label: "Find Work", href: "/freelancer/findwork" },
+      {
+        label: "Service Manage",
+        href: "javascript:void(0)",
+        isDropdown: true,
+        dropdownMenu: [
+          { label: "Post a Service", href: "/freelancer/services/post-service" },
+          { label: "My Services", href: "/freelancer/services/my-services" },
+        ],
+      },
+      { label: "Messages", href: "/freelancer/messages" },
+    ],
+    feature: [
+      { label: "Post a Service", href: "/freelancer/services/post-service", variant: "secondary" },
+      { label: "Workstation", href: "/freelancer/workstation" },
+    ],
+  },
+
+  admin: {
+    common: [
+      { label: "Dashboard", href: "/admin" },
+      { label: "Users", href: "/admin/users" },
+      { label: "Projects", href: "/admin/projects" },
+      { label: "Services", href: "/admin/services" },
+      { label: "Messages", href: "/admin/messages" },
+    ],
+    // feature: [],
+  },
+};
+
+/**
+ * Gets navigation Config specific to a user role
+ */
+export const navigationWhereRole = (
+  userRole: UserRole
+): NavSection => {
+  switch (userRole) {
+    case "guest":
+      return navigation.guest;
+    case "freelancer":
+      return navigation.freelancer;
+    case "client":
+      return navigation.client;
+    case "admin":
+      return navigation.admin;
+    default:
+      return navigation.guest;
+  }
 };
