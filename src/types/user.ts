@@ -1,4 +1,4 @@
-export type UserRole = 'client' | 'freelancer' | 'public_freelancer' | 'public_client' | 'workstation';
+export type UserRole = 'guest' | 'client' | 'freelancer' | 'admin';
 
 export interface User {
   id: string;
