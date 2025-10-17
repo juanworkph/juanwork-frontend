@@ -74,20 +74,11 @@ export const navigation: Record<UserRole, NavSection> = {
     common: [
       { label: "Dashboard", href: "/freelancer" },
       { label: "Find Work", href: "/freelancer/findwork" },
-      {
-        label: "Service Manage",
-        href: "javascript:void(0)",
-        isDropdown: true,
-        dropdownMenu: [
-          { label: "Post a Service", href: "/freelancer/services/post-service" },
-          { label: "My Services", href: "/freelancer/services/my-services" },
-        ],
-      },
+      { label: "My Services", href: "/freelancer/services/my-services" },
       { label: "Messages", href: "/freelancer/messages" },
     ],
     feature: [
-      { label: "Post a Service", href: "/freelancer/services/post-service", variant: "secondary" },
-      { label: "Workstation", href: "/freelancer/workstation" },
+      { label: "Post a Service", href: "/freelancer/services/post-service"},
     ],
   },
 

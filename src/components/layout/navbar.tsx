@@ -9,10 +9,11 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ModeToggle } from '@/components/theme/mode-toggle';
-import { Search, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, Menu, X, ChevronDown, Bell, MessageCircle } from 'lucide-react';
 import { navigationWhereRole, NavItem } from '@/config/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { getFilteredMenuSections, getMobileMenuSections, getSignOutItem } from '@/config/user-menu';
+import { User } from '@/types/user';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   DropdownMenu,
@@ -58,24 +59,50 @@ export function Navbar() {
   // Get navigation items based on current role
   const navItems = navigationWhereRole(currentRole);
 
+  // Don't render anything until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
+        <div className="flex h-16 items-center justify-between px-4 md:px-6 max-w-7xl mx-auto">
+          <div className="flex items-center gap-2">
+            <div className="relative h-8 w-32 bg-gradient-to-r from-muted to-muted/50 animate-pulse rounded" />
+          </div>
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex items-center space-x-1 bg-muted/30 rounded-full px-2 py-1">
+              <div className="h-8 w-20 bg-muted/50 rounded-full animate-pulse" />
+              <div className="h-8 w-16 bg-muted/50 rounded-full animate-pulse" />
+              <div className="h-8 w-24 bg-muted/50 rounded-full animate-pulse" />
+            </div>
+          </div>
+          <div className="hidden md:flex items-center gap-3">
+            <div className="h-8 w-48 bg-muted/50 rounded animate-pulse" />
+            <div className="h-8 w-8 bg-muted/50 rounded animate-pulse" />
+            <div className="h-8 w-24 bg-muted/50 rounded animate-pulse" />
+            <div className="h-8 w-20 bg-muted/50 rounded animate-pulse" />
+          </div>
+          <div className="flex items-center gap-2 md:hidden">
+            <div className="h-8 w-8 bg-muted/50 rounded animate-pulse" />
+            <div className="h-8 w-8 bg-muted/50 rounded animate-pulse" />
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 md:px-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2 group">
             <div className="relative h-8 w-32 transition-transform duration-200 group-hover:scale-105">
-              {mounted ? (
-                <Image
-                  src={logoSrc}
-                  alt="JuanWork Logo"
-                  fill
-                  style={{ objectFit: 'contain' }}
-                  priority
-                  className="transition-opacity duration-200"
-                />
-              ) : (
-                <div className="h-8 w-32 bg-gradient-to-r from-muted to-muted/50 animate-pulse rounded" />
-              )}
+              <Image
+                src={logoSrc}
+                alt="JuanWork Logo"
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+                className="transition-opacity duration-200"
+              />
             </div>
           </Link>
         </div>
@@ -116,7 +143,57 @@ export function Navbar() {
             <ModeToggle />
 
             {isAuthenticated ? (
-              <UserAvatarDropdown user={user} onLogout={logout} />
+              <div className="flex items-center gap-2">
+                {/* Feature buttons for authenticated users */}
+                {navItems.feature?.map((item, index) => (
+                  <Button
+                    key={item.href === "javascript:void(0)" ? `${item.label}-feature-${index}` : item.href}
+                    variant={item.variant || "default"}
+                    size="sm"
+                    asChild
+                    className={cn(
+                      "transition-colors duration-200",
+                      item.variant === "ghost" && "hover:bg-muted/50"
+                    )}
+                  >
+                    <Link href={item.href}>{item.label}</Link>
+                  </Button>
+                ))}
+
+                {/* Notification Icon */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative h-9 w-9 hover:bg-muted/50 transition-colors duration-200"
+                  asChild
+                >
+                  <Link href="/notifications">
+                    <Bell className="h-4 w-4" />
+                    {/* Notification badge - you can add logic to show/hide based on unread count */}
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-[10px] text-destructive-foreground flex items-center justify-center">
+                      3
+                    </span>
+                  </Link>
+                </Button>
+
+                {/* Message Icon */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative h-9 w-9 hover:bg-muted/50 transition-colors duration-200"
+                  asChild
+                >
+                  <Link href="/messages">
+                    <MessageCircle className="h-4 w-4" />
+                    {/* Message badge - you can add logic to show/hide based on unread count */}
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-[10px] text-destructive-foreground flex items-center justify-center">
+                      2
+                    </span>
+                  </Link>
+                </Button>
+
+                <UserAvatarDropdown user={user} onLogout={logout} />
+              </div>
             ) : (
               <div className="flex items-center gap-2 ml-2">
                 {navItems.feature?.map((item, index) => (
@@ -142,7 +219,39 @@ export function Navbar() {
         <div className="flex items-center gap-2 md:hidden">
           <ModeToggle />
           {isAuthenticated && (
-            <UserAvatarDropdown user={user} onLogout={logout} />
+            <div className="flex items-center gap-1">
+              {/* Mobile Notification Icon */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-9 w-9 hover:bg-muted/50 transition-colors duration-200"
+                asChild
+              >
+                <Link href="/notifications">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-[10px] text-destructive-foreground flex items-center justify-center">
+                    3
+                  </span>
+                </Link>
+              </Button>
+
+              {/* Mobile Message Icon */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-9 w-9 hover:bg-muted/50 transition-colors duration-200"
+                asChild
+              >
+                <Link href="/messages">
+                  <MessageCircle className="h-4 w-4" />
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-[10px] text-destructive-foreground flex items-center justify-center">
+                    2
+                  </span>
+                </Link>
+              </Button>
+
+              <UserAvatarDropdown user={user} onLogout={logout} />
+            </div>
           )}
           <Button
             variant="ghost"
@@ -402,7 +511,7 @@ function MobileNavItem({
 }
 
 // User Avatar Dropdown Component
-function UserAvatarDropdown({ user, onLogout }: { user: any; onLogout: () => void }) {
+function UserAvatarDropdown({ user, onLogout }: { user: User | null; onLogout: () => void }) {
   const getInitials = (name: string) => {
     return name
       .split(' ')

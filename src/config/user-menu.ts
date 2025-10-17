@@ -43,12 +43,6 @@ export const userMenuConfig: MenuSection[] = [
         icon: User,
       },
       {
-        id: "notifications",
-        label: "Notifications",
-        href: "/notifications",
-        icon: Bell,
-      },
-      {
         id: "settings",
         label: "Settings",
         href: "/settings",
