@@ -36,7 +36,7 @@ export const navigation: Record<UserRole, NavSection> = {
       { label: "Help Center", href: "/landing/help" },
     ],
     feature: [
-      { label: "Login", href: "/auth/login", isButton: true, variant: "ghost" },
+      { label: "Login", href: "/auth", isButton: true, variant: "ghost" },
       { label: "Sign Up", href: "/auth/signup", isButton: true },
     ],
   },
