@@ -22,7 +22,7 @@ export function LoginForm() {
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const { login } = useAuth();
   const router = useRouter();
 
@@ -41,7 +41,7 @@ export function LoginForm() {
     try {
       // Validate form data
       const validatedData = loginSchema.parse(formData);
-      
+
       // Mock login - create a user object
       const mockUser = {
         id: "1",
@@ -55,7 +55,7 @@ export function LoginForm() {
 
       // Login user
       login(mockUser);
-      
+
       // Redirect to freelancer dashboard
       router.push("/freelancer");
     } catch (error) {
@@ -63,14 +63,14 @@ export function LoginForm() {
         // Handle validation errors
         const zodError = error as { errors?: Array<{ path: string[]; message: string }> };
         const fieldErrors: Partial<LoginFormData> = {};
-        
+
         zodError.errors?.forEach((err) => {
           if (err.path[0]) {
             const fieldName = err.path[0] as keyof LoginFormData;
             (fieldErrors as Record<string, string>)[fieldName] = err.message;
           }
         });
-        
+
         setErrors(fieldErrors);
       } else {
         console.error("Login error:", error);
@@ -86,6 +86,31 @@ export function LoginForm() {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back</h1>
         <p className="text-muted-foreground">Sign in to your account</p>
+      </div>
+
+      {/* Social Login Buttons */}
+      <div className="space-y-3 mb-6">
+        <SocialLoginButton
+          provider="Gmail"
+          icon={<GmailIcon />}
+          className="transition-all duration-200 hover:shadow-md"
+        />
+        <SocialLoginButton
+          provider="Facebook"
+          icon={<FacebookIcon />}
+          className="transition-all duration-200 hover:shadow-md"
+        />
+      </div>
+
+      <div className="relative mb-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with email
+          </span>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -149,32 +174,6 @@ export function LoginForm() {
         >
           {isLoading ? "Signing in..." : "Sign In"}
         </Button>
-      </form>
-
-      <div className="mt-6">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-6 space-y-3">
-          <SocialLoginButton
-            provider="Gmail"
-            icon={<GmailIcon />}
-            className="transition-all duration-200 hover:shadow-md"
-          />
-          <SocialLoginButton
-            provider="Facebook"
-            icon={<FacebookIcon />}
-            className="transition-all duration-200 hover:shadow-md"
-          />
-        </div>
 
         <div className="mt-4 text-center">
           <p className="text-xs text-muted-foreground leading-relaxed">
@@ -189,12 +188,12 @@ export function LoginForm() {
             apply.
           </p>
         </div>
-      </div>
+      </form>
 
       <div className="mt-8 text-center">
         <p className="text-sm text-muted-foreground">
           Need an account?{" "}
-          <button 
+          <button
             type="button"
             className="text-primary hover:underline font-medium"
             onClick={() => router.push("/auth/signup")}

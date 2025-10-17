@@ -28,6 +28,7 @@ export const signupSchema = z.object({
     .refine((val) => val !== undefined, {
       message: "Please select a role",
     }),
+  sendHelpfulEmails: z.boolean().optional(),
   agreeToTerms: z
     .boolean()
     .refine((val) => val === true, "You must agree to the terms and conditions"),
