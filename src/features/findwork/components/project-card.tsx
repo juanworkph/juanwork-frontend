@@ -14,6 +14,7 @@ import {
   FileText,
   TrendingUp,
   Zap,
+  Layers,
 } from "lucide-react";
 import {
   Project,
@@ -38,7 +39,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       : `${formatCurrency(project.budget.hourlyRate || 0)}/hr`;
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-0">
+    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 dark:border-gray-700 p-0">
       <CardContent className="p-6 h-full">
         {/* Header with badges */}
         <div className="flex items-start justify-between mb-3">
@@ -59,6 +60,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               </Badge>
             )}
             <Badge variant="secondary" className="text-xs">
+              <Layers className="h-3 w-3 mr-1" />
               {project.category}
             </Badge>
           </div>
@@ -202,7 +204,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           >
             View Details
           </Button>
-          <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+          <Button className="flex-1 bg-[#F45A0B] hover:bg-[#F45A0B]/80">
             Submit Proposal
           </Button>
         </div>

@@ -67,7 +67,7 @@ export function FindWorkHeader({
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 shadow-sm">
+    <header className="border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 shadow-sm">
       <div className="px-6 py-4">
         {/* Top Row - Logo and User Menu */}
         <div className="flex items-center justify-between mb-4">

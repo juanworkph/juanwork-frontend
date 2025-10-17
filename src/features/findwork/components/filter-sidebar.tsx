@@ -11,14 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import {
-  Filter,
-  X,
-  DollarSign,
-  Clock,
-  Award,
-  Briefcase,
-} from "lucide-react";
+import { Filter, X, DollarSign, Clock, Award, Briefcase } from "lucide-react";
 import {
   FindWorkFilters,
   ExperienceLevel,
@@ -56,7 +49,7 @@ export function FilterSidebar({
     filters.budgetRange.max < 10000;
 
   return (
-    <aside className="w-full lg:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
+    <aside className="w-full lg:w-80 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

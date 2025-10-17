@@ -156,7 +156,7 @@ export default function FindWorkPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen">
       <div className="flex h-screen overflow-hidden">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
@@ -191,7 +191,7 @@ export default function FindWorkPage() {
           />
 
           {/* Mobile Filter Toggle */}
-          <div className="lg:hidden p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div className="lg:hidden p-4 border-b border-gray-200 dark:border-gray-700">
             <Button
               variant="outline"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
