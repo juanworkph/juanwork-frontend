@@ -120,7 +120,7 @@ export const mockReviewsData: ReviewsState = {
         id: "client1",
         name: "Sarah Johnson",
         avatar:
-          "https://images.unsplash.com/photo-1494790108755-2616b612b4a4?w=150&h=150&fit=crop&crop=face",
+          "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&h=150&fit=crop&crop=face",
         country: "United States",
         countryCode: "US",
         verified: true,
