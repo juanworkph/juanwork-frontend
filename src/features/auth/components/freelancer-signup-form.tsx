@@ -257,9 +257,7 @@ export function FreelancerSignupForm() {
             />
             <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer">
               Yes, I understand and agree to the{" "}
-              <button type="button" className="text-primary hover:underline">
-                Juanwork Terms and Policy
-              </button>
+              <button type="button" className="text-primary hover:underline">Juanwork Terms and Policy</button>
             </Label>
           </div>
           {errors.agreeToTerms && (

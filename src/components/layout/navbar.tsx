@@ -9,14 +9,17 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ModeToggle } from '@/components/theme/mode-toggle';
-import { Search, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, Menu, X, ChevronDown, User, Settings, LogOut, HelpCircle } from 'lucide-react';
 import { navigationWhereRole, NavItem } from '@/config/navigation';
 import { useAuth } from '@/contexts/auth-context';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem as UIDropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
@@ -25,7 +28,7 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [mounted, setMounted] = useState(false);
-  const { currentRole } = useAuth();
+  const { currentRole, user, isAuthenticated, logout } = useAuth();
   
   // Prevent hydration mismatch by only rendering after mount
   useEffect(() => {
@@ -110,28 +113,35 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <ModeToggle />
 
-            <div className="flex items-center gap-2 ml-2">
-              {navItems.feature?.map((item, index) => (
-                <Button
-                  key={item.href === "javascript:void(0)" ? `${item.label}-feature-${index}` : item.href}
-                  variant={item.variant || "default"}
-                  size="sm"
-                  asChild
-                  className={cn(
-                    "transition-colors duration-200",
-                    item.variant === "ghost" && "hover:bg-muted/50"
-                  )}
-                >
-                  <Link href={item.href}>{item.label}</Link>
-                </Button>
-              ))}
-            </div>
+            {isAuthenticated ? (
+              <UserAvatarDropdown user={user} onLogout={logout} />
+            ) : (
+              <div className="flex items-center gap-2 ml-2">
+                {navItems.feature?.map((item, index) => (
+                  <Button
+                    key={item.href === "javascript:void(0)" ? `${item.label}-feature-${index}` : item.href}
+                    variant={item.variant || "default"}
+                    size="sm"
+                    asChild
+                    className={cn(
+                      "transition-colors duration-200",
+                      item.variant === "ghost" && "hover:bg-muted/50"
+                    )}
+                  >
+                    <Link href={item.href}>{item.label}</Link>
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-2 md:hidden">
           <ModeToggle />
+          {isAuthenticated && (
+            <UserAvatarDropdown user={user} onLogout={logout} />
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -184,18 +194,71 @@ export function Navbar() {
               ))}
             </div>
 
-            <div className="pt-4 border-t border-border/40 mt-6 flex flex-col gap-3">
-              {navItems.feature?.map((item, index) => (
-                <Button
-                  key={item.href === "javascript:void(0)" ? `${item.label}-mobile-feature-${index}` : item.href}
-                  variant={item.variant || (index === 0 ? "outline" : "default")}
-                  className="w-full justify-center transition-all duration-200"
-                  asChild
-                >
-                  <Link href={item.href}>{item.label}</Link>
-                </Button>
-              ))}
-            </div>
+            {isAuthenticated ? (
+              <div className="pt-4 border-t border-border/40 mt-6">
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg mb-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
+                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                      {user?.name?.charAt(0).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Link>
+                  <Link
+                    href="/settings"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </Link>
+                  <Link
+                    href="/help"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
+                  >
+                    <HelpCircle className="h-4 w-4" />
+                    Help & Support
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 py-2 px-3 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full text-left"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="pt-4 border-t border-border/40 mt-6 flex flex-col gap-3">
+                {navItems.feature?.map((item, index) => (
+                  <Button
+                    key={item.href === "javascript:void(0)" ? `${item.label}-mobile-feature-${index}` : item.href}
+                    variant={item.variant || (index === 0 ? "outline" : "default")}
+                    className="w-full justify-center transition-all duration-200"
+                    asChild
+                  >
+                    <Link href={item.href}>{item.label}</Link>
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -319,5 +382,70 @@ function MobileNavItem({
         <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/50 rounded-lg transition-all duration-200" />
       )}
     </Link>
+  );
+}
+
+// User Avatar Dropdown Component
+function UserAvatarDropdown({ user, onLogout }: { user: any; onLogout: () => void }) {
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className="relative h-10 w-10 rounded-full p-0 hover:bg-muted/50 transition-colors duration-200"
+        >
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              {user?.name ? getInitials(user.name) : 'U'}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user?.name}</p>
+            <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <UIDropdownMenuItem asChild>
+          <Link href="/profile" className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            Profile
+          </Link>
+        </UIDropdownMenuItem>
+        <UIDropdownMenuItem asChild>
+          <Link href="/settings" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Settings
+          </Link>
+        </UIDropdownMenuItem>
+        <UIDropdownMenuItem asChild>
+          <Link href="/help" className="flex items-center gap-2">
+            <HelpCircle className="h-4 w-4" />
+            Help & Support
+          </Link>
+        </UIDropdownMenuItem>
+        <DropdownMenuSeparator />
+        <UIDropdownMenuItem
+          onClick={onLogout}
+          className="text-destructive focus:text-destructive focus:bg-destructive/10"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </UIDropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

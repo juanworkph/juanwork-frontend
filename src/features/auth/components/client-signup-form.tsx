@@ -31,7 +31,7 @@ export function ClientSignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const { login } = useAuth();
   const router = useRouter();
 
@@ -50,7 +50,7 @@ export function ClientSignupForm() {
     try {
       // Validate form data
       const validatedData = signupSchema.parse(formData);
-      
+
       // Mock signup - create a user object
       const mockUser = {
         id: "1",
@@ -64,7 +64,7 @@ export function ClientSignupForm() {
 
       // Login user
       login(mockUser);
-      
+
       // Redirect to client dashboard
       router.push("/client");
     } catch (error) {
@@ -72,14 +72,14 @@ export function ClientSignupForm() {
         // Handle validation errors
         const zodError = error as { errors?: Array<{ path: string[]; message: string }> };
         const fieldErrors: Partial<SignupFormData> = {};
-        
+
         zodError.errors?.forEach((err) => {
           if (err.path[0]) {
             const fieldName = err.path[0] as keyof SignupFormData;
             (fieldErrors as Record<string, string>)[fieldName] = err.message;
           }
         });
-        
+
         setErrors(fieldErrors);
       } else {
         console.error("Signup error:", error);
@@ -255,12 +255,7 @@ export function ClientSignupForm() {
               checked={formData.agreeToTerms}
               onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
             />
-            <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer">
-              Yes, I understand and agree to the{" "}
-              <button type="button" className="text-primary hover:underline">
-                Juanwork Terms and Policy
-              </button>
-            </Label>
+            <Label>Yes I understand and agree to the <button type="button" className="text-primary hover:underline">Juanwork Terms and Policy</button></Label>
           </div>
           {errors.agreeToTerms && (
             <p className="text-sm text-destructive">{errors.agreeToTerms}</p>
@@ -293,7 +288,7 @@ export function ClientSignupForm() {
       <div className="mt-8 text-center">
         <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
-          <button 
+          <button
             type="button"
             className="text-primary hover:underline font-medium"
             onClick={() => router.push("/auth")}

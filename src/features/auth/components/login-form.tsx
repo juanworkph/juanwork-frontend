@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/auth-context";
 import { loginSchema, type LoginFormData } from "../schema/login-schema";
 import { SocialLoginButton } from "./social-login-button";
@@ -18,6 +19,7 @@ export function LoginForm() {
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
+    rememberMe: false,
   });
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +28,7 @@ export function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
 
-  const handleInputChange = (field: keyof LoginFormData, value: string) => {
+  const handleInputChange = (field: keyof LoginFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -158,7 +160,17 @@ export function LoginForm() {
           )}
         </div>
 
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="rememberMe"
+              checked={formData.rememberMe || false}
+              onCheckedChange={(checked) => handleInputChange("rememberMe", checked as boolean)}
+            />
+            <Label htmlFor="rememberMe" className="text-sm cursor-pointer">
+              Remember me
+            </Label>
+          </div>
           <button
             type="button"
             className="text-sm text-primary hover:underline"
