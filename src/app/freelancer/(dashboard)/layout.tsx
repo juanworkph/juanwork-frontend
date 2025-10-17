@@ -7,23 +7,23 @@ export default function FreelancerLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+    <div className="h-full overflow-hidden bg-gradient-to-br from-background to-muted/20">
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] min-h-screen">
-        {/* Sidebar - Hidden on mobile, fixed height on desktop */}
-        <aside className="hidden lg:flex lg:flex-col bg-background border-r border-border h-screen sticky top-0">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] h-full">
+        {/* Sidebar - Hidden on mobile, scrollable on desktop */}
+        <aside className="hidden lg:flex lg:flex-col bg-background border-r border-border h-full overflow-y-auto">
           <UserSidebar />
         </aside>
 
         {/* Main Content Area - Contains header and content */}
-        <div className="flex flex-col min-h-screen">
-          {/* Page Navigation */}
-          <header className="flex-shrink-0 bg-background/95 backdrop-blur-xl border-b border-border sticky top-0 z-10">
+        <div className="flex flex-col h-full overflow-hidden">
+          {/* Page Navigation - Fixed */}
+          <header className="flex-shrink-0 bg-background/95 backdrop-blur-xl border-b border-border z-10">
             <PageNavbar />
           </header>
 
-          {/* Main Content */}
-          <main className="flex-1">
+          {/* Main Content - Scrollable */}
+          <main className="flex-1 overflow-y-auto">
             <div className="p-4 lg:p-6">{children}</div>
           </main>
         </div>

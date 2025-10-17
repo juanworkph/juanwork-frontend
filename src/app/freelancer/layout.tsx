@@ -18,5 +18,5 @@ export default function FreelancerLayout({
     }
   }, [user, setUserRole]);
 
-  return <>{children}</>;
+  return <div className="h-[calc(100vh-65px)]">{children}</div>;
 }

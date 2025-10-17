@@ -156,73 +156,71 @@ export default function FindWorkPage() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="flex h-screen overflow-hidden">
-        {/* Mobile Sidebar Overlay */}
-        {isSidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-
-        {/* Sidebar */}
+    <div className="flex h-full overflow-hidden">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
         <div
-          className={`fixed lg:sticky top-0 left-0 h-screen z-40 lg:z-0 transform transition-transform duration-300 lg:transform-none ${
-            isSidebarOpen
-              ? "translate-x-0"
-              : "-translate-x-full lg:translate-x-0"
-          }`}
-        >
-          <FilterSidebar
-            filters={findWorkData.filters}
-            onFilterChange={handleFilterChange}
-            onClearFilters={handleClearFilters}
-            totalProjects={filteredProjects.length}
-          />
-        </div>
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
+      {/* Sidebar - Scrollable */}
+      <div
+        className={`fixed lg:static left-0 h-full z-40 lg:z-0 transform transition-transform duration-300 lg:transform-none ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        <FilterSidebar
+          filters={findWorkData.filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
+          totalProjects={filteredProjects.length}
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header - Fixed */}
+        <div className="flex-shrink-0">
           <FindWorkHeader
             filters={findWorkData.filters}
             onFilterChange={handleFilterChange}
           />
-
-          {/* Mobile Filter Toggle */}
-          <div className="lg:hidden p-4 border-b border-gray-200 dark:border-gray-700">
-            <Button
-              variant="outline"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-full gap-2"
-            >
-              {isSidebarOpen ? (
-                <>
-                  <X className="h-4 w-4" />
-                  Close Filters
-                </>
-              ) : (
-                <>
-                  <Menu className="h-4 w-4" />
-                  Show Filters ({filteredProjects.length} projects)
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Projects List */}
-          <main className="flex-1 overflow-y-auto">
-            <div className="p-6">
-              <ProjectList
-                projects={filteredProjects}
-                isLoading={isLoading}
-                hasMore={false}
-                loadingMore={false}
-              />
-            </div>
-          </main>
         </div>
+
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <Button
+            variant="outline"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="w-full gap-2"
+          >
+            {isSidebarOpen ? (
+              <>
+                <X className="h-4 w-4" />
+                Close Filters
+              </>
+            ) : (
+              <>
+                <Menu className="h-4 w-4" />
+                Show Filters ({filteredProjects.length} projects)
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Projects List - Scrollable */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-6">
+            <ProjectList
+              projects={filteredProjects}
+              isLoading={isLoading}
+              hasMore={false}
+              loadingMore={false}
+            />
+          </div>
+        </main>
       </div>
     </div>
   );
