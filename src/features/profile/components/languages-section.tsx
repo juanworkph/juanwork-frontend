@@ -37,15 +37,15 @@ export function LanguagesSection({ languages, isOwnProfile = false }: LanguagesS
     }
   };
 
-  const getProgressColor = (level: string) => {
-    switch (level) {
-      case 'Native': return 'bg-green-500';
-      case 'Fluent': return 'bg-blue-500';
-      case 'Conversational': return 'bg-yellow-500';
-      case 'Basic': return 'bg-orange-500';
-      default: return 'bg-gray-500';
-    }
-  };
+  // const getProgressColor = (level: string) => {
+  //   switch (level) {
+  //     case 'Native': return 'bg-green-500';
+  //     case 'Fluent': return 'bg-blue-500';
+  //     case 'Conversational': return 'bg-yellow-500';
+  //     case 'Basic': return 'bg-orange-500';
+  //     default: return 'bg-gray-500';
+  //   }
+  // };
 
   return (
     <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">

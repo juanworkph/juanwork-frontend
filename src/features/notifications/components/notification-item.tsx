@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -11,9 +10,7 @@ import {
   FileText,
   Briefcase,
   CheckCircle,
-  AlertCircle,
   FileSignature,
-  Clock,
   Check,
   MoreVertical
 } from 'lucide-react';

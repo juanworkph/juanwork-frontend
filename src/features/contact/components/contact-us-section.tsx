@@ -6,13 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { 
   ArrowRight, 
-  Mail, 
-  Phone, 
-  MapPin,
-  Clock,
   MessageCircle,
-  Send,
-  Heart
+  Send
 } from 'lucide-react';
 
 export function ContactUsSection() {

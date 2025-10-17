@@ -11,7 +11,6 @@ import {
   DollarSign,
   Users,
   Star,
-  Clock,
   Award,
   Eye
 } from 'lucide-react';

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { BookmarkCard } from './bookmark-card';
 import { CategoryFilter } from './category-filter';
 import { BookmarksHeader } from './bookmarks-header';
-import { BookmarksState, Bookmark } from '../schema/bookmarks-data';
+import { BookmarksState } from '../schema/bookmarks-data';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 

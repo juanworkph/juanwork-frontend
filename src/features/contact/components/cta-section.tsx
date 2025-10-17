@@ -3,16 +3,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { 
   ArrowRight, 
-  Sparkles, 
-  Users, 
-  Briefcase,
-  CheckCircle,
-  Star,
-  Zap,
-  Target,
-  Heart,
-  Globe,
-  Award,
+  Sparkles,
   MessageCircle,
   Phone,
   Mail

@@ -1,21 +1,16 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
-  User, 
   MapPin, 
   Star, 
   Calendar, 
   CheckCircle, 
-  Award, 
   Briefcase,
-  Globe,
   Github,
   Linkedin,
   Twitter,

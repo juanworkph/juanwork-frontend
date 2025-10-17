@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { BidsHeader, BidsList } from '@/features/bids/components';
 import { mockBidsData } from '@/features/bids/schema';
-import { BidsState, Bid } from '@/features/bids/schema';
+import { BidsState } from '@/features/bids/schema';
 
 export default function FreelancerBidsPage() {
   // State for bids data

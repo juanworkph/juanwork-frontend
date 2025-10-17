@@ -10,7 +10,6 @@ import {
   Users,
   Award,
   Heart,
-  Star,
   Globe,
   Briefcase,
   Zap

@@ -1,11 +1,10 @@
 import React from 'react';
 import { ProposalCard } from './proposal-card';
 import { Proposal } from '../schema/proposals-data';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Send, Loader2, FileX } from 'lucide-react';
+import { Send, Loader2, FileX } from 'lucide-react';
 
 interface ProposalsListProps {
   proposals: Proposal[];

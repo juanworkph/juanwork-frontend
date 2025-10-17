@@ -13,11 +13,8 @@ import {
   ArrowRight,
   CheckCircle,
   Star,
-  Target,
-  Award,
-  Clock,
-  TrendingUp,
-  Heart
+  Heart,
+  Award
 } from 'lucide-react';
 
 export function BestServicesSection() {

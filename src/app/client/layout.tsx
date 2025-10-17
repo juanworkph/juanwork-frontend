@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { redirect } from "next/navigation";
 
 export default function ClientLayout({
   children,

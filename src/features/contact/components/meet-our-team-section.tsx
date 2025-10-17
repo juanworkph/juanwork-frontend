@@ -10,11 +10,9 @@ import {
   Users,
   Award,
   Heart,
-  Star,
   Globe,
   Briefcase,
   Zap,
-  MessageCircle,
   Headphones
 } from 'lucide-react';
 

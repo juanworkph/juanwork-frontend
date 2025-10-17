@@ -8,14 +8,12 @@ import { Progress } from '@/components/ui/progress';
 import { 
   Clock, 
   DollarSign, 
-  Calendar,
   MapPin,
   CheckCircle,
   Star,
   ExternalLink,
   MessageCircle,
   Pin,
-  AlertTriangle,
   Flag
 } from 'lucide-react';
 import { 
@@ -34,7 +32,7 @@ interface ProjectCardProps {
   onComplete?: (id: string) => void;
 }
 
-export function ProjectCard({ project, onPin, onPause, onResume, onComplete }: ProjectCardProps) {
+export function ProjectCard({ project, onPause, onResume, onComplete }: ProjectCardProps) {
   const formattedBudget = formatCurrency(project.budget.amount, project.budget.currency);
   const timeLeft = getTimeLeft(project.deadline.endDate);
 

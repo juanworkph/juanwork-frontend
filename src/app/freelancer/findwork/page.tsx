@@ -11,14 +11,13 @@ import {
 import {
   mockFindWorkData,
   FindWorkState,
-  Project,
   FindWorkFilters,
 } from "@/features/findwork/schema";
 
 export default function FindWorkPage() {
   const [findWorkData, setFindWorkData] =
     useState<FindWorkState>(mockFindWorkData);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Filter and sort projects
@@ -156,11 +155,6 @@ export default function FindWorkPage() {
     });
   };
 
-  const handleRefresh = async () => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-  };
 
   return (
     <div className="flex h-screen overflow-hidden">

@@ -6,22 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/auth-context';
 import { 
-  Mail, 
-  Phone, 
-  MapPin, 
   Facebook, 
   Twitter, 
   Linkedin, 
   Instagram,
   Github,
   ArrowRight,
-  Heart,
-  Shield,
-  Award,
-  Users,
-  Briefcase,
-  Globe,
-  Clock
+  Heart
 } from 'lucide-react';
 
 export function Footer() {

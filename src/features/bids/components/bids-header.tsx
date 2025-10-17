@@ -50,10 +50,6 @@ export function BidsHeader({
     });
   };
 
-  // Handle sort by change
-  const handleSortByChange = (sortBy: BidsState['filters']['sortBy']) => {
-    onFilterChange({ sortBy });
-  };
 
   return (
     <div className="space-y-8">

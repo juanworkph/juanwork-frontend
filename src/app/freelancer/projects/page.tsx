@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { ProjectsHeader, ProjectsList } from '@/features/projects/components';
 import { mockProjectsData } from '@/features/projects/schema';
-import { ProjectsState, Project } from '@/features/projects/schema';
+import { ProjectsState } from '@/features/projects/schema';
 
 export default function FreelancerProjectsPage() {
   // State for projects data

@@ -7,12 +7,9 @@ import {
   Users, 
   Award, 
   Globe, 
-  Clock,
   CheckCircle,
   Star,
   Target,
-  Heart,
-  TrendingUp,
   MessageCircle
 } from 'lucide-react';
 

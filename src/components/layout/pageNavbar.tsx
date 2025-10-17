@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -19,16 +18,12 @@ import {
   Star,
   CreditCard,
   Settings,
-  Search,
   Plus,
-  MessageCircle,
   Calendar,
-  TrendingUp,
 } from "lucide-react";
 
 export function PageNavbar() {
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const navigationItems = [
     {

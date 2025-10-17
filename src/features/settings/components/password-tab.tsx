@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Lock, Shield, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 

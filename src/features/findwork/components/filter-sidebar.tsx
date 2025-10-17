@@ -17,17 +17,13 @@ import {
   DollarSign,
   Clock,
   Award,
-  MapPin,
   Briefcase,
 } from "lucide-react";
 import {
   FindWorkFilters,
-  ProjectType,
   ExperienceLevel,
   ProjectDuration,
   availableSkills,
-  getExperienceLevelLabel,
-  getDurationLabel,
   formatCurrency,
 } from "../schema";
 

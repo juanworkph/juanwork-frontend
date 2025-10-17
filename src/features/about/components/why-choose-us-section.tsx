@@ -4,14 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, 
   Zap, 
-  Users, 
   Award, 
   Globe, 
   Clock,
   CheckCircle,
   Star,
   Target,
-  Heart,
   TrendingUp
 } from 'lucide-react';
 

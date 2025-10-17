@@ -7,10 +7,6 @@ import {
   Users, 
   Star, 
   Trophy, 
-  TrendingUp,
-  Filter,
-  Grid,
-  List,
   Plus,
   Download
 } from 'lucide-react';

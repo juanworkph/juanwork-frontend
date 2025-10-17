@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { redirect } from "next/navigation";
 
 import { UserSidebar } from "@/components/layout/userSidebar";
 import { PageNavbar } from "@/components/layout/pageNavbar";

@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import {
-  NotificationsHeader,
   NotificationsList,
   NotificationSettings
 } from '@/features/notifications/components';
@@ -96,7 +95,12 @@ export default function FreelancerNotificationsPage() {
   };
 
   // Handle updating notification settings
-  const handleUpdateSettings = (newSettings: any) => {
+  const handleUpdateSettings = (newSettings: {
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+    soundEnabled: boolean;
+    showUnreadOnly: boolean;
+  }) => {
     setNotificationsState(prev => ({
       ...prev,
       settings: newSettings

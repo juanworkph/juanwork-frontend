@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, Sparkles, Users, Briefcase } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 export function HeroSection() {
   return (

@@ -8,7 +8,6 @@ import {
   Mail, 
   Bell, 
   Volume2, 
-  Clock, 
   Save,
   Smartphone
 } from 'lucide-react';
@@ -20,7 +19,12 @@ interface NotificationSettingsProps {
     soundEnabled: boolean;
     showUnreadOnly: boolean;
   };
-  onUpdateSettings: (settings: any) => void;
+  onUpdateSettings: (settings: {
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+    soundEnabled: boolean;
+    showUnreadOnly: boolean;
+  }) => void;
 }
 
 export function NotificationSettings({ settings, onUpdateSettings }: NotificationSettingsProps) {

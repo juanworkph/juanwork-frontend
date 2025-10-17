@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ModeToggle } from '@/components/theme/mode-toggle';
 import { Search, Menu, X, ChevronDown } from 'lucide-react';
-import { navigationWhereRole, NavItem, DropdownMenuItem } from '@/config/navigation';
+import { navigationWhereRole, NavItem } from '@/config/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { 
   DropdownMenu,
@@ -21,7 +21,7 @@ import {
 
 export function Navbar() {
   const pathname = usePathname();
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [mounted, setMounted] = useState(false);

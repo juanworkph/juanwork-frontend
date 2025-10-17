@@ -32,7 +32,6 @@ export function ProfileHeader({
   stats, 
   isVerified, 
   profileCompleteness,
-  joinDate,
   isOwnProfile = false 
 }: ProfileHeaderProps) {
   const getAvailabilityColor = (availability: string) => {

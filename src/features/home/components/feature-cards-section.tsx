@@ -7,11 +7,7 @@ import {
   Briefcase, 
   Users, 
   ArrowRight, 
-  Clock, 
   Target,
-  Zap,
-  TrendingUp,
-  Shield,
   CheckCircle,
   Star
 } from 'lucide-react';

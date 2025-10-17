@@ -3,13 +3,13 @@
 import React, { useState, useMemo } from 'react';
 import { ProposalsHeader, ProposalsList } from '@/features/proposals/components';
 import { mockProposalsData } from '@/features/proposals/schema';
-import { ProposalsState, Proposal } from '@/features/proposals/schema';
+import { ProposalsState } from '@/features/proposals/schema';
 
 export default function FreelancerProposalsPage() {
   // State for proposals data
   const [proposalsData, setProposalsData] = useState<ProposalsState>(mockProposalsData);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingMore] = useState(false);
 
   // Filter proposals based on current filters
   const filteredProposals = useMemo(() => {

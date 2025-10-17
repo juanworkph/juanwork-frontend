@@ -24,7 +24,6 @@ import {
   CreditCard,
   Bitcoin,
   CheckCircle,
-  AlertCircle,
   Info,
 } from "lucide-react";
 import { WithdrawalAccount, formatCurrency } from "../schema";
@@ -53,7 +52,7 @@ export function WithdrawalModal({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
+  // const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
   const withdrawalAmount = parseFloat(amount) || 0;
   const fee = withdrawalAmount * 0.03; // 3% fee
   const netAmount = withdrawalAmount - fee;

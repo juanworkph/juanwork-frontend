@@ -8,8 +8,6 @@ import {
   Zap,
   Lock,
   Share2,
-  Bell,
-  Shield,
   UserX,
   Settings as SettingsIcon,
 } from "lucide-react";
@@ -94,10 +92,7 @@ export default function FreelancerSettingsPage() {
   };
 
   // Password handler
-  const handleChangePassword = (
-    currentPassword: string,
-    newPassword: string
-  ) => {
+  const handleChangePassword = () => {
     console.log("Password changed");
   };
 
