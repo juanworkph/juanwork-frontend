@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ModeToggle } from '@/components/theme/mode-toggle';
-import { Search, Menu, X, ChevronDown, User, Settings, LogOut, HelpCircle } from 'lucide-react';
+import { Search, Menu, X, ChevronDown } from 'lucide-react';
 import { navigationWhereRole, NavItem } from '@/config/navigation';
 import { useAuth } from '@/contexts/auth-context';
+import { getFilteredMenuSections, getMobileMenuSections, getSignOutItem } from '@/config/user-menu';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   DropdownMenu,
@@ -29,6 +30,7 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [mounted, setMounted] = useState(false);
   const { currentRole, user, isAuthenticated, logout } = useAuth();
+  const signOutItem = getSignOutItem();
   
   // Prevent hydration mismatch by only rendering after mount
   useEffect(() => {
@@ -196,53 +198,67 @@ export function Navbar() {
 
             {isAuthenticated ? (
               <div className="pt-4 border-t border-border/40 mt-6">
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg mb-4">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {user?.name?.charAt(0).toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                <div className="p-3 bg-muted/30 rounded-lg mb-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        {user?.name?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                    </div>
                   </div>
+                  {user?.role === 'freelancer' && user?.balance !== undefined && (
+                    <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                      <span className="text-xs text-muted-foreground">Balance</span>
+                      <span className="text-sm font-semibold text-green-600">
+                        ${user.balance.toFixed(2)} USD
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-1">
-                  <Link
-                    href="/profile"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
-                  >
-                    <User className="h-4 w-4" />
-                    Profile
-                  </Link>
-                  <Link
-                    href="/settings"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </Link>
-                  <Link
-                    href="/help"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
-                  >
-                    <HelpCircle className="h-4 w-4" />
-                    Help & Support
-                  </Link>
-                  <button
-                    onClick={() => {
-                      logout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex items-center gap-3 py-2 px-3 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full text-left"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out
-                  </button>
+                <div className="space-y-4">
+                  {/* Dynamic Mobile Menu Sections */}
+                  {getMobileMenuSections(user?.role || 'guest').map((section) => (
+                    <div key={section.id} className="space-y-1">
+                      {section.label && (
+                        <h4 className="text-xs font-medium text-muted-foreground px-3 py-1">
+                          {section.label}
+                        </h4>
+                      )}
+                      {section.items.map((item) => {
+                        const IconComponent = item.icon;
+                        return (
+                          <Link
+                            key={item.id}
+                            href={item.href}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="flex items-center gap-3 py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
+                          >
+                            <IconComponent className="h-4 w-4" />
+                            {item.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ))}
+
+                  {/* Sign Out */}
+                  <div className="pt-2 border-t border-border/40">
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 py-2 px-3 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full text-left"
+                    >
+                      {signOutItem && <signOutItem.icon className="h-4 w-4" />}
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -396,6 +412,9 @@ function UserAvatarDropdown({ user, onLogout }: { user: any; onLogout: () => voi
       .slice(0, 2);
   };
 
+  const menuSections = getFilteredMenuSections(user?.role || 'guest');
+  const signOutItem = getSignOutItem();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -411,40 +430,69 @@ function UserAvatarDropdown({ user, onLogout }: { user: any; onLogout: () => voi
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent className="w-72" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
+                <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                  {user?.name ? getInitials(user.name) : 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium leading-none truncate">{user?.name}</p>
+                <p className="text-xs leading-none text-muted-foreground truncate">{user?.email}</p>
+              </div>
+            </div>
+            {user?.role === 'freelancer' && user?.balance !== undefined && (
+              <div className="pt-2 border-t border-border/40">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Current Balance</span>
+                  <span className="text-sm font-semibold text-green-600">
+                    ${user.balance.toFixed(2)} USD
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <UIDropdownMenuItem asChild>
-          <Link href="/profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Profile
-          </Link>
-        </UIDropdownMenuItem>
-        <UIDropdownMenuItem asChild>
-          <Link href="/settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Settings
-          </Link>
-        </UIDropdownMenuItem>
-        <UIDropdownMenuItem asChild>
-          <Link href="/help" className="flex items-center gap-2">
-            <HelpCircle className="h-4 w-4" />
-            Help & Support
-          </Link>
-        </UIDropdownMenuItem>
-        <DropdownMenuSeparator />
-        <UIDropdownMenuItem
-          onClick={onLogout}
-          className="text-destructive focus:text-destructive focus:bg-destructive/10"
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </UIDropdownMenuItem>
+        
+        {/* Dynamic Menu Sections */}
+        {menuSections.map((section) => (
+          <div key={section.id}>
+            {section.label && (
+              <DropdownMenuLabel className="text-xs font-medium text-muted-foreground px-2 py-1.5">
+                {section.label}
+              </DropdownMenuLabel>
+            )}
+            {section.items.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <UIDropdownMenuItem
+                  key={item.id}
+                  asChild={item.href !== '#'}
+                  onClick={item.href === '#' ? onLogout : undefined}
+                  className={item.className}
+                >
+                  {item.href === '#' ? (
+                    <span className="flex items-center gap-2">
+                      <IconComponent className="h-4 w-4" />
+                      {item.label}
+                    </span>
+                  ) : (
+                    <Link href={item.href} className="flex items-center gap-2">
+                      <IconComponent className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  )}
+                </UIDropdownMenuItem>
+              );
+            })}
+            {section.separator && <DropdownMenuSeparator />}
+          </div>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -58,6 +58,7 @@ export function ClientSignupForm() {
         name: `${validatedData.firstName} ${validatedData.lastName}`,
         role: validatedData.role,
         avatar: null,
+        balance: undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

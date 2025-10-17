@@ -51,6 +51,7 @@ export function LoginForm() {
         name: "John Doe",
         role: "freelancer" as const,
         avatar: null,
+        balance: 1250.75,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

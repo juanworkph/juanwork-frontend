@@ -58,6 +58,7 @@ export function FreelancerSignupForm() {
         name: `${validatedData.firstName} ${validatedData.lastName}`,
         role: validatedData.role,
         avatar: null,
+        balance: 0.00,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
