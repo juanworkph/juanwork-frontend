@@ -156,7 +156,7 @@ export default function FindWorkPage() {
   };
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="flex h-full">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
