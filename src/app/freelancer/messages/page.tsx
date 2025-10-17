@@ -83,10 +83,7 @@ export default function MessagesPage() {
   });
 
   return (
-    <div
-      className="flex overflow-hidden"
-      style={{ height: "calc(100vh - 65px)" }}
-    >
+    <div className="flex overflow-hidden h-[calc(100vh-65px)]">
       {/* Left Sidebar - Conversations */}
       <div className="w-80 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
         {/* Header */}
