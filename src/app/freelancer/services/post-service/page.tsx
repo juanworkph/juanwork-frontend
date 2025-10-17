@@ -117,7 +117,7 @@ export default function PostAServicePage() {
   // Success Screen
   if (isSubmitted) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto py-10">
         <Card className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10">
           <CardContent className="p-12 text-center">
             <div className="flex justify-center mb-6">
