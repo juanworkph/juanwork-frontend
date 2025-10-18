@@ -13,7 +13,7 @@ export interface ServiceUpgrade {
 
 export interface ServiceFormData {
   // Step 1: Basic Details
-  projectName: string;
+  serviceName: string;
   description: string;
   projectType: ProjectType;
   budget: {
@@ -99,13 +99,13 @@ export const allSkills = [
   "Rust",
 ];
 
-// Service upgrades based on the image
+// Service upgrades based on Freelancer.com model
 export const serviceUpgrades: ServiceUpgrade[] = [
   {
     id: "recruiter",
     name: "RECRUITER",
     description:
-      "One of our experts will find and recommend the perfect freelancer for your job. Take out the guesswork and save time with a Recruiter. This is the best experience for new users.",
+      "Get featured by our expert recruiters who will recommend your service to potential clients. This is the best way to get discovered quickly.",
     price: 0,
     badge: "RECRUITER",
     badgeColor: "bg-purple-600",
@@ -115,7 +115,7 @@ export const serviceUpgrades: ServiceUpgrade[] = [
     id: "nda",
     name: "NDA",
     description:
-      "Freelancers must sign a Non-disclosure Agreement to work on your project. Freelancers agree to keep details discussed through private messages and files confidential.",
+      "You agree to sign a Non-disclosure Agreement with clients. This shows clients that you take confidentiality seriously and are professional.",
     price: 24.63,
     badge: "NDA",
     badgeColor: "bg-blue-600",
@@ -125,7 +125,7 @@ export const serviceUpgrades: ServiceUpgrade[] = [
     id: "ip-agreement",
     name: "IP AGREEMENT",
     description:
-      "Do you need ownership? This upgrade will require your Freelancer to sign an Intellectual Property (IP) Agreement. This will prove that all the work done belongs to you.",
+      "You agree to transfer Intellectual Property (IP) rights to clients. This proves that all work you deliver will belong to the client.",
     price: 24.63,
     badge: "IP AGREEMENT",
     badgeColor: "bg-red-600",
@@ -135,7 +135,7 @@ export const serviceUpgrades: ServiceUpgrade[] = [
     id: "featured",
     name: "FEATURED",
     description:
-      "Attract more freelancers with a prominent placement in our 'Featured Jobs and Contests' page.",
+      "Get prominent placement in our 'Featured Services' section to attract more clients and stand out from the competition.",
     price: 11.19,
     badge: "FEATURED",
     badgeColor: "bg-orange-500",
@@ -145,7 +145,7 @@ export const serviceUpgrades: ServiceUpgrade[] = [
     id: "urgent",
     name: "URGENT",
     description:
-      "Make your project stand out and let freelancers know that your job is time sensitive.",
+      "Show clients that you're ready to start immediately and can deliver quickly. Perfect for time-sensitive opportunities.",
     price: 11.19,
     badge: "URGENT",
     badgeColor: "bg-red-500",
@@ -155,7 +155,7 @@ export const serviceUpgrades: ServiceUpgrade[] = [
     id: "private",
     name: "PRIVATE",
     description:
-      "Hide project details from search engines and users that are not logged in, for projects that you need to keep confidential.",
+      "Hide your service details from search engines and non-logged-in users, keeping your offerings exclusive to registered clients.",
     price: 24.63,
     badge: "PRIVATE",
     badgeColor: "bg-yellow-500",
@@ -165,7 +165,7 @@ export const serviceUpgrades: ServiceUpgrade[] = [
     id: "sealed",
     name: "SEALED",
     description:
-      "Do you want higher-quality proposals? This upgrade will hide a Freelancer's bid from other Freelancers. This will result in accurate and unique proposals for your project.",
+      "Keep your service details and pricing private until clients contact you directly. This helps you stand out with personalized proposals.",
     price: 11.19,
     badge: "SEALED",
     badgeColor: "bg-blue-500",
@@ -191,7 +191,7 @@ export const getSkillRecommendations = (
 
 // Initial form data
 export const initialFormData: ServiceFormData = {
-  projectName: "",
+  serviceName: "",
   description: "",
   projectType: "fixed",
   budget: {

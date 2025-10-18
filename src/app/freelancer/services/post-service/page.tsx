@@ -11,12 +11,12 @@ import {
   Step3Upgrades,
   Step4Preview,
   ProgressIndicator,
-} from "@/features/post-service/components";
+} from "@/features/services/components";
 import {
   ServiceFormData,
   initialFormData,
   calculateTotalUpgradeCost,
-} from "@/features/post-service/schema";
+} from "@/features/services/schema";
 
 const STEPS = ["Basic Details", "Categories & Skills", "Upgrades", "Review"];
 
@@ -33,8 +33,8 @@ export default function PostAServicePage() {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        if (!formData.projectName.trim()) {
-          toast.error("Please enter a project name");
+        if (!formData.serviceName.trim()) {
+          toast.error("Please enter a service name");
           return false;
         }
         if (!formData.description.trim()) {
@@ -129,7 +129,7 @@ export default function PostAServicePage() {
               Service Submitted Successfully!
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-              Your service "{formData.projectName}" has been submitted for
+              Your service "{formData.serviceName}" has been submitted for
               review. Our team will review it and notify you once it's approved
               and live. This usually takes 24-48 hours.
             </p>
@@ -167,8 +167,7 @@ export default function PostAServicePage() {
           Post a New Service
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Fill in the details to create your service and attract qualified
-          freelancers
+          Fill in the details to create your service and attract clients
         </p>
       </div>
 

@@ -65,20 +65,20 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
           Basic Service Details
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Tell us about your service to get started
+          Tell clients about your service and what you can offer
         </p>
       </div>
 
-      {/* Project Name */}
+      {/* Service Name */}
       <div className="space-y-2">
-        <Label htmlFor="projectName">
-          Project Name <span className="text-red-500">*</span>
+        <Label htmlFor="serviceName">
+          Service Name <span className="text-red-500">*</span>
         </Label>
         <Input
-          id="projectName"
-          value={formData.projectName}
-          onChange={(e) => onUpdate({ projectName: e.target.value })}
-          placeholder="e.g. Build a Modern E-commerce Website"
+          id="serviceName"
+          value={formData.serviceName}
+          onChange={(e) => onUpdate({ serviceName: e.target.value })}
+          placeholder="e.g. I will build a modern e-commerce website with React"
           className="focus-visible:ring-[#F45A0B]"
         />
       </div>
@@ -92,7 +92,7 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
           id="description"
           value={formData.description}
           onChange={(e) => onUpdate({ description: e.target.value })}
-          placeholder="Describe your project in detail. Include your requirements, expectations, and any specific features you need..."
+          placeholder="Describe your service in detail. What will you deliver? What makes your service unique? What experience do you bring?..."
           rows={6}
           className="focus-visible:ring-[#F45A0B]"
         />
@@ -190,7 +190,8 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
       <div className="space-y-2">
         <Label>Additional Files (Optional)</Label>
         <p className="text-sm text-gray-500 mb-2">
-          Upload files that might be helpful (Max 25 MB total)
+          Upload portfolio samples or files that showcase your work (Max 25 MB
+          total)
         </p>
 
         <input

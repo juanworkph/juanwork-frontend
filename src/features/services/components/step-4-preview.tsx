@@ -29,7 +29,7 @@ export function Step4Preview({ formData }: Step4Props) {
           Review Your Service
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Please review all details before submitting your service
+          Please review all details before submitting your service to clients
         </p>
       </div>
 
@@ -40,13 +40,13 @@ export function Step4Preview({ formData }: Step4Props) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <FileText className="h-5 w-5 text-[#F45A0B]" />
-              Basic Details
+              Service Details
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                {formData.projectName}
+                {formData.serviceName}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
                 {formData.description}
@@ -81,7 +81,7 @@ export function Step4Preview({ formData }: Step4Props) {
                 <Separator />
                 <div>
                   <p className="text-sm text-gray-500 mb-2">
-                    Attachments ({formData.attachments.length})
+                    Portfolio Samples ({formData.attachments.length})
                   </p>
                   <div className="space-y-2">
                     {formData.attachments.map((file, index) => (
@@ -125,7 +125,7 @@ export function Step4Preview({ formData }: Step4Props) {
 
             <div>
               <p className="text-sm text-gray-500 mb-2">
-                Required Skills ({formData.skills.length})
+                Your Skills ({formData.skills.length})
               </p>
               <div className="flex flex-wrap gap-2">
                 {formData.skills.map((skill) => (
@@ -197,7 +197,7 @@ export function Step4Preview({ formData }: Step4Props) {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Estimated Project Budget
+                    Your Service Rate
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {formData.projectType === "fixed"
@@ -235,8 +235,9 @@ export function Step4Preview({ formData }: Step4Props) {
             </h4>
             <p className="text-sm text-blue-800 dark:text-blue-200">
               Once you submit your service, it will be reviewed by our team.
-              You'll receive a notification once it's approved and live. Click
-              the "Submit Service" button below to continue.
+              You'll receive a notification once it's approved and live for
+              clients to see. Click the "Submit Service" button below to
+              continue.
             </p>
           </div>
         </div>

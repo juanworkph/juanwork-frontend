@@ -65,8 +65,8 @@ export function Step2CategoriesSkills({ formData, onUpdate }: Step2Props) {
           Categories & Skills
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Help freelancers find your project by selecting relevant categories
-          and skills
+          Help clients find your service by selecting relevant categories and
+          skills
         </p>
       </div>
 
@@ -98,7 +98,7 @@ export function Step2CategoriesSkills({ formData, onUpdate }: Step2Props) {
           Skills <span className="text-red-500">*</span>
         </Label>
         <p className="text-sm text-gray-500 mb-2">
-          Add up to 10 skills required for this project
+          Add up to 10 skills you offer in this service
         </p>
 
         {/* Skill Input */}
@@ -191,7 +191,8 @@ export function Step2CategoriesSkills({ formData, onUpdate }: Step2Props) {
             </h4>
             <p className="text-sm text-blue-800 dark:text-blue-200">
               Start typing a skill name to see recommendations. Adding relevant
-              skills helps qualified freelancers find your project more easily!
+              skills helps clients find your service more easily and increases
+              your chances of getting hired!
             </p>
           </div>
         </div>

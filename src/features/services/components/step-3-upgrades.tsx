@@ -57,11 +57,11 @@ export function Step3Upgrades({ formData, onUpdate }: Step3Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Choose upgrades for your project (optional)
+          Choose upgrades for your service (optional)
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Enhance your project with optional upgrades to attract more qualified
-          freelancers
+          Enhance your visibility and attract more clients with optional
+          upgrades
         </p>
       </div>
 
@@ -165,9 +165,9 @@ export function Step3Upgrades({ formData, onUpdate }: Step3Props) {
               Why choose upgrades?
             </h4>
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              Upgrades increase your project's visibility and help you attract
-              higher-quality proposals from experienced freelancers. Projects
-              with upgrades typically receive 3x more bids.
+              Upgrades increase your service visibility and help you attract
+              more clients. Services with upgrades typically receive 3x more
+              inquiries and get hired faster.
             </p>
           </div>
         </div>
