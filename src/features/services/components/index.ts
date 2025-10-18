@@ -3,3 +3,6 @@ export * from "./step-2-categories-skills";
 export * from "./step-3-upgrades";
 export * from "./step-4-preview";
 export * from "./progress-indicator";
+export * from "./service-card";
+export * from "./services-grid";
+export * from "./my-services-header";

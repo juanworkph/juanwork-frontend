@@ -160,7 +160,7 @@ export default function PostAServicePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 overflow-y-auto h-full py-10">
+    <div className="max-w-7xl mx-auto space-y-8 overflow-y-auto h-full p-6 lg:p-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
