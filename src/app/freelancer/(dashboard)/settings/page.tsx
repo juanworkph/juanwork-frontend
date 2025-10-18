@@ -176,7 +176,7 @@ export default function FreelancerSettingsPage() {
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
-                    className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm px-4 py-3"
+                    className="flex items-center gap-2 data-[state=active]:bg-primary dark:data-[state=active]:bg-primary data-[state=active]:shadow-sm border-0 px-4 py-3"
                   >
                     <Icon className="h-4 w-4" />
                     <span className="font-medium">{tab.label}</span>
