@@ -2,7 +2,12 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { MyServicesHeader, ServicesGrid } from "@/features/services/components";
+import {
+  MyServicesHeader,
+  ServicesGrid,
+  ServicesHeaderSkeleton,
+  ServicesGridSkeleton,
+} from "@/features/services/components";
 import {
   mockMyServices,
   ServiceFilterStatus,
@@ -17,6 +22,7 @@ export default function MyServicesPage() {
   const [selectedStatus, setSelectedStatus] =
     useState<ServiceFilterStatus>("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Filter services by status
   const statusFilteredServices = useMemo(
@@ -95,27 +101,45 @@ export default function MyServicesPage() {
     router.push(`/freelancer/services/${serviceId}`);
   };
 
+  const handleRefresh = async () => {
+    setIsLoading(true);
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsLoading(false);
+    toast.success("Services refreshed successfully");
+  };
+
   return (
     <div className="max-w-7xl mx-auto overflow-y-auto space-y-8 h-full p-6 lg:p-8">
-      <MyServicesHeader
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-        totalServices={mockMyServices.length}
-        filteredCount={sortedServices.length}
-        onCreateNew={handleCreateNew}
-      />
+      {isLoading ? (
+        <ServicesHeaderSkeleton />
+      ) : (
+        <MyServicesHeader
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedStatus={selectedStatus}
+          onStatusChange={setSelectedStatus}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          totalServices={mockMyServices.length}
+          filteredCount={sortedServices.length}
+          onCreateNew={handleCreateNew}
+          onRefresh={handleRefresh}
+          isLoading={isLoading}
+        />
+      )}
 
-      <ServicesGrid
-        services={sortedServices}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onDuplicate={handleDuplicate}
-        onView={handleView}
-      />
+      {isLoading ? (
+        <ServicesGridSkeleton />
+      ) : (
+        <ServicesGrid
+          services={sortedServices}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onDuplicate={handleDuplicate}
+          onView={handleView}
+        />
+      )}
     </div>
   );
 }

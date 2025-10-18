@@ -1,39 +1,47 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Languages, 
-  Edit,
-  Plus,
-  Globe
-} from 'lucide-react';
-import { Language } from '../schema/profile-data';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Languages, Edit, Plus, Globe } from "lucide-react";
+import { Language } from "../schema/profile-data";
 
 interface LanguagesSectionProps {
   languages: Language[];
   isOwnProfile?: boolean;
 }
 
-export function LanguagesSection({ languages, isOwnProfile = false }: LanguagesSectionProps) {
+export function LanguagesSection({
+  languages,
+  isOwnProfile = false,
+}: LanguagesSectionProps) {
   const getLevelValue = (level: string) => {
     switch (level) {
-      case 'Native': return 100;
-      case 'Fluent': return 85;
-      case 'Conversational': return 65;
-      case 'Basic': return 35;
-      default: return 0;
+      case "Native":
+        return 100;
+      case "Fluent":
+        return 85;
+      case "Conversational":
+        return 65;
+      case "Basic":
+        return 35;
+      default:
+        return 0;
     }
   };
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'Native': return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800';
-      case 'Fluent': return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800';
-      case 'Conversational': return 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800';
-      case 'Basic': return 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
+      case "Native":
+        return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800";
+      case "Fluent":
+        return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800";
+      case "Conversational":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800";
+      case "Basic":
+        return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
     }
   };
 
@@ -48,7 +56,7 @@ export function LanguagesSection({ languages, isOwnProfile = false }: LanguagesS
   // };
 
   return (
-    <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
+    <Card className="shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -65,7 +73,7 @@ export function LanguagesSection({ languages, isOwnProfile = false }: LanguagesS
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Languages List */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -93,14 +101,16 @@ export function LanguagesSection({ languages, isOwnProfile = false }: LanguagesS
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Proficiency</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Proficiency
+                  </span>
                   <span className="font-medium text-gray-900 dark:text-white">
                     {getLevelValue(language.level)}%
                   </span>
                 </div>
                 <div className="relative">
-                  <Progress 
-                    value={getLevelValue(language.level)} 
+                  <Progress
+                    value={getLevelValue(language.level)}
                     className="h-2"
                   />
                 </div>
@@ -127,37 +137,46 @@ export function LanguagesSection({ languages, isOwnProfile = false }: LanguagesS
               Communication Abilities
             </h4>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Native Languages</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Native Languages
+                </span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {languages.filter(l => l.level === 'Native').length}
+                  {languages.filter((l) => l.level === "Native").length}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Fluent Languages</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Fluent Languages
+                </span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {languages.filter(l => l.level === 'Fluent').length}
+                  {languages.filter((l) => l.level === "Fluent").length}
                 </span>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Total Languages</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Total Languages
+                </span>
                 <span className="font-medium text-gray-900 dark:text-white">
                   {languages.length}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Communication Level</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Communication Level
+                </span>
                 <span className="font-medium text-green-600">
-                  {languages.some(l => l.level === 'Native' || l.level === 'Fluent') 
-                    ? 'Excellent' 
-                    : 'Good'
-                  }
+                  {languages.some(
+                    (l) => l.level === "Native" || l.level === "Fluent"
+                  )
+                    ? "Excellent"
+                    : "Good"}
                 </span>
               </div>
             </div>
@@ -175,10 +194,12 @@ export function LanguagesSection({ languages, isOwnProfile = false }: LanguagesS
                 Multilingual Professional
               </h4>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Can effectively communicate with clients from diverse backgrounds and markets. 
-                {languages.filter(l => l.level === 'Native' || l.level === 'Fluent').length > 1 && 
-                  ' Fluent in multiple languages for international projects.'
-                }
+                Can effectively communicate with clients from diverse
+                backgrounds and markets.
+                {languages.filter(
+                  (l) => l.level === "Native" || l.level === "Fluent"
+                ).length > 1 &&
+                  " Fluent in multiple languages for international projects."}
               </p>
             </div>
           </div>
@@ -186,4 +207,4 @@ export function LanguagesSection({ languages, isOwnProfile = false }: LanguagesS
       </CardContent>
     </Card>
   );
-} 
+}

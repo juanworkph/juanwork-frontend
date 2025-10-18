@@ -1,22 +1,22 @@
-import React from 'react';
-import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  MapPin, 
-  Globe, 
-  Clock, 
-  DollarSign, 
-  Edit, 
-  Share2, 
+import React from "react";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  MapPin,
+  Globe,
+  Clock,
+  DollarSign,
+  Edit,
+  Share2,
   Star,
   Shield,
   CheckCircle,
-  Camera
-} from 'lucide-react';
-import { PersonalInfo, ProfileStats } from '../schema/profile-data';
+  Camera,
+} from "lucide-react";
+import { PersonalInfo, ProfileStats } from "../schema/profile-data";
 
 interface ProfileHeaderProps {
   personalInfo: PersonalInfo;
@@ -27,24 +27,28 @@ interface ProfileHeaderProps {
   isOwnProfile?: boolean;
 }
 
-export function ProfileHeader({ 
-  personalInfo, 
-  stats, 
-  isVerified, 
+export function ProfileHeader({
+  personalInfo,
+  stats,
+  isVerified,
   profileCompleteness,
-  isOwnProfile = false 
+  isOwnProfile = false,
 }: ProfileHeaderProps) {
   const getAvailabilityColor = (availability: string) => {
     switch (availability) {
-      case 'Available': return 'bg-green-100 text-green-700 border-green-200';
-      case 'Busy': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'Not Available': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case "Available":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "Busy":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "Not Available":
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 py-0">
+    <Card className="overflow-hidden shadow-lg bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 py-0">
       {/* Cover Image */}
       <div className="relative h-48 lg:h-64 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">
         {personalInfo.coverImage && (
@@ -56,11 +60,11 @@ export function ProfileHeader({
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        
+
         {isOwnProfile && (
-          <Button 
-            variant="secondary" 
-            size="sm" 
+          <Button
+            variant="secondary"
+            size="sm"
             className="absolute top-4 right-4 gap-2 bg-white/90 hover:bg-white text-gray-900"
           >
             <Camera className="h-4 w-4" />
@@ -76,14 +80,20 @@ export function ProfileHeader({
             {/* Avatar */}
             <div className="relative">
               <Avatar className="w-32 h-32 lg:w-40 lg:h-40 border-4 border-white shadow-xl">
-                <AvatarImage src={personalInfo.avatar} alt={personalInfo.name} />
+                <AvatarImage
+                  src={personalInfo.avatar}
+                  alt={personalInfo.name}
+                />
                 <AvatarFallback className="text-2xl lg:text-3xl font-bold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                  {personalInfo.name.split(' ').map(n => n[0]).join('')}
+                  {personalInfo.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </AvatarFallback>
               </Avatar>
               {isOwnProfile && (
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   className="absolute -bottom-2 -right-2 rounded-full p-2 h-8 w-8"
                 >
                   <Camera className="h-3 w-3" />
@@ -107,7 +117,7 @@ export function ProfileHeader({
               <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-3">
                 {personalInfo.title}
               </p>
-              
+
               {/* Quick Stats */}
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-1">
@@ -131,7 +141,10 @@ export function ProfileHeader({
           <div className="flex flex-col sm:flex-row gap-3 lg:items-end">
             {!isOwnProfile ? (
               <>
-                <Button size="lg" className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Button
+                  size="lg"
+                  className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
                   <DollarSign className="h-4 w-4" />
                   Hire ${personalInfo.hourlyRate}/hr
                 </Button>
@@ -157,22 +170,28 @@ export function ProfileHeader({
 
         {/* Status and Badges */}
         <div className="flex flex-wrap items-center gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <Badge 
-            className={`${getAvailabilityColor(personalInfo.availability)} font-medium px-3 py-1`}
+          <Badge
+            className={`${getAvailabilityColor(
+              personalInfo.availability
+            )} font-medium px-3 py-1`}
           >
             {personalInfo.availability}
           </Badge>
-          
+
           <Badge variant="outline" className="font-medium px-3 py-1">
             {stats.completedProjects} Projects Completed
           </Badge>
-          
+
           <Badge variant="outline" className="font-medium px-3 py-1">
             {stats.clientSatisfaction}% Client Satisfaction
           </Badge>
-          
+
           {personalInfo.website && (
-            <Button variant="ghost" size="sm" className="gap-2 text-blue-600 hover:text-blue-700">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2 text-blue-600 hover:text-blue-700"
+            >
               <Globe className="h-4 w-4" />
               Portfolio Website
             </Button>
@@ -191,7 +210,7 @@ export function ProfileHeader({
               </span>
             </div>
             <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
-              <div 
+              <div
                 className="bg-gradient-to-r from-blue-600 to-blue-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${profileCompleteness}%` }}
               />
@@ -204,4 +223,4 @@ export function ProfileHeader({
       </CardContent>
     </Card>
   );
-} 
+}

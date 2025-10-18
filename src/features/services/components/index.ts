@@ -7,3 +7,4 @@ export * from "./service-card";
 export * from "./services-grid";
 export * from "./my-services-header";
 export * from "./service-detail-view";
+export * from "./services-skeleton";

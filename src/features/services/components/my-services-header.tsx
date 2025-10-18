@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, SlidersHorizontal } from "lucide-react";
+import { Plus, Search, SlidersHorizontal, RefreshCcw } from "lucide-react";
 import { ServiceFilterStatus } from "../schema/my-services-data";
 
 interface MyServicesHeaderProps {
@@ -21,6 +21,8 @@ interface MyServicesHeaderProps {
   totalServices: number;
   filteredCount: number;
   onCreateNew: () => void;
+  onRefresh: () => void;
+  isLoading: boolean;
 }
 
 export function MyServicesHeader({
@@ -33,11 +35,13 @@ export function MyServicesHeader({
   totalServices,
   filteredCount,
   onCreateNew,
+  onRefresh,
+  isLoading,
 }: MyServicesHeaderProps) {
   return (
     <div className="space-y-6">
       {/* Title and Action */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             My Services
@@ -46,13 +50,27 @@ export function MyServicesHeader({
             Manage and track your posted services
           </p>
         </div>
-        <Button
-          onClick={onCreateNew}
-          className="bg-[#F45A0B] hover:bg-[#F45A0B]/90 gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Post New Service
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 px-4 py-2 h-auto"
+            onClick={onRefresh}
+            disabled={isLoading}
+          >
+            <RefreshCcw
+              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+            />
+            <span>Refresh</span>
+          </Button>
+          <Button
+            onClick={onCreateNew}
+            className="bg-[#F45A0B] hover:bg-[#F45A0B]/90 gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Post New Service
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
