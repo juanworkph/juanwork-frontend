@@ -44,8 +44,17 @@ export function ServiceCard({
 }: ServiceCardProps) {
   const statusInfo = statusConfig[service.status];
 
+  const handleCardClick = () => {
+    if (onView) {
+      onView(service.id);
+    }
+  };
+
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden p-0">
+    <Card
+      className="group hover:shadow-lg transition-all duration-300 overflow-hidden p-0 cursor-pointer"
+      onClick={handleCardClick}
+    >
       {/* Thumbnail */}
       <div className="relative h-48 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
         {service.thumbnail ? (
@@ -107,6 +116,7 @@ export function ServiceCard({
                 variant="ghost"
                 size="sm"
                 className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>

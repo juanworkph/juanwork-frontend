@@ -6,3 +6,4 @@ export * from "./progress-indicator";
 export * from "./service-card";
 export * from "./services-grid";
 export * from "./my-services-header";
+export * from "./service-detail-view";

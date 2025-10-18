@@ -92,9 +92,7 @@ export default function MyServicesPage() {
   };
 
   const handleView = (serviceId: string) => {
-    toast.info(`Viewing service ${serviceId}`);
-    // In a real app, navigate to service detail page
-    // router.push(`/freelancer/services/${serviceId}`);
+    router.push(`/freelancer/services/${serviceId}`);
   };
 
   return (
