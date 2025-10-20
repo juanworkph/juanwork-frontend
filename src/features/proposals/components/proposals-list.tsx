@@ -1,10 +1,10 @@
-import React from 'react';
-import { ProposalCard } from './proposal-card';
-import { Proposal } from '../schema/proposals-data';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Send, Loader2, FileX } from 'lucide-react';
+import React from "react";
+import { ProposalCard } from "./proposal-card";
+import { Proposal } from "../schema/proposals-data";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Send, Loader2, FileX } from "lucide-react";
 
 interface ProposalsListProps {
   proposals: Proposal[];
@@ -25,7 +25,7 @@ export function ProposalsList({
   onWithdraw,
   onLoadMore,
   hasMoreProposals,
-  loadingMore
+  loadingMore,
 }: ProposalsListProps) {
   if (isLoading) {
     return (
@@ -43,15 +43,16 @@ export function ProposalsList({
         <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-6">
           <FileX className="h-12 w-12 text-gray-400" />
         </div>
-        
+
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           No proposals found
         </h3>
-        
+
         <p className="text-gray-600 dark:text-gray-400 text-center max-w-md mb-6">
-          No proposals match your current filters. Try adjusting your search criteria or explore new project opportunities.
+          No proposals match your current filters. Try adjusting your search
+          criteria or explore new project opportunities.
         </p>
-        
+
         <Button variant="outline" className="gap-2">
           <Send className="h-4 w-4" />
           Browse Projects
@@ -63,11 +64,11 @@ export function ProposalsList({
   return (
     <div className="space-y-8">
       {/* Proposals Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {proposals.map((proposal) => (
-          <ProposalCard 
-            key={proposal.id} 
-            proposal={proposal} 
+          <ProposalCard
+            key={proposal.id}
+            proposal={proposal}
             onAccept={onAccept}
             onDecline={onDecline}
             onWithdraw={onWithdraw}
@@ -81,10 +82,10 @@ export function ProposalsList({
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Showing {proposals.length} of many proposals
           </p>
-          
-          <Button 
-            variant="outline" 
-            onClick={onLoadMore} 
+
+          <Button
+            variant="outline"
+            onClick={onLoadMore}
             disabled={loadingMore}
             className="gap-2 px-6 py-3 h-auto text-base shadow-sm hover:shadow transition-all duration-200"
           >
@@ -93,7 +94,7 @@ export function ProposalsList({
             ) : (
               <Send className="h-5 w-5" />
             )}
-            {loadingMore ? 'Loading more proposals...' : 'Load More Proposals'}
+            {loadingMore ? "Loading more proposals..." : "Load More Proposals"}
           </Button>
         </div>
       )}
@@ -119,7 +120,7 @@ function ProposalCardSkeleton() {
           </div>
           <Skeleton className="h-6 w-20 rounded-full" />
         </div>
-        
+
         {/* Client info */}
         <div className="flex items-center gap-3 mb-5 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
           <Skeleton className="h-10 w-10 rounded-full" />
@@ -129,7 +130,7 @@ function ProposalCardSkeleton() {
           </div>
           <Skeleton className="h-4 w-12 rounded" />
         </div>
-        
+
         {/* Stats grid */}
         <div className="grid grid-cols-3 gap-4">
           <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
@@ -149,7 +150,7 @@ function ProposalCardSkeleton() {
           </div>
         </div>
       </CardContent>
-      
+
       <CardFooter className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80">
         <div className="flex items-center justify-between w-full">
           <Skeleton className="h-4 w-20" />
@@ -162,4 +163,4 @@ function ProposalCardSkeleton() {
       </CardFooter>
     </Card>
   );
-} 
+}
