@@ -53,6 +53,15 @@ export interface ProjectMilestone {
   status: "pending" | "in-progress" | "completed";
 }
 
+export interface ProjectAttachment {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  uploadedAt: Date;
+  url: string;
+}
+
 export interface ProjectOverview {
   id: string;
   name: string;
@@ -66,6 +75,8 @@ export interface ProjectOverview {
   budget: {
     amount: number;
     spent: number;
+    min: number;
+    max: number;
     currency: string;
   };
   deadline: Date;
@@ -77,6 +88,7 @@ export interface ProjectOverview {
   tasks: ProjectTask[];
   notes: ProjectNote[];
   files: ProjectFile[];
+  attachments: ProjectAttachment[];
   milestones: ProjectMilestone[];
 }
 
@@ -222,6 +234,8 @@ export const mockProjectOverview: ProjectOverview = {
   budget: {
     amount: 45000,
     spent: 28500,
+    min: 500,
+    max: 2000,
     currency: "USD",
   },
   deadline: new Date("2025-12-15"),
@@ -361,6 +375,32 @@ export const mockProjectOverview: ProjectOverview = {
       size: 25600000,
       uploadedBy: mockMembers[2],
       uploadedAt: new Date("2025-10-21T13:45:00"),
+      url: "#",
+    },
+  ],
+  attachments: [
+    {
+      id: "att1",
+      name: "Project Briefing Details",
+      type: "application/pdf",
+      size: 1200000,
+      uploadedAt: new Date("2025-10-15T09:00:00"),
+      url: "#",
+    },
+    {
+      id: "att2",
+      name: "Images Proofers",
+      type: "application/zip",
+      size: 8500000,
+      uploadedAt: new Date("2025-10-18T14:30:00"),
+      url: "#",
+    },
+    {
+      id: "att3",
+      name: "Client Feedback",
+      type: "application/pdf",
+      size: 650000,
+      uploadedAt: new Date("2025-10-20T11:15:00"),
       url: "#",
     },
   ],

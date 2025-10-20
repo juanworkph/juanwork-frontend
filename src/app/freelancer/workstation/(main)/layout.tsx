@@ -9,7 +9,7 @@ export default function WorkstationLayout({
 }>) {
   return (
     <div className="h-full position-relative">
-      <div className="max-w-7xl mx-auto p-6 lg:p-8 space-y-6">
+      <div className="max-w-7xl mx-auto p-4 lg:py-8 space-y-8">
         {/* Header */}
         <WorkstationHeader />
 
