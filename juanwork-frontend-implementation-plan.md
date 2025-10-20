@@ -60,6 +60,7 @@ Remember:
 11. Use modern ES6+ features where appropriate.
 12. Structure code for readability and maintainability.
 13. Strive for clarity and simplicity in your code.
+14. Avoid executing “pnpm run build” every new changes, only do it if it's necessary.
 
 Before writing code:
 
