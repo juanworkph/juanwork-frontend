@@ -52,10 +52,7 @@ export function ProjectCard({ project, onView }: ProjectCardProps) {
   };
 
   return (
-    <Card
-      className="group hover:shadow-lg transition-all duration-300 cursor-pointer p-0"
-      onClick={() => onView?.(project.id)}
-    >
+    <Card className="group hover:shadow-lg transition-all duration-300 p-0">
       <CardContent className="p-6 h-full">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
@@ -203,7 +200,7 @@ export function ProjectCard({ project, onView }: ProjectCardProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="text-[#F45A0B] hover:text-[#F45A0B] hover:bg-[#F45A0B]/10"
+            className="text-[#F45A0B] hover:text-[#F45A0B] hover:bg-[#F45A0B]/10 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               onView?.(project.id);

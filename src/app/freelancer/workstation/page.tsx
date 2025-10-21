@@ -49,8 +49,8 @@ export default function WorkstationPage() {
 
   // Handle project view
   const handleViewProject = (projectId: string) => {
-    // In a real app, navigate to project detail page
-    router.push(`/freelancer/workstation/${projectId}`);
+    // Navigate to project overview page
+    router.push(`/freelancer/workstation/overview`);
   };
 
   // Handle refresh
@@ -62,61 +62,66 @@ export default function WorkstationPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto overflow-y-auto h-full p-6 lg:p-8 space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Workstation
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage and track all your active projects in one place
-          </p>
+    <div className="position-relative h-full">
+      <div className="max-w-7xl mx-auto p-6 lg:p-8 space-y-8">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Workstation
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Manage and track all your active projects in one place
+            </p>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 px-4 py-2 h-auto self-start sm:self-auto"
+            onClick={handleRefresh}
+            disabled={isLoading}
+          >
+            <RefreshCcw
+              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+            />
+            <span>Refresh</span>
+          </Button>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2 px-4 py-2 h-auto self-start sm:self-auto"
-          onClick={handleRefresh}
-          disabled={isLoading}
-        >
-          <RefreshCcw
-            className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+        {/* Stats Overview */}
+        {isLoading ? (
+          <WorkstationStatsSkeleton />
+        ) : (
+          <WorkstationStats stats={stats} />
+        )}
+
+        {/* Filters */}
+        {!isLoading && (
+          <WorkstationFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            projectTypeFilter={projectTypeFilter}
+            onProjectTypeFilterChange={setProjectTypeFilter}
+            priorityFilter={priorityFilter}
+            onPriorityFilterChange={setPriorityFilter}
+            totalCount={mockWorkstationProjects.length}
+            filteredCount={filteredProjects.length}
           />
-          <span>Refresh</span>
-        </Button>
+        )}
+
+        {/* Projects Grid */}
+        {isLoading ? (
+          <WorkstationProjectsGridSkeleton />
+        ) : (
+          <ProjectsGrid
+            projects={filteredProjects}
+            onView={handleViewProject}
+          />
+        )}
       </div>
-
-      {/* Stats Overview */}
-      {isLoading ? (
-        <WorkstationStatsSkeleton />
-      ) : (
-        <WorkstationStats stats={stats} />
-      )}
-
-      {/* Filters */}
-      {!isLoading && (
-        <WorkstationFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          projectTypeFilter={projectTypeFilter}
-          onProjectTypeFilterChange={setProjectTypeFilter}
-          priorityFilter={priorityFilter}
-          onPriorityFilterChange={setPriorityFilter}
-          totalCount={mockWorkstationProjects.length}
-          filteredCount={filteredProjects.length}
-        />
-      )}
-
-      {/* Projects Grid */}
-      {isLoading ? (
-        <WorkstationProjectsGridSkeleton />
-      ) : (
-        <ProjectsGrid projects={filteredProjects} onView={handleViewProject} />
-      )}
     </div>
   );
 }

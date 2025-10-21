@@ -160,106 +160,108 @@ export default function PostAServicePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 overflow-y-auto h-full p-6 lg:p-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Post a New Service
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Fill in the details to create your service and attract clients
-        </p>
-      </div>
-
-      {/* Progress Indicator */}
-      <ProgressIndicator currentStep={currentStep} steps={STEPS} />
-
-      {/* Form Content */}
-      <Card>
-        <CardContent className="p-6 lg:p-8">
-          {currentStep === 1 && (
-            <Step1BasicDetails formData={formData} onUpdate={handleUpdate} />
-          )}
-          {currentStep === 2 && (
-            <Step2CategoriesSkills
-              formData={formData}
-              onUpdate={handleUpdate}
-            />
-          )}
-          {currentStep === 3 && (
-            <Step3Upgrades formData={formData} onUpdate={handleUpdate} />
-          )}
-          {currentStep === 4 && <Step4Preview formData={formData} />}
-        </CardContent>
-      </Card>
-
-      {/* Navigation Buttons */}
-      <div className="flex items-center justify-between">
-        <Button
-          onClick={handleBack}
-          variant="outline"
-          disabled={currentStep === 1}
-          className="gap-2"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back
-        </Button>
-
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">
-            Step {currentStep} of {STEPS.length}
-          </span>
+    <div className="position-relative h-full">
+      <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Post a New Service
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Fill in the details to create your service and attract clients
+          </p>
         </div>
 
-        {currentStep < STEPS.length ? (
-          <Button
-            onClick={handleNext}
-            className="bg-[#F45A0B] hover:bg-[#F45A0B]/90 gap-2"
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="bg-[#F45A0B] hover:bg-[#F45A0B]/90 gap-2 min-w-[140px]"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <CheckCircle className="h-4 w-4" />
-                Submit Service
-              </>
-            )}
-          </Button>
-        )}
-      </div>
+        {/* Progress Indicator */}
+        <ProgressIndicator currentStep={currentStep} steps={STEPS} />
 
-      {/* Cost Summary Footer */}
-      {formData.selectedUpgrades.length > 0 && (
-        <Card className="border-[#F45A0B]/20 bg-[#F45A0B]/5">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700 dark:text-gray-300">
-                {formData.selectedUpgrades.length} upgrade
-                {formData.selectedUpgrades.length > 1 ? "s" : ""} selected
-              </span>
-              <span className="font-bold text-lg text-[#F45A0B]">
-                $
-                {calculateTotalUpgradeCost(formData.selectedUpgrades).toFixed(
-                  2
-                )}{" "}
-                USD
-              </span>
-            </div>
+        {/* Form Content */}
+        <Card>
+          <CardContent className="p-6 lg:p-8">
+            {currentStep === 1 && (
+              <Step1BasicDetails formData={formData} onUpdate={handleUpdate} />
+            )}
+            {currentStep === 2 && (
+              <Step2CategoriesSkills
+                formData={formData}
+                onUpdate={handleUpdate}
+              />
+            )}
+            {currentStep === 3 && (
+              <Step3Upgrades formData={formData} onUpdate={handleUpdate} />
+            )}
+            {currentStep === 4 && <Step4Preview formData={formData} />}
           </CardContent>
         </Card>
-      )}
+
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between">
+          <Button
+            onClick={handleBack}
+            variant="outline"
+            disabled={currentStep === 1}
+            className="gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </Button>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">
+              Step {currentStep} of {STEPS.length}
+            </span>
+          </div>
+
+          {currentStep < STEPS.length ? (
+            <Button
+              onClick={handleNext}
+              className="bg-[#F45A0B] hover:bg-[#F45A0B]/90 gap-2"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="bg-[#F45A0B] hover:bg-[#F45A0B]/90 gap-2 min-w-[140px]"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4" />
+                  Submit Service
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+
+        {/* Cost Summary Footer */}
+        {formData.selectedUpgrades.length > 0 && (
+          <Card className="border-[#F45A0B]/20 bg-[#F45A0B]/5">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-700 dark:text-gray-300">
+                  {formData.selectedUpgrades.length} upgrade
+                  {formData.selectedUpgrades.length > 1 ? "s" : ""} selected
+                </span>
+                <span className="font-bold text-lg text-[#F45A0B]">
+                  $
+                  {calculateTotalUpgradeCost(formData.selectedUpgrades).toFixed(
+                    2
+                  )}{" "}
+                  USD
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

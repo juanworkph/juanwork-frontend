@@ -70,25 +70,27 @@ export default function ServiceDetailPage({
   };
 
   return (
-    <div className="max-w-7xl mx-auto overflow-y-auto h-full p-6 lg:p-8">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        onClick={handleBack}
-        className="mb-6 -ml-2 hover:bg-transparent hover:text-[#F45A0B]"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to My Services
-      </Button>
+    <div className="position-relative h-full">
+      <div className="max-w-7xl mx-auto p-6 lg:p-8">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          onClick={handleBack}
+          className="mb-6 -ml-2 hover:bg-transparent hover:text-[#F45A0B]"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to My Services
+        </Button>
 
-      {/* Service Detail */}
-      <ServiceDetailView
-        service={service}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onDuplicate={handleDuplicate}
-        onShare={handleShare}
-      />
+        {/* Service Detail */}
+        <ServiceDetailView
+          service={service}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onDuplicate={handleDuplicate}
+          onShare={handleShare}
+        />
+      </div>
     </div>
   );
 }

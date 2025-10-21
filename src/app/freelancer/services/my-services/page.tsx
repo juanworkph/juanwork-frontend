@@ -110,36 +110,38 @@ export default function MyServicesPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto overflow-y-auto space-y-8 h-full p-6 lg:p-8">
-      {isLoading ? (
-        <ServicesHeaderSkeleton />
-      ) : (
-        <MyServicesHeader
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedStatus={selectedStatus}
-          onStatusChange={setSelectedStatus}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-          totalServices={mockMyServices.length}
-          filteredCount={sortedServices.length}
-          onCreateNew={handleCreateNew}
-          onRefresh={handleRefresh}
-          isLoading={isLoading}
-        />
-      )}
+    <div className="position-relative h-full">
+      <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
+        {isLoading ? (
+          <ServicesHeaderSkeleton />
+        ) : (
+          <MyServicesHeader
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedStatus={selectedStatus}
+            onStatusChange={setSelectedStatus}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            totalServices={mockMyServices.length}
+            filteredCount={sortedServices.length}
+            onCreateNew={handleCreateNew}
+            onRefresh={handleRefresh}
+            isLoading={isLoading}
+          />
+        )}
 
-      {isLoading ? (
-        <ServicesGridSkeleton />
-      ) : (
-        <ServicesGrid
-          services={sortedServices}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onDuplicate={handleDuplicate}
-          onView={handleView}
-        />
-      )}
+        {isLoading ? (
+          <ServicesGridSkeleton />
+        ) : (
+          <ServicesGrid
+            services={sortedServices}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onDuplicate={handleDuplicate}
+            onView={handleView}
+          />
+        )}
+      </div>
     </div>
   );
 }
