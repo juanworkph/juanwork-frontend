@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { Navbar } from "@/components/layout/navbar";
-import { Footer } from '@/features/home/components/footer';
+import { Footer } from "@/features/home/components/footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,7 +26,9 @@ export default function RootLayout({
         >
           <AuthProvider>
             <Navbar />
-            {children}
+            <div className="h-[calc(100vh-65px)] overflow-y-auto">
+              {children}
+            </div>
             <Footer />
           </AuthProvider>
         </ThemeProvider>
