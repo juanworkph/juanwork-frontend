@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ModeToggle } from "@/components/theme/mode-toggle";
 import { Search, Menu, X, ChevronDown } from "lucide-react";
-import { navigationWhereRole, NavItem } from "@/config/navigation";
+import { navigationWhereUserRole, NavItem } from "@/config/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import {
   DropdownMenu,
@@ -54,7 +54,7 @@ export function Navbar() {
   }, [pathname]);
 
   // Get navigation items based on current role
-  const navItems = navigationWhereRole(currentRole);
+  const navItems = navigationWhereUserRole(currentRole);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
