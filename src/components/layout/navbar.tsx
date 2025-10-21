@@ -244,6 +244,12 @@ export function Navbar() {
 function NavbarItem({ item, pathname }: { item: NavItem; pathname: string }) {
   const isActive = pathname === item.href;
 
+  // Check if any dropdown item is active
+  const isDropdownActive =
+    item.isDropdown && item.dropdownMenu
+      ? item.dropdownMenu.some((dropdownItem) => pathname === dropdownItem.href)
+      : false;
+
   // Handle dropdown menu items
   if (item.isDropdown && item.dropdownMenu) {
     return (
@@ -252,7 +258,7 @@ function NavbarItem({ item, pathname }: { item: NavItem; pathname: string }) {
           <button
             className={cn(
               "flex items-center px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 relative group",
-              isActive
+              isDropdownActive
                 ? "text-primary bg-primary/10 shadow-sm"
                 : "text-muted-foreground hover:text-foreground hover:bg-accent/50 hover:shadow-sm",
               item.disabled && "pointer-events-none opacity-50"
@@ -307,6 +313,12 @@ function MobileNavItem({
 }) {
   const isActive = pathname === item.href;
 
+  // Check if any dropdown item is active
+  const isDropdownActive =
+    item.isDropdown && item.dropdownMenu
+      ? item.dropdownMenu.some((dropdownItem) => pathname === dropdownItem.href)
+      : false;
+
   // Handle dropdown menu items
   if (item.isDropdown && item.dropdownMenu) {
     return (
@@ -314,7 +326,9 @@ function MobileNavItem({
         <div
           className={cn(
             "flex items-center py-3 px-4 text-sm font-medium transition-all duration-200 rounded-lg",
-            "text-primary bg-primary/5 shadow-sm"
+            isDropdownActive
+              ? "text-primary bg-primary/10 shadow-sm"
+              : "text-muted-foreground bg-transparent"
           )}
         >
           <span className="relative z-10">{item.label}</span>
