@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,12 +17,22 @@ import {
   Shield,
   CheckCircle,
   Camera,
+  Briefcase,
+  Building2,
 } from "lucide-react";
-import { PersonalInfo, ProfileStats } from "../schema/profile-data";
+import { useAuth } from "@/contexts/auth-context";
+import type {
+  PersonalInfo,
+  ProfileStats,
+  ClientPersonalInfo,
+  ClientStats,
+  CompanyDetails,
+} from "../schema";
 
 interface ProfileHeaderProps {
-  personalInfo: PersonalInfo;
-  stats: ProfileStats;
+  personalInfo: PersonalInfo | ClientPersonalInfo;
+  companyDetails?: CompanyDetails;
+  stats: ProfileStats | ClientStats;
   isVerified: boolean;
   profileCompleteness: number;
   joinDate: string;
@@ -29,11 +41,16 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({
   personalInfo,
+  companyDetails,
   stats,
   isVerified,
   profileCompleteness,
   isOwnProfile = false,
 }: ProfileHeaderProps) {
+  const { currentRole } = useAuth();
+  const isFreelancer = currentRole === "freelancer";
+  const isClient = currentRole === "client";
+
   const getAvailabilityColor = (availability: string) => {
     switch (availability) {
       case "Available":
@@ -45,6 +62,21 @@ export function ProfileHeader({
       default:
         return "bg-gray-100 text-gray-700 border-gray-200";
     }
+  };
+
+  // Type guards and helper functions
+  const hasHourlyRate = (
+    info: PersonalInfo | ClientPersonalInfo
+  ): info is PersonalInfo => {
+    return "hourlyRate" in info;
+  };
+
+  const isProfileStats = (s: ProfileStats | ClientStats): s is ProfileStats => {
+    return "completedProjects" in s && "clientSatisfaction" in s;
+  };
+
+  const isClientStats = (s: ProfileStats | ClientStats): s is ClientStats => {
+    return "totalProjects" in s && "activeProjects" in s;
   };
 
   return (
@@ -118,6 +150,16 @@ export function ProfileHeader({
                 {personalInfo.title}
               </p>
 
+              {/* Company Info (for clients) */}
+              {isClient && companyDetails && (
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <Building2 className="h-4 w-4 text-indigo-500" />
+                  <span className="font-medium">{companyDetails.name}</span>
+                  <span className="text-gray-400">•</span>
+                  <span>{companyDetails.industry}</span>
+                </div>
+              )}
+
               {/* Quick Stats */}
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-1">
@@ -129,10 +171,18 @@ export function ProfileHeader({
                   <span className="font-semibold">{stats.averageRating}</span>
                   <span>({stats.totalReviews} reviews)</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  <span>Responds {personalInfo.responseTime}</span>
-                </div>
+                {isFreelancer && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>Responds {personalInfo.responseTime}</span>
+                  </div>
+                )}
+                {isClient && isClientStats(stats) && (
+                  <div className="flex items-center gap-1">
+                    <Briefcase className="h-4 w-4" />
+                    <span>{stats.totalProjects} projects posted</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -141,13 +191,23 @@ export function ProfileHeader({
           <div className="flex flex-col sm:flex-row gap-3 lg:items-end">
             {!isOwnProfile ? (
               <>
-                <Button
-                  size="lg"
-                  className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                >
-                  <DollarSign className="h-4 w-4" />
-                  Hire ${personalInfo.hourlyRate}/hr
-                </Button>
+                {isFreelancer && hasHourlyRate(personalInfo) ? (
+                  <Button
+                    size="lg"
+                    className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    <DollarSign className="h-4 w-4" />
+                    Hire ${personalInfo.hourlyRate}/hr
+                  </Button>
+                ) : (
+                  <Button
+                    size="lg"
+                    className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                  >
+                    <Briefcase className="h-4 w-4" />
+                    View Projects
+                  </Button>
+                )}
                 <Button variant="outline" size="lg" className="gap-2">
                   <Share2 className="h-4 w-4" />
                   Share Profile
@@ -178,13 +238,31 @@ export function ProfileHeader({
             {personalInfo.availability}
           </Badge>
 
-          <Badge variant="outline" className="font-medium px-3 py-1">
-            {stats.completedProjects} Projects Completed
-          </Badge>
+          {isFreelancer && isProfileStats(stats) && (
+            <>
+              <Badge variant="outline" className="font-medium px-3 py-1">
+                {stats.completedProjects} Projects Completed
+              </Badge>
 
-          <Badge variant="outline" className="font-medium px-3 py-1">
-            {stats.clientSatisfaction}% Client Satisfaction
-          </Badge>
+              <Badge variant="outline" className="font-medium px-3 py-1">
+                {stats.clientSatisfaction}% Client Satisfaction
+              </Badge>
+            </>
+          )}
+
+          {isClient && isClientStats(stats) && (
+            <>
+              <Badge variant="outline" className="font-medium px-3 py-1">
+                {stats.activeProjects} Active Projects
+              </Badge>
+
+              {stats.paymentVerified && (
+                <Badge className="bg-green-100 text-green-700 border-green-200 font-medium px-3 py-1">
+                  Payment Verified
+                </Badge>
+              )}
+            </>
+          )}
 
           {personalInfo.website && (
             <Button
@@ -193,30 +271,66 @@ export function ProfileHeader({
               className="gap-2 text-blue-600 hover:text-blue-700"
             >
               <Globe className="h-4 w-4" />
-              Portfolio Website
+              {isFreelancer ? "Portfolio Website" : "Website"}
             </Button>
           )}
         </div>
 
         {/* Profile Completeness (only for own profile) */}
         {isOwnProfile && (
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div
+            className={`mt-4 p-4 rounded-lg border ${
+              isClient
+                ? "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-800"
+                : "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
+            }`}
+          >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+              <span
+                className={`text-sm font-medium ${
+                  isClient
+                    ? "text-indigo-900 dark:text-indigo-100"
+                    : "text-blue-900 dark:text-blue-100"
+                }`}
+              >
                 Profile Completeness
               </span>
-              <span className="text-sm font-bold text-blue-900 dark:text-blue-100">
+              <span
+                className={`text-sm font-bold ${
+                  isClient
+                    ? "text-indigo-900 dark:text-indigo-100"
+                    : "text-blue-900 dark:text-blue-100"
+                }`}
+              >
                 {profileCompleteness}%
               </span>
             </div>
-            <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+            <div
+              className={`w-full rounded-full h-2 ${
+                isClient
+                  ? "bg-indigo-200 dark:bg-indigo-800"
+                  : "bg-blue-200 dark:bg-blue-800"
+              }`}
+            >
               <div
-                className="bg-gradient-to-r from-blue-600 to-blue-500 h-2 rounded-full transition-all duration-300"
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  isClient
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-500"
+                    : "bg-gradient-to-r from-blue-600 to-blue-500"
+                }`}
                 style={{ width: `${profileCompleteness}%` }}
               />
             </div>
-            <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-              Complete your profile to attract more clients
+            <p
+              className={`text-xs mt-2 ${
+                isClient
+                  ? "text-indigo-700 dark:text-indigo-300"
+                  : "text-blue-700 dark:text-blue-300"
+              }`}
+            >
+              {isClient
+                ? "Complete your profile to attract more qualified freelancers"
+                : "Complete your profile to attract more clients"}
             </p>
           </div>
         )}

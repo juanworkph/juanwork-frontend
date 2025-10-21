@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,10 +13,11 @@ import {
   Calendar,
   Edit,
 } from "lucide-react";
-import { PersonalInfo } from "../schema/profile-data";
+import { useAuth } from "@/contexts/auth-context";
+import type { PersonalInfo, ClientPersonalInfo } from "../schema";
 
 interface AboutMeSectionProps {
-  personalInfo: PersonalInfo;
+  personalInfo: PersonalInfo | ClientPersonalInfo;
   joinDate: string;
   isOwnProfile?: boolean;
 }
@@ -24,6 +27,9 @@ export function AboutMeSection({
   joinDate,
   isOwnProfile = false,
 }: AboutMeSectionProps) {
+  const { currentRole } = useAuth();
+  const isClient = currentRole === "client";
+
   const formatJoinDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -161,7 +167,9 @@ export function AboutMeSection({
               </p>
               <p className="text-sm text-green-700 dark:text-green-300">
                 {personalInfo.availability === "Available"
-                  ? "Ready to take on new projects and respond quickly to messages"
+                  ? isClient
+                    ? "Ready to discuss projects and respond quickly to messages"
+                    : "Ready to take on new projects and respond quickly to messages"
                   : personalInfo.availability === "Busy"
                   ? "Currently working on projects but can discuss new opportunities"
                   : "Not taking on new projects at the moment"}
