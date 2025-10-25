@@ -111,7 +111,7 @@ export const getStarPercentage = (rating: number, total: number): number => {
   return Math.round((rating / total) * 100);
 };
 
-// Mock data
+// Mock data for Freelancer
 export const mockReviewsData: ReviewsState = {
   reviews: [
     {
@@ -349,6 +349,258 @@ export const mockReviewsData: ReviewsState = {
     averageCommunication: 4.3,
     averageQuality: 4.7,
     averageExpertise: 4.7,
+    averageProfessionalism: 4.2,
+    averageDeadlines: 4.0,
+  },
+  filters: {
+    rating: "all",
+    search: "",
+    sortBy: "recent",
+    sortDirection: "desc",
+  },
+};
+
+// Mock data for Client
+export const mockClientReviewsData: ReviewsState = {
+  reviews: [
+    {
+      id: "1",
+      client: {
+        id: "client1",
+        name: "Your Company",
+        avatar: "/images/logo.png", // This would be the client's company logo
+        country: "United States",
+        countryCode: "US",
+        verified: true,
+        company: "Your Company",
+      },
+      project: {
+        id: "proj1",
+        name: "E-commerce Website Redesign",
+        category: "Web Development",
+        completedDate: "2024-01-25T16:00:00Z",
+        budget: 4500,
+        currency: "USD",
+      },
+      ratings: {
+        overall: 5,
+        communication: 5,
+        quality: 5,
+        expertise: 5,
+        professionalism: 5,
+        deadlines: 5,
+      },
+      message:
+        "John delivered exceptional work on our e-commerce redesign. His communication was excellent throughout the project, and he was very responsive to feedback. The final product exceeded our expectations in terms of both design and functionality. Would highly recommend and will definitely work together again!",
+      createdAt: "2024-01-26T10:30:00Z",
+      isPublic: true,
+      isFeatured: true,
+      wasHelpful: 12,
+      freelancerResponse: {
+        message:
+          "Thank you so much for the wonderful review! It was a pleasure working with you and your team. Looking forward to future collaborations!",
+        respondedAt: "2024-01-26T14:20:00Z",
+      },
+    },
+    {
+      id: "2",
+      client: {
+        id: "client1",
+        name: "Your Company",
+        avatar: "/images/logo.png",
+        country: "United States",
+        countryCode: "US",
+        verified: true,
+        company: "Your Company",
+      },
+      project: {
+        id: "proj2",
+        name: "Mobile App Development",
+        category: "Mobile Development",
+        completedDate: "2024-02-10T18:00:00Z",
+        budget: 3600,
+        currency: "USD",
+      },
+      ratings: {
+        overall: 5,
+        communication: 5,
+        quality: 5,
+        expertise: 5,
+        professionalism: 4,
+        deadlines: 5,
+      },
+      message:
+        "Ahmed developed an outstanding mobile app for us with all the features we requested. Very professional and easy to work with. The code quality is excellent and well-documented. We're already planning our next project together.",
+      createdAt: "2024-02-11T09:15:00Z",
+      isPublic: true,
+      wasHelpful: 8,
+      freelancerResponse: {
+        message:
+          "Thank you for the great review! It was a pleasure working on your mobile app. Looking forward to our next project together.",
+        respondedAt: "2024-02-11T15:30:00Z",
+      },
+    },
+    {
+      id: "3",
+      client: {
+        id: "client1",
+        name: "Your Company",
+        avatar: "/images/logo.png",
+        country: "United States",
+        countryCode: "US",
+        verified: true,
+        company: "Your Company",
+      },
+      project: {
+        id: "proj3",
+        name: "Data Analytics Dashboard",
+        category: "Data Science",
+        completedDate: "2024-01-20T14:00:00Z",
+        budget: 2800,
+        currency: "USD",
+      },
+      ratings: {
+        overall: 4,
+        communication: 4,
+        quality: 5,
+        expertise: 5,
+        professionalism: 4,
+        deadlines: 3,
+      },
+      message:
+        "Maria created a great data visualization dashboard for us. She has deep knowledge of data visualization techniques. There were some minor delays in delivery, but the quality of work made up for it. We would work with her again.",
+      createdAt: "2024-01-21T11:30:00Z",
+      isPublic: true,
+      wasHelpful: 5,
+      freelancerResponse: {
+        message:
+          "Thank you for your feedback! I apologize for the delay and appreciate your understanding. It was great working on this project with you.",
+        respondedAt: "2024-01-21T16:45:00Z",
+      },
+    },
+    {
+      id: "4",
+      client: {
+        id: "client1",
+        name: "Your Company",
+        avatar: "/images/logo.png",
+        country: "United States",
+        countryCode: "US",
+        verified: true,
+        company: "Your Company",
+      },
+      project: {
+        id: "proj4",
+        name: "Brand Identity Design",
+        category: "Design",
+        completedDate: "2024-02-05T12:00:00Z",
+        budget: 1200,
+        currency: "USD",
+      },
+      ratings: {
+        overall: 5,
+        communication: 5,
+        quality: 5,
+        expertise: 4,
+        professionalism: 5,
+        deadlines: 5,
+      },
+      message:
+        "Emily designed an amazing brand identity that perfectly captures our vision. Very creative and professional throughout the entire process. We've already received numerous compliments on our new branding.",
+      createdAt: "2024-02-06T08:20:00Z",
+      isPublic: true,
+      isFeatured: true,
+      wasHelpful: 15,
+    },
+    {
+      id: "5",
+      client: {
+        id: "client1",
+        name: "Your Company",
+        avatar: "/images/logo.png",
+        country: "United States",
+        countryCode: "US",
+        verified: true,
+        company: "Your Company",
+      },
+      project: {
+        id: "proj5",
+        name: "API Integration & Testing",
+        category: "Backend Development",
+        completedDate: "2024-01-15T16:30:00Z",
+        budget: 1800,
+        currency: "USD",
+      },
+      ratings: {
+        overall: 4,
+        communication: 4,
+        quality: 4,
+        expertise: 5,
+        professionalism: 4,
+        deadlines: 4,
+      },
+      message:
+        "Michael demonstrated solid technical skills and good communication throughout the project. The API integration was done professionally and all tests passed. Would recommend for backend projects.",
+      createdAt: "2024-01-16T13:10:00Z",
+      isPublic: true,
+      wasHelpful: 6,
+      freelancerResponse: {
+        message:
+          "Thank you for the opportunity to work on this project! I'm glad everything met your expectations and look forward to possibly working together again.",
+        respondedAt: "2024-01-16T18:25:00Z",
+      },
+    },
+    {
+      id: "6",
+      client: {
+        id: "client1",
+        name: "Your Company",
+        avatar: "/images/logo.png",
+        country: "United States",
+        countryCode: "US",
+        verified: true,
+        company: "Your Company",
+      },
+      project: {
+        id: "proj6",
+        name: "WordPress Plugin Development",
+        category: "WordPress Development",
+        completedDate: "2023-12-20T10:00:00Z",
+        budget: 800,
+        currency: "USD",
+      },
+      ratings: {
+        overall: 3,
+        communication: 3,
+        quality: 4,
+        expertise: 4,
+        professionalism: 3,
+        deadlines: 2,
+      },
+      message:
+        "The plugin works as expected, but there were significant delays in delivery. Communication could have been better during the development process. The final product is good, but the process was somewhat frustrating.",
+      createdAt: "2023-12-21T15:40:00Z",
+      isPublic: false,
+      wasHelpful: 2,
+      freelancerResponse: {
+        message:
+          "I appreciate your honest feedback. I sincerely apologize for the delays and communication issues. I've taken your feedback to heart and am improving my processes to ensure better experiences for future clients.",
+        respondedAt: "2023-12-22T09:15:00Z",
+      },
+    },
+  ],
+  stats: {
+    total: 6,
+    averageRating: 4.3,
+    fiveStars: 3,
+    fourStars: 2,
+    threeStars: 1,
+    twoStars: 0,
+    oneStar: 0,
+    responseRate: 83, // 5 out of 6 have responses
+    averageCommunication: 4.3,
+    averageQuality: 4.7,
+    averageExpertise: 4.5,
     averageProfessionalism: 4.2,
     averageDeadlines: 4.0,
   },
