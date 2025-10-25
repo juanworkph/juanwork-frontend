@@ -1,28 +1,30 @@
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Clock, 
-  DollarSign, 
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Clock,
+  DollarSign,
   MapPin,
   CheckCircle,
   Star,
   ExternalLink,
   MessageCircle,
   Pin,
-  Flag
-} from 'lucide-react';
-import { 
-  Project, 
-  formatCurrency, 
-  getTimeLeft, 
-  getStatusColor, 
-  getPriorityColor 
-} from '../schema';
+  Flag,
+  User,
+} from "lucide-react";
+import {
+  Project,
+  formatCurrency,
+  getTimeLeft,
+  getStatusColor,
+  getPriorityColor,
+} from "../schema";
+import { useAuth } from "@/contexts/auth-context";
 
 interface ProjectCardProps {
   project: Project;
@@ -32,8 +34,18 @@ interface ProjectCardProps {
   onComplete?: (id: string) => void;
 }
 
-export function ProjectCard({ project, onPause, onResume, onComplete }: ProjectCardProps) {
-  const formattedBudget = formatCurrency(project.budget.amount, project.budget.currency);
+export function ProjectCard({
+  project,
+  onPause,
+  onResume,
+  onComplete,
+}: ProjectCardProps) {
+  const { currentRole } = useAuth();
+  const isClient = currentRole === "client";
+  const formattedBudget = formatCurrency(
+    project.budget.amount,
+    project.budget.currency
+  );
   const timeLeft = getTimeLeft(project.deadline.endDate);
 
   return (
@@ -44,15 +56,23 @@ export function ProjectCard({ project, onPause, onResume, onComplete }: ProjectC
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Badge className={`${getStatusColor(project.status)} border`}>
-                {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                {project.status.charAt(0).toUpperCase() +
+                  project.status.slice(1)}
               </Badge>
-              <Badge variant="outline" className={`${getPriorityColor(project.priority)} border`}>
+              <Badge
+                variant="outline"
+                className={`${getPriorityColor(project.priority)} border`}
+              >
                 <Flag className="h-3 w-3 mr-1" />
                 {project.priority}
               </Badge>
               {project.isPinned && (
-                <Badge variant="outline" className="border-amber-300 text-amber-600">
-                  <Pin className="h-3 w-3 mr-1" />Pinned
+                <Badge
+                  variant="outline"
+                  className="border-amber-300 text-amber-600"
+                >
+                  <Pin className="h-3 w-3 mr-1" />
+                  Pinned
                 </Badge>
               )}
             </div>
@@ -65,19 +85,24 @@ export function ProjectCard({ project, onPause, onResume, onComplete }: ProjectC
           </div>
         </div>
 
-        {/* Client Info */}
+        {/* Client/Freelancer Info */}
         <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-          <Image 
-            src={project.client.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"} 
-            alt={project.client.name} 
-            width={40} 
-            height={40} 
-            className="rounded-full border-2 border-white shadow-sm" 
+          <Image
+            src={
+              project.client.avatar ||
+              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+            }
+            alt={project.client.name}
+            width={40}
+            height={40}
+            className="rounded-full border-2 border-white shadow-sm"
           />
           <div className="flex-1">
             <div className="flex items-center gap-1.5 mb-1">
               <span className="text-sm font-medium">{project.client.name}</span>
-              {project.client.verified && <CheckCircle className="h-4 w-4 text-green-500" />}
+              {project.client.verified && (
+                <CheckCircle className="h-4 w-4 text-green-500" />
+              )}
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <MapPin className="h-3.5 w-3.5" />
@@ -94,7 +119,9 @@ export function ProjectCard({ project, onPause, onResume, onComplete }: ProjectC
           {project.hasUnreadMessages && (
             <div className="flex items-center gap-1 text-xs">
               <MessageCircle className="h-4 w-4 text-blue-500" />
-              <span className="text-blue-600 font-medium">{project.messageCount} new</span>
+              <span className="text-blue-600 font-medium">
+                {project.messageCount} new
+              </span>
             </div>
           )}
         </div>
@@ -102,23 +129,37 @@ export function ProjectCard({ project, onPause, onResume, onComplete }: ProjectC
         {/* Project Details */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-            <p className="text-xs text-gray-500 mb-1">Budget</p>
+            <p className="text-xs text-gray-500 mb-1">
+              {isClient ? "Project Cost" : "Budget"}
+            </p>
             <p className="font-bold text-sm flex items-center gap-1.5">
               <DollarSign className="h-4 w-4 text-green-500" />
               {formattedBudget}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {project.budget.type === 'fixed' ? 'Fixed Price' : `$${project.budget.hourlyRate}/hr`}
+              {project.budget.type === "fixed"
+                ? "Fixed Price"
+                : `$${project.budget.amount}/hr`}
             </p>
           </div>
 
           <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
             <p className="text-xs text-gray-500 mb-1">Time Left</p>
-            <p className={`font-bold text-sm flex items-center gap-1.5 ${project.deadline.isOverdue ? 'text-red-600' : ''}`}>
-              <Clock className={`h-4 w-4 ${project.deadline.isOverdue ? 'text-red-500' : 'text-blue-500'}`} />
+            <p
+              className={`font-bold text-sm flex items-center gap-1.5 ${
+                project.deadline.isOverdue ? "text-red-600" : ""
+              }`}
+            >
+              <Clock
+                className={`h-4 w-4 ${
+                  project.deadline.isOverdue ? "text-red-500" : "text-blue-500"
+                }`}
+              />
               {timeLeft}
             </p>
-            <p className="text-xs text-gray-500 mt-1">{project.deadline.deliveryDays} days delivery</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {project.deadline.deliveryDays} days delivery
+            </p>
           </div>
         </div>
 
@@ -126,12 +167,23 @@ export function ProjectCard({ project, onPause, onResume, onComplete }: ProjectC
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Progress</span>
-            <span className="text-sm text-gray-600">{project.progress.progressPercentage}%</span>
+            <span className="text-sm text-gray-600">
+              {project.progress.progressPercentage}%
+            </span>
           </div>
-          <Progress value={project.progress.progressPercentage} className="h-2 mb-2" />
+          <Progress
+            value={project.progress.progressPercentage}
+            className="h-2 mb-2"
+          />
           <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>{project.progress.completedTasks}/{project.progress.totalTasks} tasks</span>
-            <span>{project.progress.completedMilestones}/{project.progress.totalMilestones} milestones</span>
+            <span>
+              {project.progress.completedTasks}/{project.progress.totalTasks}{" "}
+              tasks
+            </span>
+            <span>
+              {project.progress.completedMilestones}/
+              {project.progress.totalMilestones} milestones
+            </span>
           </div>
         </div>
       </CardContent>
@@ -139,29 +191,44 @@ export function ProjectCard({ project, onPause, onResume, onComplete }: ProjectC
       <CardFooter className="px-6 py-4 border-t bg-gray-50/80 dark:bg-gray-800/80">
         <div className="flex items-center justify-between w-full">
           <div className="flex gap-2">
-            {project.status === 'active' && onPause && (
-              <Button variant="outline" size="sm" className="text-xs h-8 px-3" onClick={() => onPause(project.id)}>
+            {project.status === "active" && onPause && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 px-3"
+                onClick={() => onPause(project.id)}
+              >
                 Pause
               </Button>
             )}
-            {project.status === 'paused' && onResume && (
-              <Button variant="outline" size="sm" className="text-xs h-8 px-3" onClick={() => onResume(project.id)}>
+            {project.status === "paused" && onResume && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 px-3"
+                onClick={() => onResume(project.id)}
+              >
                 Resume
               </Button>
             )}
-            {project.status === 'active' && onComplete && (
-              <Button size="sm" className="text-xs h-8 px-3 bg-green-600 hover:bg-green-700" onClick={() => onComplete(project.id)}>
+            {project.status === "active" && onComplete && (
+              <Button
+                size="sm"
+                className="text-xs h-8 px-3 bg-green-600 hover:bg-green-700"
+                onClick={() => onComplete(project.id)}
+              >
                 Complete
               </Button>
             )}
           </div>
           <Link href={project.projectUrl}>
             <Button variant="outline" size="sm" className="text-xs h-8 px-3">
-              <ExternalLink className="h-3 w-3 mr-1" />View
+              <ExternalLink className="h-3 w-3 mr-1" />
+              View
             </Button>
           </Link>
         </div>
       </CardFooter>
     </Card>
   );
-} 
+}
