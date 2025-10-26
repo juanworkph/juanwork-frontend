@@ -9,7 +9,7 @@ import { AlertCircle, FileText, Loader2 } from "lucide-react";
 interface BidsListProps {
   bids: Bid[];
   isLoading: boolean;
-  onWithdraw: (id: string) => void;
+  onWithdraw?: (id: string) => void;
   onPin: (id: string, isPinned: boolean) => void;
   onLoadMore?: () => void;
   hasMoreBids?: boolean;
@@ -58,6 +58,7 @@ export function BidsList({
             bid={bid}
             onWithdraw={onWithdraw}
             onPin={onPin}
+            allBids={bids}
           />
         ))}
       </div>
