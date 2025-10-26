@@ -5,12 +5,15 @@ export type {
   BookmarkJob,
   BookmarkArticle,
   BookmarkResource,
+  BookmarkFreelancer,
+  BookmarkService,
   Bookmark,
-  BookmarksState
-} from './bookmarks-data';
+  BookmarksState,
+} from "./bookmarks-data";
 
-export { 
+export {
   mockBookmarksData,
+  mockClientBookmarksData,
   formatDate,
-  getTimeAgo
-} from './bookmarks-data'; 
+  getTimeAgo,
+} from "./bookmarks-data";
