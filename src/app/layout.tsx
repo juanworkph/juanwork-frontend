@@ -25,7 +25,9 @@ export default function RootLayout({
         >
           <AuthProvider>
             <ConditionalLayout>
-              {children}
+              <div className="h-[calc(100vh-65px)] overflow-y-auto">
+                {children}
+              </div>
             </ConditionalLayout>
           </AuthProvider>
         </ThemeProvider>
