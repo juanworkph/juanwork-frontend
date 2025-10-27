@@ -10,6 +10,7 @@ import {
   getTimeLeft,
   getStatusColor,
 } from "../schema/proposals-data";
+import { useAuth } from "@/contexts/auth-context";
 import {
   Clock,
   Calendar,
@@ -39,6 +40,9 @@ export function ProposalCard({
   onDecline,
   onWithdraw,
 }: ProposalCardProps) {
+  const { currentRole } = useAuth();
+  const isClient = currentRole === "client";
+
   const getStatusIcon = (status: ProposalStatus) => {
     switch (status) {
       case "pending":
@@ -72,9 +76,11 @@ export function ProposalCard({
     ? getTimeLeft(proposal.expiresAt)
     : "No deadline";
 
+  // Freelancers can accept/decline client proposals
   const canAcceptDecline =
-    proposal.status === "pending" && (onAccept || onDecline);
-  const canWithdraw = proposal.status === "pending" && onWithdraw;
+    proposal.status === "pending" && !isClient && (onAccept || onDecline);
+  // Freelancers can withdraw their proposals (not clients)
+  const canWithdraw = proposal.status === "pending" && !isClient && onWithdraw;
 
   return (
     <Card className="group py-0 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600">
@@ -135,68 +141,112 @@ export function ProposalCard({
           </Badge>
         </div>
 
-        {/* Client Info */}
-        <div className="flex items-center gap-3 mb-5 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
-          <div className="relative h-10 w-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-sm">
+        {/* Company/Freelancer Info */}
+        {isClient ? (
+          // Client view: Show "Your Company" + Freelancer info
+          <div className="flex items-center gap-3 mb-5 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
             <Image
-              src={
-                proposal.client.avatar ||
-                "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=60&h=60&fit=crop"
-              }
-              alt={proposal.client.name}
-              fill
-              className="object-cover"
+              src="/images/logo.png"
+              alt="Your Company"
+              width={40}
+              height={40}
+              className="rounded-full border-2 border-white dark:border-gray-700 shadow-sm"
             />
-          </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {proposal.client.name}
-              </span>
-              {proposal.client.verified && (
-                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
-              )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  Your Company
+                </span>
+                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <span>Proposal to: {proposal.client.name}</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="truncate">{proposal.client.country}</span>
-
-              {proposal.client.rating && (
+            <div className="flex items-center gap-1.5 text-xs">
+              {proposal.clientViewed ? (
                 <>
-                  <span className="mx-1">•</span>
-                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 flex-shrink-0" />
-                  <span>{proposal.client.rating}</span>
+                  <Eye className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  <span className="text-green-600 dark:text-green-400 font-medium">
+                    Viewed
+                  </span>
+                </>
+              ) : (
+                <>
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Pending
+                  </span>
                 </>
               )}
             </div>
           </div>
+        ) : (
+          // Freelancer view: Show client info
+          <div className="flex items-center gap-3 mb-5 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
+            <div className="relative h-10 w-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-sm">
+              <Image
+                src={
+                  proposal.client.avatar ||
+                  "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=60&h=60&fit=crop"
+                }
+                alt={proposal.client.name}
+                fill
+                className="object-cover"
+              />
+            </div>
 
-          <div className="flex items-center gap-1.5 text-xs">
-            {proposal.clientViewed ? (
-              <>
-                <Eye className="h-4 w-4 text-green-500 dark:text-green-400" />
-                <span className="text-green-600 dark:text-green-400 font-medium">
-                  Viewed
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {proposal.client.name}
                 </span>
-              </>
-            ) : (
-              <>
-                <EyeOff className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-500 dark:text-gray-400">
-                  Pending
-                </span>
-              </>
-            )}
+                {proposal.client.verified && (
+                  <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                <span className="truncate">{proposal.client.country}</span>
+
+                {proposal.client.rating && (
+                  <>
+                    <span className="mx-1">•</span>
+                    <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                    <span>{proposal.client.rating}</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-xs">
+              {proposal.clientViewed ? (
+                <>
+                  <Eye className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  <span className="text-green-600 dark:text-green-400 font-medium">
+                    Viewed
+                  </span>
+                </>
+              ) : (
+                <>
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Pending
+                  </span>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Key Info Grid */}
         <div className="grid grid-cols-3 gap-4 text-center">
           <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-              My Proposal
+              {isClient ? "Freelancer Bid" : "My Proposal"}
             </p>
             <p className="font-bold text-sm text-gray-900 dark:text-white">
               {formattedAmount}
@@ -210,7 +260,7 @@ export function ProposalCard({
 
           <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-              Client Budget
+              {isClient ? "My Budget" : "Client Budget"}
             </p>
             <p className="font-bold text-sm text-gray-900 dark:text-white">
               {formattedBudget}

@@ -1,10 +1,10 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { 
-  FileText, 
-  Search, 
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  FileText,
+  Search,
   Filter,
   RefreshCcw,
   SlidersHorizontal,
@@ -14,16 +14,18 @@ import {
   ArrowLeft,
   AlertCircle,
   SortAsc,
-  SortDesc
-} from 'lucide-react';
-import { BidsState } from '../schema/bids-data';
+  SortDesc,
+} from "lucide-react";
+import { BidsState } from "../schema/bids-data";
 
 interface BidsHeaderProps {
-  stats: BidsState['stats'];
-  filters: BidsState['filters'];
-  onFilterChange: (filters: Partial<BidsState['filters']>) => void;
+  stats: BidsState["stats"];
+  filters: BidsState["filters"];
+  onFilterChange: (filters: Partial<BidsState["filters"]>) => void;
   onRefresh: () => void;
   isLoading: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
 export function BidsHeader({
@@ -31,10 +33,12 @@ export function BidsHeader({
   filters,
   onFilterChange,
   onRefresh,
-  isLoading
+  isLoading,
+  title = "My Bids",
+  subtitle,
 }: BidsHeaderProps) {
   // Handle status filter change
-  const handleStatusChange = (status: BidsState['filters']['status']) => {
+  const handleStatusChange = (status: BidsState["filters"]["status"]) => {
     onFilterChange({ status });
   };
 
@@ -45,11 +49,10 @@ export function BidsHeader({
 
   // Handle sort direction change
   const handleSortDirectionChange = () => {
-    onFilterChange({ 
-      sortDirection: filters.sortDirection === 'asc' ? 'desc' : 'asc' 
+    onFilterChange({
+      sortDirection: filters.sortDirection === "asc" ? "desc" : "asc",
     });
   };
-
 
   return (
     <div className="space-y-8">
@@ -61,10 +64,10 @@ export function BidsHeader({
           </div>
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-              My Bids
+              {title}
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {stats.total} bids across all projects
+              {subtitle || `${stats.total} bids across all projects`}
             </p>
           </div>
         </div>
@@ -77,23 +80,27 @@ export function BidsHeader({
             onClick={onRefresh}
             disabled={isLoading}
           >
-            <RefreshCcw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCcw
+              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+            />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
-          
+
           <Button
-            variant={filters.sortDirection === 'asc' ? 'outline' : 'default'}
+            variant={filters.sortDirection === "asc" ? "outline" : "default"}
             size="sm"
             className="gap-2 px-4 py-2 h-auto"
             onClick={handleSortDirectionChange}
           >
-            {filters.sortDirection === 'asc' ? (
+            {filters.sortDirection === "asc" ? (
               <SortAsc className="h-4 w-4" />
             ) : (
               <SortDesc className="h-4 w-4" />
             )}
             <span className="hidden sm:inline">
-              {filters.sortDirection === 'asc' ? 'Oldest First' : 'Newest First'}
+              {filters.sortDirection === "asc"
+                ? "Oldest First"
+                : "Newest First"}
             </span>
           </Button>
         </div>
@@ -102,9 +109,9 @@ export function BidsHeader({
       {/* Stats Overview */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <Button
-          variant={filters.status === 'all' ? 'default' : 'outline'}
+          variant={filters.status === "all" ? "default" : "outline"}
           className="justify-start gap-3 p-4 h-auto shadow-sm hover:shadow transition-all duration-200"
-          onClick={() => handleStatusChange('all')}
+          onClick={() => handleStatusChange("all")}
         >
           <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
             <FileText className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -116,9 +123,9 @@ export function BidsHeader({
         </Button>
 
         <Button
-          variant={filters.status === 'pending' ? 'default' : 'outline'}
+          variant={filters.status === "pending" ? "default" : "outline"}
           className="justify-start gap-3 p-4 h-auto shadow-sm hover:shadow transition-all duration-200"
-          onClick={() => handleStatusChange('pending')}
+          onClick={() => handleStatusChange("pending")}
         >
           <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-full">
             <Clock className="h-5 w-5 text-amber-500 dark:text-amber-400" />
@@ -130,9 +137,9 @@ export function BidsHeader({
         </Button>
 
         <Button
-          variant={filters.status === 'accepted' ? 'default' : 'outline'}
+          variant={filters.status === "accepted" ? "default" : "outline"}
           className="justify-start gap-3 p-4 h-auto shadow-sm hover:shadow transition-all duration-200"
-          onClick={() => handleStatusChange('accepted')}
+          onClick={() => handleStatusChange("accepted")}
         >
           <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-full">
             <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />
@@ -144,9 +151,9 @@ export function BidsHeader({
         </Button>
 
         <Button
-          variant={filters.status === 'rejected' ? 'default' : 'outline'}
+          variant={filters.status === "rejected" ? "default" : "outline"}
           className="justify-start gap-3 p-4 h-auto shadow-sm hover:shadow transition-all duration-200"
-          onClick={() => handleStatusChange('rejected')}
+          onClick={() => handleStatusChange("rejected")}
         >
           <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
             <XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
@@ -158,9 +165,9 @@ export function BidsHeader({
         </Button>
 
         <Button
-          variant={filters.status === 'withdrawn' ? 'default' : 'outline'}
+          variant={filters.status === "withdrawn" ? "default" : "outline"}
           className="justify-start gap-3 p-4 h-auto shadow-sm hover:shadow transition-all duration-200"
-          onClick={() => handleStatusChange('withdrawn')}
+          onClick={() => handleStatusChange("withdrawn")}
         >
           <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
             <ArrowLeft className="h-5 w-5 text-gray-500 dark:text-gray-400" />
@@ -172,9 +179,9 @@ export function BidsHeader({
         </Button>
 
         <Button
-          variant={filters.status === 'expired' ? 'default' : 'outline'}
+          variant={filters.status === "expired" ? "default" : "outline"}
           className="justify-start gap-3 p-4 h-auto shadow-sm hover:shadow transition-all duration-200"
-          onClick={() => handleStatusChange('expired')}
+          onClick={() => handleStatusChange("expired")}
         >
           <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
             <AlertCircle className="h-5 w-5 text-gray-500 dark:text-gray-400" />
@@ -203,14 +210,18 @@ export function BidsHeader({
             <Filter className="h-4 w-4" />
             <span>Filter</span>
           </Button>
-          
+
           <Button variant="outline" size="lg" className="gap-2 px-4">
             <SlidersHorizontal className="h-4 w-4" />
             <span>Sort By</span>
             <Badge variant="secondary" className="ml-1 font-normal">
-              {filters.sortBy === 'date' ? 'Date' : 
-               filters.sortBy === 'amount' ? 'Amount' : 
-               filters.sortBy === 'expiry' ? 'Expiry' : 'Activity'}
+              {filters.sortBy === "date"
+                ? "Date"
+                : filters.sortBy === "amount"
+                ? "Amount"
+                : filters.sortBy === "expiry"
+                ? "Expiry"
+                : "Activity"}
             </Badge>
           </Button>
         </div>
@@ -238,4 +249,4 @@ export function BidsHeader({
       </div> */}
     </div>
   );
-} 
+}

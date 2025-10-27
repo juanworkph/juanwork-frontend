@@ -7,12 +7,13 @@ export type {
   Proposal,
   ProposalsStats,
   ProposalsFilters,
-  ProposalsState
-} from './proposals-data';
+  ProposalsState,
+} from "./proposals-data";
 
 export {
   mockProposalsData,
+  mockClientProposalsData,
   formatCurrency,
   getTimeLeft,
-  getStatusColor
-} from './proposals-data'; 
+  getStatusColor,
+} from "./proposals-data";
