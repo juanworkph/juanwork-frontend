@@ -77,7 +77,11 @@ export const navigation: Record<UserRole, NavSection> = {
       { label: "Messages", href: "/client/messages" },
     ],
     feature: [
-      { label: "Post a Project", href: "/client/projects/post-project" },
+      {
+        label: "Post a Project",
+        href: "/client/projects/post-project",
+        variant: "secondary",
+      },
       { label: "Workstation", href: "/client/workstation" },
     ],
   },

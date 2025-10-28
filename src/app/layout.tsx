@@ -24,11 +24,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <ConditionalLayout>
-              <div className="h-[calc(100vh-65px)] overflow-y-auto">
-                {children}
-              </div>
-            </ConditionalLayout>
+            <ConditionalLayout>{children}</ConditionalLayout>
           </AuthProvider>
         </ThemeProvider>
       </body>
