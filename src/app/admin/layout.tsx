@@ -8,7 +8,7 @@ export default function AdminLayout({
   return (
     <div className="h-screen bg-gradient-to-br from-background to-muted/20">
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] h-full">
         {/* Sidebar - Hidden on mobile, scrollable on desktop */}
         <aside className="hidden lg:flex lg:flex-col bg-background border-r border-border h-full overflow-y-auto">
           <AdminSidebar />
