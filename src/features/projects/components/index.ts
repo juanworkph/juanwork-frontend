@@ -6,3 +6,6 @@ export { Step2CategoriesSkills } from "./step-2-categories-skills";
 export { Step3Upgrades } from "./step-3-upgrades";
 export { Step4Preview } from "./step-4-preview";
 export { ProgressIndicator } from "./progress-indicator";
+export { MyProjectsHeader } from "./my-projects-header";
+export { MyProjectCard } from "./my-project-card";
+export { MyProjectsGrid } from "./my-projects-grid";

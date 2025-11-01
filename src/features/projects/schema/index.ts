@@ -12,3 +12,18 @@ export {
   initialFormData,
   calculateTotalUpgradeCost,
 } from "./post-project-data";
+
+// Export my-projects types and functions
+export type {
+  MyProject,
+  MyProjectStatus,
+  ProjectFilterStatus,
+} from "./my-projects-data";
+export {
+  mockMyProjects,
+  projectStatusConfig,
+  projectFilterOptions,
+  getProjectsByStatus,
+  getDurationLabel as getProjectDurationLabel,
+  getExperienceLevelLabel as getProjectExperienceLevelLabel,
+} from "./my-projects-data";
