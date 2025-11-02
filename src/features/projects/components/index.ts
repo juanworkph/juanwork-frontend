@@ -9,3 +9,4 @@ export { ProgressIndicator } from "./progress-indicator";
 export { MyProjectsHeader } from "./my-projects-header";
 export { MyProjectCard } from "./my-project-card";
 export { MyProjectsGrid } from "./my-projects-grid";
+export { ProjectDetailView } from "./project-detail-view";
