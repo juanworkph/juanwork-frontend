@@ -156,7 +156,7 @@ export function FilterSidebar({
               })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -180,7 +180,7 @@ export function FilterSidebar({
               onFilterChange({ duration: value as ProjectDuration | "all" })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

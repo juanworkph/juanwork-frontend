@@ -205,7 +205,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             View Details
           </Button>
           <Button className="flex-1 bg-[#F45A0B] hover:bg-[#F45A0B]/80">
-            Submit Proposal
+            Bid Now
           </Button>
         </div>
       </CardFooter>

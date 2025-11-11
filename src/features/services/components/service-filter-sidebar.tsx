@@ -199,7 +199,7 @@ export function ServiceFilterSidebar({
               onFilterChange({ deliveryTime: value as DeliveryTime | "all" })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -231,7 +231,7 @@ export function ServiceFilterSidebar({
               })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
