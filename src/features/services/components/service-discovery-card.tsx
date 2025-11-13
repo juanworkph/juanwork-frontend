@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ interface ServiceDiscoveryCardProps {
 }
 
 export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
+  const router = useRouter();
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const getPriceDisplay = () => {
@@ -77,7 +79,7 @@ export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
         </div>
 
         {/* Service Title */}
-        <Link href={service.serviceUrl}>
+        <Link href={`/client/services/${service.id}`}>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
             {service.serviceName}
           </h3>
@@ -203,7 +205,7 @@ export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
           </div>
           <Button
             className="bg-[#F45A0B] hover:bg-[#F45A0B]/80"
-            onClick={() => (window.location.href = service.serviceUrl)}
+            onClick={() => router.push(`/client/services/${service.id}`)}
           >
             View Service
           </Button>
