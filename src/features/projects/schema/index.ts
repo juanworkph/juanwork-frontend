@@ -27,3 +27,59 @@ export {
   getDurationLabel as getProjectDurationLabel,
   getExperienceLevelLabel as getProjectExperienceLevelLabel,
 } from "./my-projects-data";
+
+// Export bidding-data types and functions
+export type {
+  BidStatus,
+  BidFormData,
+  BidAttachment,
+  Bid,
+  BidValidationRules,
+  BidValidationResult,
+} from "./bidding-data";
+export {
+  defaultBidValidationRules,
+  validateBid,
+  formatFileSize,
+  getBidStatusColor,
+  getBidStatusLabel,
+} from "./bidding-data";
+
+// Export mock project details (legacy - kept for backward compatibility)
+export {
+  mockProjectDetails,
+  mockHourlyProjectDetails,
+  mockNewProjectDetails,
+  getMockProjectDetails,
+} from "./mock-project-details";
+
+// Export comprehensive mock data for testing
+export {
+  // Mock clients
+  mockVerifiedClient,
+  mockUnverifiedClient,
+  mockNewClient,
+  mockHighRatedClient,
+  mockInactiveClient,
+  // Mock projects
+  mockFixedProjectWithAttachments,
+  mockHourlyProjectWithAttachments,
+  mockProjectNoProposals,
+  mockProjectNoAttachments,
+  mockEntryLevelProject,
+  mockExpertLevelProject,
+  // Mock similar projects
+  mockSimilarProjects,
+  // Mock bids
+  mockPendingBid,
+  mockAcceptedBid,
+  mockRejectedBid,
+  mockWithdrawnBid,
+  // Data fetching functions
+  getProjectDetailsById,
+  getSimilarProjects,
+  getExistingBid,
+  getAllMockProjects,
+  getAllMockClients,
+  getAllMockBids,
+} from "./mock-data";

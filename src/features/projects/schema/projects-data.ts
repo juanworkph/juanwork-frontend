@@ -20,6 +20,14 @@ export interface Client {
   lastActive?: string;
 }
 
+export interface ExtendedClientInfo extends Client {
+  totalHires: number;
+  paymentVerified: boolean;
+  memberSince: string;
+  responseRate: number; // percentage
+  reviewCount?: number;
+}
+
 export interface ProjectBudget {
   type: ProjectType;
   amount: number;
@@ -70,6 +78,32 @@ export interface Project {
   messageCount?: number;
   attachmentCount?: number;
   notes?: string;
+  proposalStats?: ProposalStatistics;
+}
+
+export interface ProjectAttachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  uploadedAt: string;
+}
+
+export interface ProposalStatistics {
+  totalProposals: number;
+  averageBid: number;
+  lowestBid: number;
+  highestBid: number;
+  averageDeliveryTime: number;
+}
+
+export interface ProjectDetails extends Project {
+  attachments?: ProjectAttachment[];
+  proposalStats?: ProposalStatistics;
+  clientDetails?: ExtendedClientInfo;
+  experienceLevel?: "entry" | "intermediate" | "expert";
+  duration?: string;
 }
 
 export interface ProjectsStats {
@@ -229,6 +263,13 @@ export const mockProjectsData: ProjectsState = {
       hasUnreadMessages: true,
       messageCount: 3,
       attachmentCount: 8,
+      proposalStats: {
+        totalProposals: 15,
+        averageBid: 4200,
+        lowestBid: 3500,
+        highestBid: 5500,
+        averageDeliveryTime: 42,
+      },
     },
     {
       id: "2",
@@ -282,6 +323,13 @@ export const mockProjectsData: ProjectsState = {
       hasUnreadMessages: true,
       messageCount: 7,
       attachmentCount: 12,
+      proposalStats: {
+        totalProposals: 28,
+        averageBid: 48,
+        lowestBid: 35,
+        highestBid: 65,
+        averageDeliveryTime: 75,
+      },
     },
     {
       id: "3",
@@ -482,10 +530,177 @@ export const mockProjectsData: ProjectsState = {
       messageCount: 8,
       attachmentCount: 1,
     },
+    {
+      id: "7",
+      name: "React Dashboard Development",
+      description:
+        "Build a modern admin dashboard using React and TypeScript with data visualization components.",
+      category: "Web Development",
+      skills: ["React", "TypeScript", "Chart.js", "Material-UI"],
+      status: "active",
+      priority: "medium",
+      client: {
+        id: "client7",
+        name: "David Kim",
+        avatar:
+          "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face",
+        country: "South Korea",
+        countryCode: "KR",
+        verified: true,
+        rating: 4.6,
+        totalProjects: 11,
+        responseTime: "4 hours",
+        lastActive: "3 hours ago",
+      },
+      budget: {
+        type: "fixed",
+        amount: 3200,
+        currency: "USD",
+      },
+      progress: {
+        completedTasks: 0,
+        totalTasks: 15,
+        completedMilestones: 0,
+        totalMilestones: 3,
+        progressPercentage: 0,
+        lastUpdated: new Date().toISOString(),
+      },
+      deadline: {
+        startDate: "2024-02-12T00:00:00Z",
+        endDate: "2024-03-25T23:59:59Z",
+        deliveryDays: 42,
+        hoursLeft: 600,
+        isOverdue: false,
+      },
+      projectUrl: "/projects/7",
+      createdAt: "2024-02-12T09:00:00Z",
+      updatedAt: new Date().toISOString(),
+      messageCount: 2,
+      attachmentCount: 4,
+      proposalStats: {
+        totalProposals: 8,
+        averageBid: 3000,
+        lowestBid: 2500,
+        highestBid: 3800,
+        averageDeliveryTime: 38,
+      },
+    },
+    {
+      id: "8",
+      name: "Next.js E-learning Platform",
+      description:
+        "Develop an e-learning platform with course management, video streaming, and progress tracking.",
+      category: "Web Development",
+      skills: ["Next.js", "React", "Node.js", "PostgreSQL", "AWS"],
+      status: "active",
+      priority: "high",
+      client: {
+        id: "client8",
+        name: "Emma Wilson",
+        avatar:
+          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
+        country: "United Kingdom",
+        countryCode: "GB",
+        verified: true,
+        rating: 4.9,
+        totalProjects: 28,
+        responseTime: "1 hour",
+        lastActive: "2 hours ago",
+      },
+      budget: {
+        type: "hourly",
+        amount: 5400,
+        currency: "USD",
+        hourlyRate: 60,
+        estimatedHours: 90,
+      },
+      progress: {
+        completedTasks: 0,
+        totalTasks: 20,
+        completedMilestones: 0,
+        totalMilestones: 5,
+        progressPercentage: 0,
+        lastUpdated: new Date().toISOString(),
+      },
+      deadline: {
+        startDate: "2024-02-14T00:00:00Z",
+        endDate: "2024-04-15T23:59:59Z",
+        deliveryDays: 60,
+        hoursLeft: 1200,
+        isOverdue: false,
+      },
+      projectUrl: "/projects/8",
+      createdAt: "2024-02-14T10:00:00Z",
+      updatedAt: new Date().toISOString(),
+      messageCount: 5,
+      attachmentCount: 6,
+      proposalStats: {
+        totalProposals: 22,
+        averageBid: 58,
+        lowestBid: 45,
+        highestBid: 75,
+        averageDeliveryTime: 55,
+      },
+    },
+    {
+      id: "9",
+      name: "Mobile Fitness App",
+      description:
+        "Cross-platform fitness tracking app with workout plans, nutrition tracking, and social features.",
+      category: "Mobile Development",
+      skills: ["React Native", "TypeScript", "Firebase", "Redux"],
+      status: "active",
+      priority: "medium",
+      client: {
+        id: "client9",
+        name: "Michael Brown",
+        avatar:
+          "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face",
+        country: "Canada",
+        countryCode: "CA",
+        verified: true,
+        rating: 4.7,
+        totalProjects: 16,
+        responseTime: "2 hours",
+        lastActive: "1 hour ago",
+      },
+      budget: {
+        type: "fixed",
+        amount: 4800,
+        currency: "USD",
+      },
+      progress: {
+        completedTasks: 0,
+        totalTasks: 18,
+        completedMilestones: 0,
+        totalMilestones: 4,
+        progressPercentage: 0,
+        lastUpdated: new Date().toISOString(),
+      },
+      deadline: {
+        startDate: "2024-02-13T00:00:00Z",
+        endDate: "2024-04-10T23:59:59Z",
+        deliveryDays: 57,
+        hoursLeft: 1100,
+        isOverdue: false,
+      },
+      projectUrl: "/projects/9",
+      createdAt: "2024-02-13T11:00:00Z",
+      updatedAt: new Date().toISOString(),
+      messageCount: 3,
+      attachmentCount: 5,
+      proposalStats: {
+        totalProposals: 12,
+        averageBid: 4500,
+        lowestBid: 3800,
+        highestBid: 5500,
+        averageDeliveryTime: 50,
+      },
+    },
   ],
   stats: {
-    total: 6,
-    active: 2,
+    total: 9,
+    active: 5,
     completed: 1,
     paused: 1,
     cancelled: 1,

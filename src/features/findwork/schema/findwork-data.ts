@@ -221,7 +221,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 12,
       isFeatured: true,
       isUrgent: true,
-      projectUrl: "/projects/1",
+      projectUrl: "/freelancer/projects/1",
       attachments: 3,
     },
     {
@@ -256,7 +256,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 8,
       isFeatured: false,
       isUrgent: false,
-      projectUrl: "/projects/2",
+      projectUrl: "/freelancer/projects/2",
     },
     {
       id: "3",
@@ -291,7 +291,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 15,
       isFeatured: true,
       isUrgent: false,
-      projectUrl: "/projects/3",
+      projectUrl: "/freelancer/projects/3",
       attachments: 2,
     },
     {
@@ -327,7 +327,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 22,
       isFeatured: false,
       isUrgent: true,
-      projectUrl: "/projects/4",
+      projectUrl: "/freelancer/projects/4",
     },
     {
       id: "5",
@@ -361,7 +361,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 18,
       isFeatured: true,
       isUrgent: false,
-      projectUrl: "/projects/5",
+      projectUrl: "/freelancer/projects/5",
       attachments: 5,
     },
     {
@@ -397,7 +397,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 31,
       isFeatured: false,
       isUrgent: false,
-      projectUrl: "/projects/6",
+      projectUrl: "/freelancer/projects/6",
     },
     {
       id: "7",
@@ -431,7 +431,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 25,
       isFeatured: true,
       isUrgent: true,
-      projectUrl: "/projects/7",
+      projectUrl: "/freelancer/projects/7",
       attachments: 4,
     },
     {
@@ -467,7 +467,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 9,
       isFeatured: false,
       isUrgent: false,
-      projectUrl: "/projects/8",
+      projectUrl: "/freelancer/projects/8",
     },
     {
       id: "9",
@@ -501,7 +501,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 14,
       isFeatured: false,
       isUrgent: false,
-      projectUrl: "/projects/9",
+      projectUrl: "/freelancer/projects/9",
     },
     {
       id: "10",
@@ -536,7 +536,7 @@ export const mockFindWorkData: FindWorkState = {
       proposalsCount: 11,
       isFeatured: true,
       isUrgent: false,
-      projectUrl: "/projects/10",
+      projectUrl: "/freelancer/projects/10",
       attachments: 1,
     },
   ],
