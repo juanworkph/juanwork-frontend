@@ -10,13 +10,13 @@ import {
   RefreshCw,
   ShoppingCart,
 } from "lucide-react";
-import type { ServiceDetailsData } from "../schema/service-details-data";
+import type { ServiceDetailsData } from "../schema/single-view-data";
 
-interface ServiceOverviewProps {
+interface SingleViewOverviewProps {
   service: ServiceDetailsData;
 }
 
-export function ServiceOverview({ service }: ServiceOverviewProps) {
+export function SingleViewOverview({ service }: SingleViewOverviewProps) {
   return (
     <div className="space-y-6">
       {/* Service Title with Badges */}
@@ -109,7 +109,7 @@ export function ServiceOverview({ service }: ServiceOverviewProps) {
           Skills & Expertise
         </h3>
         <div className="flex flex-wrap gap-2" role="list" aria-label="Service skills">
-          {service.skills.map((skill) => (
+          {service.skills.map((skill: string) => (
             <span
               key={skill}
               role="listitem"

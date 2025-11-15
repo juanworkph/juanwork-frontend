@@ -4,17 +4,17 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Clock, RefreshCw } from "lucide-react";
 
-interface ServiceFeaturesProps {
+interface SingleViewFeaturesProps {
   deliveryTime: string;
   revisions: number;
   features?: string[];
 }
 
-export function ServiceFeatures({
+export function SingleViewFeatures({
   deliveryTime,
   revisions,
   features = [],
-}: ServiceFeaturesProps) {
+}: SingleViewFeaturesProps) {
   return (
     <Card className="border border-gray-200 dark:border-gray-700" role="region" aria-labelledby="service-features-heading">
       <CardHeader>

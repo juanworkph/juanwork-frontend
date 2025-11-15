@@ -4,7 +4,7 @@ import React, { memo } from "react";
 import type { ServicePricing, PackageDetails } from "@/features/services/schema";
 import { getDeliveryTimeLabel } from "@/features/services/schema";
 
-interface ServicePricingCardProps {
+interface SingleViewPricingCardProps {
   pricing: ServicePricing;
   packageDetails?: PackageDetails;
   selectedPackage: "basic" | "standard" | "premium" | null;
@@ -12,13 +12,13 @@ interface ServicePricingCardProps {
   onContactProvider: () => void;
 }
 
-export const ServicePricingCard = memo(({
+export const SingleViewPricingCard = memo(({
   pricing,
   packageDetails,
   selectedPackage,
   onSubmitProposal,
   onContactProvider,
-}: ServicePricingCardProps) => {
+}: SingleViewPricingCardProps) => {
   // Determine price to display
   const getDisplayPrice = () => {
     if (pricing.type === "package" && selectedPackage && packageDetails) {
@@ -197,4 +197,4 @@ export const ServicePricingCard = memo(({
   );
 });
 
-ServicePricingCard.displayName = "ServicePricingCard";
+SingleViewPricingCard.displayName = "SingleViewPricingCard";

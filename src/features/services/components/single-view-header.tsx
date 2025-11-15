@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface ServiceDetailsHeaderProps {
+interface SingleViewHeaderProps {
   serviceName: string;
   category: string;
 }
 
-export const ServiceDetailsHeader = ({
+export const SingleViewHeader = ({
   serviceName,
   category,
-}: ServiceDetailsHeaderProps) => {
+}: SingleViewHeaderProps) => {
   const router = useRouter();
 
   const handleBack = () => {

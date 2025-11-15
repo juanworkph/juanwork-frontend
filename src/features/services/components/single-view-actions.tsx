@@ -9,19 +9,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface ServiceActionsProps {
+interface SingleViewActionsProps {
   isBookmarked: boolean;
   onBookmark: () => void;
   onShare: () => void;
   onReport: () => void;
 }
 
-export const ServiceActions = memo(({
+export const SingleViewActions = memo(({
   isBookmarked,
   onBookmark,
   onShare,
   onReport,
-}: ServiceActionsProps) => {
+}: SingleViewActionsProps) => {
   return (
     <section className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700" aria-labelledby="service-actions-heading">
       <h3 id="service-actions-heading" className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
@@ -107,4 +107,4 @@ export const ServiceActions = memo(({
   );
 });
 
-ServiceActions.displayName = "ServiceActions";
+SingleViewActions.displayName = "SingleViewActions";

@@ -1,12 +1,12 @@
 import React from "react";
 
 /**
- * ServiceDetailsSkeleton Component
+ * SingleViewSkeleton Component
  * 
  * Displays a loading skeleton that matches the layout of the actual service details page.
  * Includes shimmer animation effect for better user experience.
  */
-export const ServiceDetailsSkeleton = () => {
+export const SingleViewSkeleton = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header Skeleton */}

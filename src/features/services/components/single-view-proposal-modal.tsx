@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ServiceDetailsData } from "@/features/services/schema";
 
-interface ProposalModalProps {
+interface SingleViewProposalModalProps {
   isOpen: boolean;
   onClose: () => void;
   service: ServiceDetailsData;
@@ -29,13 +29,13 @@ const ALLOWED_FILE_TYPES = [
   "image/jpg",
 ];
 
-export const ProposalModal = ({
+export const SingleViewProposalModal = ({
   isOpen,
   onClose,
   service,
   selectedPackage,
   onSubmit,
-}: ProposalModalProps) => {
+}: SingleViewProposalModalProps) => {
   const [message, setMessage] = useState("");
   const [budget, setBudget] = useState<string>("");
   const [timeline, setTimeline] = useState("");

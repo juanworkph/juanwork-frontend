@@ -30,12 +30,12 @@ export type {
   PackageDetails,
   PackageDetail,
   FAQ,
-} from "./service-details-data";
+} from "./single-view-data";
 
 export {
   mockServiceDetailsData,
   getServiceDetailsById,
-} from "./service-details-data";
+} from "./single-view-data";
 
 // Bookmarks exports
 export type { Bookmark } from "./bookmarks-data";
@@ -54,7 +54,7 @@ export type {
   Proposal,
   ProposalStatus,
   ProposalFormData,
-} from "./proposals-data";
+} from "./single-view-proposals-data";
 
 export {
   mockProposalsData,
@@ -65,4 +65,4 @@ export {
   updateProposalStatus,
   getProposalStatusLabel,
   getProposalStatusColor,
-} from "./proposals-data";
+} from "./single-view-proposals-data";

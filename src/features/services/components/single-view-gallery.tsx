@@ -3,19 +3,19 @@
 import React, { memo } from "react";
 import Image from "next/image";
 
-interface ServiceGalleryProps {
+interface SingleViewGalleryProps {
   thumbnail: string;
   gallery?: string[];
   serviceName: string;
   onImageClick: (index: number) => void;
 }
 
-export const ServiceGallery = memo(({
+export const SingleViewGallery = memo(({
   thumbnail,
   gallery = [],
   serviceName,
   onImageClick,
-}: ServiceGalleryProps) => {
+}: SingleViewGalleryProps) => {
   // Combine thumbnail with gallery images for unified display
   const allImages = [thumbnail, ...gallery];
 
@@ -124,4 +124,4 @@ export const ServiceGallery = memo(({
   );
 });
 
-ServiceGallery.displayName = "ServiceGallery";
+SingleViewGallery.displayName = "SingleViewGallery";

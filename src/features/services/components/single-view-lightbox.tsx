@@ -3,7 +3,7 @@
 import React, { useEffect, useCallback } from "react";
 import Image from "next/image";
 
-interface ImageLightboxProps {
+interface SingleViewLightboxProps {
   images: string[];
   currentIndex: number;
   isOpen: boolean;
@@ -13,7 +13,7 @@ interface ImageLightboxProps {
   serviceName?: string;
 }
 
-export const ImageLightbox = ({
+export const SingleViewLightbox = ({
   images,
   currentIndex,
   isOpen,
@@ -21,7 +21,7 @@ export const ImageLightbox = ({
   onNext,
   onPrevious,
   serviceName = "Service",
-}: ImageLightboxProps) => {
+}: SingleViewLightboxProps) => {
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {

@@ -4,41 +4,39 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import {
-  ServiceDetailsHeader,
-  ServiceGallery,
-  ServiceOverview,
-  ServiceFeatures,
-  ServicePricingCard,
-  ServiceProviderCard,
-  ServiceActions,
-  ServiceDetailsSkeleton,
+  SingleViewHeader,
+  SingleViewGallery,
+  SingleViewOverview,
+  SingleViewFeatures,
+  SingleViewPricingCard,
+  SingleViewProviderCard,
+  SingleViewActions,
+  SingleViewSkeleton,
   ErrorState,
 } from "@/features/services/components";
 import {
   getServiceDetailsById,
   ServiceDetailsData,
-  isServiceBookmarked,
-  addBookmark,
-  removeBookmark,
   CURRENT_USER_ID,
   createProposal,
   ProposalFormData,
 } from "@/features/services/schema";
+import { useBookmark } from "@/hooks/use-bookmark";
 
 // Lazy load modal components for code splitting
-const ImageLightbox = lazy(() =>
+const SingleViewLightbox = lazy(() =>
   import("@/features/services/components").then((mod) => ({
-    default: mod.ImageLightbox,
+    default: mod.SingleViewLightbox,
   }))
 );
-const ProposalModal = lazy(() =>
+const SingleViewProposalModal = lazy(() =>
   import("@/features/services/components").then((mod) => ({
-    default: mod.ProposalModal,
+    default: mod.SingleViewProposalModal,
   }))
 );
-const ShareModal = lazy(() =>
+const SingleViewShareModal = lazy(() =>
   import("@/features/services/components").then((mod) => ({
-    default: mod.ShareModal,
+    default: mod.SingleViewShareModal,
   }))
 );
 
@@ -51,11 +49,13 @@ export default function ServiceDetailsPage() {
   const [service, setService] = useState<ServiceDetailsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [showProposalModal, setShowProposalModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Bookmark hook
+  const { isBookmarked, toggleBookmark } = useBookmark(serviceId);
 
   // Fetch service data
   useEffect(() => {
@@ -75,10 +75,6 @@ export default function ServiceDetailsPage() {
         }
 
         setService(serviceData);
-
-        // Check if service is bookmarked
-        const bookmarked = isServiceBookmarked(CURRENT_USER_ID, serviceId);
-        setIsBookmarked(bookmarked);
       } catch (err) {
         console.error("Error fetching service:", err);
         setError("network");
@@ -89,49 +85,6 @@ export default function ServiceDetailsPage() {
 
     fetchServiceData();
   }, [serviceId]);
-
-  // Handle bookmark toggle with optimistic updates and toast notifications
-  const handleBookmarkToggle = () => {
-    if (!service) return;
-
-    // Store previous state for rollback on error
-    const previousBookmarkState = isBookmarked;
-
-    try {
-      // Optimistic UI update
-      setIsBookmarked(!isBookmarked);
-
-      // Perform the bookmark action
-      if (previousBookmarkState) {
-        // Remove bookmark
-        const success = removeBookmark(serviceId, CURRENT_USER_ID);
-
-        if (success) {
-          toast.success("Bookmark removed", {
-            description: "Service removed from your bookmarks",
-          });
-        } else {
-          throw new Error("Failed to remove bookmark");
-        }
-      } else {
-        // Add bookmark
-        addBookmark(serviceId, CURRENT_USER_ID);
-        toast.success("Service bookmarked", {
-          description: "You can find this service in your bookmarks",
-        });
-      }
-    } catch (err) {
-      console.error("Error toggling bookmark:", err);
-
-      // Revert optimistic update on error
-      setIsBookmarked(previousBookmarkState);
-
-      // Show error toast
-      toast.error("Unable to update bookmark", {
-        description: "Please try again later",
-      });
-    }
-  };
 
   // Handle proposal modal
   const handleOpenProposalModal = () => {
@@ -205,7 +158,7 @@ export default function ServiceDetailsPage() {
 
   // Loading state
   if (isLoading) {
-    return <ServiceDetailsSkeleton />;
+    return <SingleViewSkeleton />;
   }
 
   // Error states
@@ -228,7 +181,7 @@ export default function ServiceDetailsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 animate-in fade-in duration-300">
       {/* Header */}
-      <ServiceDetailsHeader
+      <SingleViewHeader
         serviceName={service.serviceName}
         category={service.category}
       />
@@ -239,7 +192,7 @@ export default function ServiceDetailsPage() {
           {/* Main Content Area - 2/3 width on desktop, full width on mobile/tablet */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
             {/* Service Gallery */}
-            <ServiceGallery
+            <SingleViewGallery
               thumbnail={service.thumbnail || ""}
               gallery={service.gallery}
               serviceName={service.serviceName}
@@ -251,11 +204,11 @@ export default function ServiceDetailsPage() {
               className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 border border-gray-200 dark:border-gray-700"
               aria-labelledby="service-overview-heading"
             >
-              <ServiceOverview service={service} />
+              <SingleViewOverview service={service} />
             </section>
 
             {/* Service Features */}
-            <ServiceFeatures
+            <SingleViewFeatures
               deliveryTime={service.deliveryTime}
               revisions={service.revisions}
               features={service.features}
@@ -268,7 +221,7 @@ export default function ServiceDetailsPage() {
             aria-label="Service details sidebar"
           >
             {/* Service Pricing Card - Desktop sticky, Mobile fixed bottom */}
-            <ServicePricingCard
+            <SingleViewPricingCard
               pricing={service.pricing}
               packageDetails={service.packageDetails}
               selectedPackage={null}
@@ -281,14 +234,14 @@ export default function ServiceDetailsPage() {
 
             {/* Service Provider Card - Hidden on mobile, shown on tablet+ */}
             <div className="hidden md:block">
-              <ServiceProviderCard provider={service.provider} />
+              <SingleViewProviderCard provider={service.provider} />
             </div>
 
             {/* Service Actions - Hidden on mobile, shown on tablet+ */}
             <div className="hidden md:block">
-              <ServiceActions
+              <SingleViewActions
                 isBookmarked={isBookmarked}
-                onBookmark={handleBookmarkToggle}
+                onBookmark={toggleBookmark}
                 onShare={handleOpenShareModal}
                 onReport={handleReport}
               />
@@ -297,10 +250,10 @@ export default function ServiceDetailsPage() {
 
           {/* Mobile-only: Provider and Actions below main content */}
           <div className="md:hidden space-y-4 lg:col-span-2">
-            <ServiceProviderCard provider={service.provider} />
-            <ServiceActions
+            <SingleViewProviderCard provider={service.provider} />
+            <SingleViewActions
               isBookmarked={isBookmarked}
-              onBookmark={handleBookmarkToggle}
+              onBookmark={toggleBookmark}
               onShare={handleOpenShareModal}
               onReport={handleReport}
             />
@@ -311,7 +264,7 @@ export default function ServiceDetailsPage() {
       {/* Proposal Modal - Lazy loaded */}
       {showProposalModal && (
         <Suspense fallback={null}>
-          <ProposalModal
+          <SingleViewProposalModal
             isOpen={showProposalModal}
             onClose={handleCloseProposalModal}
             service={service}
@@ -324,7 +277,7 @@ export default function ServiceDetailsPage() {
       {/* Share Modal - Lazy loaded */}
       {showShareModal && (
         <Suspense fallback={null}>
-          <ShareModal
+          <SingleViewShareModal
             isOpen={showShareModal}
             onClose={handleCloseShareModal}
             serviceUrl={typeof window !== "undefined" ? window.location.href : ""}
@@ -336,7 +289,7 @@ export default function ServiceDetailsPage() {
       {/* Image Lightbox - Lazy loaded */}
       {showLightbox && (
         <Suspense fallback={null}>
-          <ImageLightbox
+          <SingleViewLightbox
             images={[service.thumbnail || "", ...(service.gallery || [])]}
             currentIndex={lightboxIndex}
             isOpen={showLightbox}

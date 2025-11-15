@@ -3,19 +3,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 
-interface ShareModalProps {
+interface SingleViewShareModalProps {
   isOpen: boolean;
   onClose: () => void;
   serviceUrl: string;
   serviceName: string;
 }
 
-export const ShareModal = ({
+export const SingleViewShareModal = ({
   isOpen,
   onClose,
   serviceUrl,
   serviceName,
-}: ShareModalProps) => {
+}: SingleViewShareModalProps) => {
   const [copied, setCopied] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 

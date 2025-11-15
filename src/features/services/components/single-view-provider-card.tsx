@@ -16,11 +16,11 @@ import {
 } from "lucide-react";
 import type { ServiceProvider } from "../schema/discover-services-data";
 
-interface ServiceProviderCardProps {
+interface SingleViewProviderCardProps {
   provider: ServiceProvider;
 }
 
-export const ServiceProviderCard = memo(({ provider }: ServiceProviderCardProps) => {
+export const SingleViewProviderCard = memo(({ provider }: SingleViewProviderCardProps) => {
   // Get initials for avatar fallback
   const getInitials = (name: string): string => {
     return name
@@ -161,4 +161,4 @@ export const ServiceProviderCard = memo(({ provider }: ServiceProviderCardProps)
   );
 });
 
-ServiceProviderCard.displayName = "ServiceProviderCard";
+SingleViewProviderCard.displayName = "SingleViewProviderCard";
