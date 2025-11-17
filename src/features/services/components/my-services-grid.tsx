@@ -1,9 +1,9 @@
 import React from "react";
-import { ServiceCard } from "./service-card";
+import { MyServicesCard } from "./my-services-card";
 import { MyService } from "../schema/my-services-data";
 import { Package } from "lucide-react";
 
-interface ServicesGridProps {
+interface MyServicesGridProps {
   services: MyService[];
   onEdit?: (serviceId: string) => void;
   onDelete?: (serviceId: string) => void;
@@ -11,13 +11,13 @@ interface ServicesGridProps {
   onView?: (serviceId: string) => void;
 }
 
-export function ServicesGrid({
+export function MyServicesGrid({
   services,
   onEdit,
   onDelete,
   onDuplicate,
   onView,
-}: ServicesGridProps) {
+}: MyServicesGridProps) {
   if (services.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -38,7 +38,7 @@ export function ServicesGrid({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {services.map((service) => (
-        <ServiceCard
+        <MyServicesCard
           key={service.id}
           service={service}
           onEdit={onEdit}

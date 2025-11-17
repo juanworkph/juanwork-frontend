@@ -1,9 +1,9 @@
-export { ServiceCard } from "./service-card";
-export { ServicesGrid } from "./services-grid";
+export { MyServicesCard } from "./my-services-card";
+export { MyServicesGrid } from "./my-services-grid";
 export {
-  ServicesGridSkeleton,
-  ServicesHeaderSkeleton,
-} from "./services-skeleton";
+  MyServicesGridSkeleton,
+  MyServicesHeaderSkeleton,
+} from "./my-services-skeleton";
 export { MyServicesHeader } from "./my-services-header";
 export { ServiceDetailView } from "./service-detail-view";
 export { ProgressIndicator } from "./progress-indicator";

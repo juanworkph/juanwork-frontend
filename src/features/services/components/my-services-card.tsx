@@ -17,9 +17,8 @@ import {
   Trash2,
   Copy,
   ExternalLink,
-  Sparkles,
+  Layers
 } from "lucide-react";
-import Image from "next/image";
 import {
   MyService,
   statusConfig,
@@ -27,7 +26,7 @@ import {
 } from "../schema/my-services-data";
 import { formatCurrency } from "../schema/post-service-data";
 
-interface ServiceCardProps {
+interface MyServicesCardProps {
   service: MyService;
   onEdit?: (serviceId: string) => void;
   onDelete?: (serviceId: string) => void;
@@ -35,13 +34,13 @@ interface ServiceCardProps {
   onView?: (serviceId: string) => void;
 }
 
-export function ServiceCard({
+export function MyServicesCard({
   service,
   onEdit,
   onDelete,
   onDuplicate,
   onView,
-}: ServiceCardProps) {
+}: MyServicesCardProps) {
   const statusInfo = statusConfig[service.status];
 
   const handleCardClick = () => {
@@ -52,62 +51,40 @@ export function ServiceCard({
 
   return (
     <Card
-      className="group hover:shadow-lg transition-all duration-300 overflow-hidden p-0 cursor-pointer"
+      className="group hover:shadow-lg transition-all duration-300 overflow-hidden p-0 cursor-pointer border border-gray-200 dark:border-gray-700"
       onClick={handleCardClick}
     >
-      {/* Thumbnail */}
-      <div className="relative h-48 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
-        {service.thumbnail ? (
-          <Image
-            src={service.thumbnail}
-            alt={service.serviceName}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <Sparkles className="h-16 w-16 text-gray-300 dark:text-gray-600" />
-          </div>
-        )}
-
-        {/* Status Badge */}
-        <div className="absolute top-3 left-3">
-          <Badge className={statusInfo.color}>
-            <span className="mr-1">{statusInfo.icon}</span>
-            {statusInfo.label}
-          </Badge>
-        </div>
-
-        {/* Upgrades Badges */}
-        {service.upgrades.length > 0 && (
-          <div className="absolute top-3 right-3 flex flex-wrap gap-1">
-            {service.upgrades.slice(0, 2).map((upgrade) => (
-              <Badge
-                key={upgrade}
-                variant="secondary"
-                className="text-xs bg-black/70 text-white hover:bg-black/80"
-              >
-                {upgrade.toUpperCase()}
-              </Badge>
-            ))}
-            {service.upgrades.length > 2 && (
-              <Badge
-                variant="secondary"
-                className="text-xs bg-black/70 text-white hover:bg-black/80"
-              >
-                +{service.upgrades.length - 2}
-              </Badge>
+      <CardContent className="p-6 h-auto">
+        {/* Header: Status, Category, and Upgrades */}
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge className={statusInfo.color}>
+              <span className="mr-1">{statusInfo.icon}</span>
+              {statusInfo.label}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              <Layers className="h-3 w-3 mr-1" />
+              {service.category}
+            </Badge>
+            {service.upgrades.length > 0 && (
+              <>
+                {service.upgrades.slice(0, 2).map((upgrade) => (
+                  <Badge
+                    key={upgrade}
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    {upgrade.toUpperCase()}
+                  </Badge>
+                ))}
+                {service.upgrades.length > 2 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{service.upgrades.length - 2}
+                  </Badge>
+                )}
+              </>
             )}
           </div>
-        )}
-      </div>
-
-      <CardContent className="pt-0 pr-5 pb-5 pl-5 h-auto">
-        {/* Service Name */}
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-semibold text-lg text-gray-900 dark:text-white line-clamp-2 flex-1">
-            {service.serviceName}
-          </h3>
 
           {/* Actions Dropdown */}
           <DropdownMenu>
@@ -121,7 +98,10 @@ export function ServiceCard({
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              onClick={(e) => e.stopPropagation()}
+            >
               <DropdownMenuItem onClick={() => onView?.(service.id)}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View Service
@@ -146,15 +126,13 @@ export function ServiceCard({
           </DropdownMenu>
         </div>
 
-        {/* Category */}
-        <div className="mb-3">
-          <Badge variant="outline" className="text-xs">
-            {service.category}
-          </Badge>
-        </div>
+        {/* Service Name */}
+        <h3 className="font-semibold text-lg text-gray-900 dark:text-white line-clamp-2 mb-3">
+          {service.serviceName}
+        </h3>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">
+        <p className="ttext-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-4 leading-relaxed">
           {service.description}
         </p>
 

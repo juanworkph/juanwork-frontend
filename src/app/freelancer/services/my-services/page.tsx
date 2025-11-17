@@ -4,9 +4,9 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   MyServicesHeader,
-  ServicesGrid,
-  ServicesHeaderSkeleton,
-  ServicesGridSkeleton,
+  MyServicesGrid,
+  MyServicesHeaderSkeleton,
+  MyServicesGridSkeleton,
 } from "@/features/services/components";
 import {
   mockMyServices,
@@ -113,7 +113,7 @@ export default function MyServicesPage() {
     <div className="position-relative h-full">
       <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
         {isLoading ? (
-          <ServicesHeaderSkeleton />
+          <MyServicesHeaderSkeleton />
         ) : (
           <MyServicesHeader
             searchQuery={searchQuery}
@@ -131,9 +131,9 @@ export default function MyServicesPage() {
         )}
 
         {isLoading ? (
-          <ServicesGridSkeleton />
+          <MyServicesGridSkeleton />
         ) : (
-          <ServicesGrid
+          <MyServicesGrid
             services={sortedServices}
             onEdit={handleEdit}
             onDelete={handleDelete}
