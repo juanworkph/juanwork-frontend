@@ -1,162 +1,39 @@
 "use client";
 
-import React, { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { AlertCircle, ArrowLeft, ChevronLeft, ChevronRight, Home } from "lucide-react"
+// React and Next.js imports
+import React, { lazy, Suspense, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+// Feature components
 import {
-  SingleViewHeader,
-  SingleViewInfoPanel,
+  ErrorBoundary,
+  ErrorState,
+  SingleViewActions,
+  SingleViewBiddingCard,
   SingleViewClientCard,
-  SingleViewBiddingForm,
+  SingleViewDetailsCard,
+  SingleViewHeader,
+  SingleViewInfoCard,
+  SingleViewRequirementsCard,
   SingleViewSimilarProjects,
-} from "@/features/projects/components"
-import { getProjectDetailsById, getExistingBid } from "@/features/projects/schema"
-import type { BidFormData, Bid } from "@/features/projects/schema"
-import type { ProjectDetails } from "@/features/projects/schema"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import Link from "next/link"
+  SingleViewSkeleton,
+} from "@/features/projects/components";
 
-// Skeleton loader component that maintains layout structure
-const ProjectDetailsSkeleton = () => {
-  return (
-    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Main Content - 2 columns */}
-        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-          {/* Header Skeleton */}
-          <Card>
-            <CardHeader className="p-4 sm:p-6">
-              <div className="space-y-2 sm:space-y-3">
-                <Skeleton className="h-6 sm:h-8 w-3/4" />
-                <div className="flex gap-1.5 sm:gap-2">
-                  <Skeleton className="h-5 sm:h-6 w-20 sm:w-24" />
-                  <Skeleton className="h-5 sm:h-6 w-16 sm:w-20" />
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
+// Data fetching functions
+import { getExistingBid, getProjectDetailsById } from "@/features/projects/schema";
 
-          {/* Info Panel Skeleton */}
-          <Card>
-            <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
-              <Skeleton className="h-3 sm:h-4 w-full" />
-              <Skeleton className="h-3 sm:h-4 w-full" />
-              <Skeleton className="h-3 sm:h-4 w-3/4" />
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 pt-3 sm:pt-4">
-                <Skeleton className="h-16 sm:h-20 w-full" />
-                <Skeleton className="h-16 sm:h-20 w-full" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+// Custom hooks
+import { useBookmark } from "@/hooks/use-bookmark";
 
-        {/* Sidebar - 1 column */}
-        <div className="space-y-4 sm:space-y-6">
-          {/* Client Card Skeleton */}
-          <Card>
-            <CardContent className="space-y-2 sm:space-y-3 p-4 sm:p-6">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Skeleton className="h-10 w-10 sm:h-12 sm:w-12 rounded-full" />
-                <div className="space-y-1.5 sm:space-y-2 flex-1">
-                  <Skeleton className="h-3 sm:h-4 w-28 sm:w-32" />
-                  <Skeleton className="h-2.5 sm:h-3 w-20 sm:w-24" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+// Type imports
+import type { Bid, BidFormData, ProjectDetails } from "@/features/projects/schema";
 
-          {/* Bidding Form Skeleton */}
-          <Card>
-            <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
-              <Skeleton className="h-9 sm:h-10 w-full" />
-              <Skeleton className="h-9 sm:h-10 w-full" />
-              <Skeleton className="h-24 sm:h-32 w-full" />
-              <Skeleton className="h-9 sm:h-10 w-full" />
-            </CardContent>
-          </Card>
-
-          {/* Similar Projects Skeleton */}
-          <Card>
-            <CardContent className="space-y-2 sm:space-y-3 p-4 sm:p-6">
-              <Skeleton className="h-5 sm:h-6 w-32 sm:w-40" />
-              <Skeleton className="h-16 sm:h-20 w-full" />
-              <Skeleton className="h-16 sm:h-20 w-full" />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Error component for 404 and network errors
-const ProjectDetailsError = ({
-  error,
-  onRetry,
-  onBackToFindWork,
-}: {
-  error: "not-found" | "network"
-  onRetry?: () => void
-  onBackToFindWork: () => void
-}) => {
-  const isNotFound = error === "not-found"
-
-  return (
-    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
-      <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[60vh] space-y-4 sm:space-y-6 px-4">
-        <Alert variant="destructive" className="max-w-2xl w-full">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle className="text-sm sm:text-base">{isNotFound ? "Project Not Found" : "Network Error"}</AlertTitle>
-          <AlertDescription className="text-xs sm:text-sm">
-            {isNotFound
-              ? "The project you're looking for doesn't exist or may have been removed."
-              : "Unable to load project details. Please check your connection and try again."}
-          </AlertDescription>
-        </Alert>
-
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-          <Button variant="outline" onClick={onBackToFindWork} className="w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10">
-            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="ml-2">Back to Find Work</span>
-          </Button>
-          {!isNotFound && onRetry && (
-            <Button onClick={onRetry} className="w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10">Retry</Button>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Error boundary wrapper component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; fallback: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Error boundary caught an error:", error, errorInfo)
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback
-    }
-
-    return this.props.children
-  }
-}
+// Lazy load share modal for code splitting
+const SingleViewShareModal = lazy(() =>
+  import("@/features/projects/components").then((mod) => ({
+    default: mod.SingleViewShareModal,
+  }))
+);
 
 export default function ProjectDetailsPage({
   params,
@@ -169,6 +46,14 @@ export default function ProjectDetailsPage({
   const [error, setError] = useState<"not-found" | "network" | null>(null)
   const [project, setProject] = useState<ProjectDetails | null>(null)
   const [existingBid, setExistingBid] = useState<Bid | undefined>(undefined)
+  
+  // Bookmark functionality
+  const { isBookmarked, toggleBookmark, isLoading: isBookmarkLoading } = useBookmark(
+    unwrappedParams.projectId
+  )
+
+  // Modal state
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Fetch project data
   const fetchProjectData = async () => {
@@ -231,18 +116,28 @@ export default function ProjectDetailsPage({
     fetchProjectData()
   }
 
+  // Handle modal actions
+  const handleShare = () => {
+    setShowShareModal(true);
+  };
+
+  const handleReport = () => {
+    // TODO: Implement report modal in future task
+    console.log("Report functionality will be implemented soon");
+  };
+
   // Show loading state
   if (isLoading) {
-    return <ProjectDetailsSkeleton />
+    return <SingleViewSkeleton />
   }
 
   // Show error state
   if (error) {
     return (
-      <ProjectDetailsError
-        error={error}
+      <ErrorState
+        type={error === "not-found" ? "not_found" : "network"}
         onRetry={error === "network" ? handleRetry : undefined}
-        onBackToFindWork={handleBackToFindWork}
+        onBack={handleBackToFindWork}
       />
     )
   }
@@ -250,128 +145,123 @@ export default function ProjectDetailsPage({
   // This should not happen due to error handling above, but TypeScript needs it
   if (!project) {
     return (
-      <ProjectDetailsError error="not-found" onBackToFindWork={handleBackToFindWork} />
+      <ErrorState type="not_found" onBack={handleBackToFindWork} />
     )
   }
 
   // Render main content with error boundary
   return (
     <ErrorBoundary
-      fallback={
-        <ProjectDetailsError error="network" onBackToFindWork={handleBackToFindWork} />
-      }
+      fallback={<ErrorState type="network" onBack={handleBackToFindWork} />}
     >
-      {/* Breadcrumb Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 max-w-7xl">
-          {/* Back Button */}
-          <div className="mb-2 sm:mb-3">
-            <Button
-              variant="ghost"
-              onClick={handleBackToFindWork}
-              className="gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white -ml-2 h-8 sm:h-9 text-xs sm:text-sm"
-              aria-label="Go back to find work"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 animate-in fade-in duration-300">
+        {/* Header with Breadcrumb */}
+        <SingleViewHeader
+          projectName={project.name}
+          category={project.category}
+          projectId={project.id}
+        />
+
+        {/* Main Content - Responsive Layout */}
+        <main className="container mx-auto px-4 py-6 md:py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Main Content Area - 2/3 width on desktop, full width on mobile/tablet */}
+            <section className="lg:col-span-2 space-y-4 md:space-y-6" aria-label="Project information">
+              {/* Project Info Card */}
+              <SingleViewInfoCard project={project} />
+
+              {/* Project Details Card */}
+              <SingleViewDetailsCard
+                description={project.description}
+                attachments={project.attachments}
+              />
+
+              {/* Project Requirements Card */}
+              <SingleViewRequirementsCard
+                skills={project.skills}
+                experienceLevel={project.experienceLevel}
+                projectType={project.budget.type}
+                duration={project.duration}
+              />
+            </section>
+
+            {/* Sidebar - 1/3 width on desktop, full width on mobile/tablet */}
+            <aside
+              className="space-y-4 md:space-y-6 lg:block"
+              aria-label="Project details sidebar"
             >
-              <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Back</span>
-            </Button>
+              {/* Bidding Card */}
+              <SingleViewBiddingCard
+                project={project}
+                existingBid={existingBid}
+                onSubmit={handleBidSubmit}
+              />
+
+              {/* Client Card - Hidden on mobile, shown on tablet+ */}
+              <div className="hidden md:block">
+                {project.clientDetails && (
+                  <SingleViewClientCard client={project.clientDetails} />
+                )}
+              </div>
+
+              {/* Actions - Hidden on mobile, shown on tablet+ */}
+              <div className="hidden md:block">
+                <SingleViewActions
+                  isBookmarked={isBookmarked}
+                  onBookmark={toggleBookmark}
+                  onShare={handleShare}
+                  onReport={handleReport}
+                  isBookmarkLoading={isBookmarkLoading}
+                />
+              </div>
+
+              {/* Similar Projects - Hidden on mobile, shown on tablet+ */}
+              <div className="hidden md:block">
+                <SingleViewSimilarProjects
+                  currentProjectId={project.id}
+                  category={project.category}
+                  skills={project.skills}
+                  maxProjects={5}
+                />
+              </div>
+            </aside>
+
+            {/* Mobile-only: Client, Actions, and Similar Projects below main content */}
+            <section className="md:hidden space-y-4 lg:col-span-2" aria-label="Additional project information">
+              {project.clientDetails && (
+                <SingleViewClientCard client={project.clientDetails} />
+              )}
+              <SingleViewActions
+                isBookmarked={isBookmarked}
+                onBookmark={toggleBookmark}
+                onShare={handleShare}
+                onReport={handleReport}
+                isBookmarkLoading={isBookmarkLoading}
+              />
+              <SingleViewSimilarProjects
+                currentProjectId={project.id}
+                category={project.category}
+                skills={project.skills}
+                maxProjects={5}
+              />
+            </section>
           </div>
+        </main>
 
-          {/* Breadcrumb Navigation */}
-          <nav aria-label="Breadcrumb" className="flex items-center flex-wrap">
-            <ol className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-              {/* Home */}
-              <li className="flex items-center">
-                <Link
-                  href="/"
-                  className="flex items-center gap-1 sm:gap-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                  aria-label="Go to home page"
-                >
-                  <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Home</span>
-                </Link>
-              </li>
-
-              {/* Separator */}
-              <li aria-hidden="true">
-                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-gray-600" />
-              </li>
-
-              {/* Find Work */}
-              <li className="flex items-center">
-                <Link
-                  href="/freelancer/findwork"
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                  aria-label="Go to find work page"
-                >
-                  <span className="hidden sm:inline">Find Work</span>
-                  <span className="sm:hidden">Projects</span>
-                </Link>
-              </li>
-
-              {/* Separator */}
-              <li aria-hidden="true">
-                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-gray-600" />
-              </li>
-
-              {/* Category */}
-              <li className="flex items-center">
-                <Link
-                  href={`/freelancer/findwork?category=${encodeURIComponent(project.category)}`}
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors max-w-[100px] sm:max-w-[150px] truncate"
-                  aria-label={`Go to ${project.category} category`}
-                >
-                  {project.category}
-                </Link>
-              </li>
-
-              {/* Separator */}
-              <li aria-hidden="true">
-                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-gray-600" />
-              </li>
-
-              {/* Current Project */}
-              <li className="flex items-center">
-                <span
-                  className="text-gray-900 dark:text-white font-medium max-w-[150px] sm:max-w-[250px] md:max-w-[350px] truncate"
-                  aria-current="page"
-                >
-                  {project.name}
-                </span>
-              </li>
-            </ol>
-          </nav>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* Main Content - 2 columns */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            <SingleViewHeader project={project} />
-            <SingleViewInfoPanel project={project} />
-          </div>
-
-          {/* Sidebar - 1 column */}
-          <div className="space-y-4 sm:space-y-6">
-            {project.clientDetails && (
-              <SingleViewClientCard client={project.clientDetails} />
-            )}
-            <SingleViewBiddingForm 
-              project={project} 
-              existingBid={existingBid}
-              onSubmit={handleBidSubmit} 
+        {/* Share Modal - Lazy loaded */}
+        {showShareModal && (
+          <Suspense fallback={null}>
+            <SingleViewShareModal
+              isOpen={showShareModal}
+              onClose={() => setShowShareModal(false)}
+              projectUrl={
+                typeof window !== "undefined" ? window.location.href : ""
+              }
+              projectName={project.name}
             />
-            <SingleViewSimilarProjects
-              currentProjectId={project.id}
-              category={project.category}
-              skills={project.skills}
-              maxProjects={5}
-            />
-          </div>
-        </div>
+          </Suspense>
+        )}
       </div>
     </ErrorBoundary>
-  )
+  );
 }

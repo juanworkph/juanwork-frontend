@@ -77,7 +77,7 @@ const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
   }
 
   return (
-    <Card>
+    <Card className="gap-0 p-0">
       <CardHeader className="p-4 sm:p-6">
         <CardTitle className="text-base sm:text-lg">About the Client</CardTitle>
       </CardHeader>

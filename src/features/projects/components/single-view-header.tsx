@@ -1,207 +1,110 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Badge } from "@/components/ui/badge"
+import { ChevronLeft, ChevronRight, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import {
-  ArrowLeft,
-  Bookmark,
-  Share2,
-  Clock,
-  Calendar,
-} from "lucide-react"
-import { toast } from "sonner"
-import { useBookmark } from "@/hooks/use-bookmark"
-import {
-  ProjectDetails,
-  getStatusColor,
-  getPriorityColor,
-} from "../schema"
 
 interface SingleViewHeaderProps {
-  project: ProjectDetails
+  projectName: string
+  category: string
+  projectId: string
 }
 
-export const SingleViewHeader: React.FC<SingleViewHeaderProps> = ({
-  project,
-}) => {
+export const SingleViewHeader = ({
+  projectName,
+  category,
+}: SingleViewHeaderProps) => {
   const router = useRouter()
-  const { isBookmarked, toggleBookmark, isLoading } = useBookmark(project.id)
 
-  const handleBack = React.useCallback(() => {
+  const handleBack = () => {
     router.push("/freelancer/findwork")
-  }, [router])
-
-  const handleShare = React.useCallback(async () => {
-    const projectUrl = `${window.location.origin}/freelancer/projects/${project.id}`
-
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(projectUrl)
-        toast.success("Project link copied to clipboard")
-      } else {
-        // Fallback for browsers without Clipboard API support
-        const textArea = document.createElement("textarea")
-        textArea.value = projectUrl
-        textArea.style.position = "fixed"
-        textArea.style.left = "-999999px"
-        document.body.appendChild(textArea)
-        textArea.select()
-        try {
-          document.execCommand("copy")
-          toast.success("Project link copied to clipboard")
-        } catch (err) {
-          toast.error("Failed to copy link. Please copy manually: " + projectUrl)
-        }
-        document.body.removeChild(textArea)
-      }
-    } catch (err) {
-      console.error("Failed to copy link:", err)
-      toast.error("Failed to copy link to clipboard")
-    }
-  }, [project.id])
-
-  const handleBookmark = React.useCallback(async () => {
-    await toggleBookmark()
-  }, [toggleBookmark])
-
-  const formatPostedDate = React.useCallback((dateString: string): string => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffMinutes = Math.floor(diffMs / (1000 * 60))
-
-    if (diffMinutes < 60) {
-      return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`
-    } else if (diffHours < 24) {
-      return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`
-    } else if (diffDays < 7) {
-      return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`
-    } else {
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    }
-  }, [])
-
-  const getTimeRemaining = React.useCallback((endDate: string): string => {
-    const now = new Date()
-    const end = new Date(endDate)
-    const diffMs = end.getTime() - now.getTime()
-
-    if (diffMs <= 0) {
-      return "Expired"
-    }
-
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-
-    if (days > 0) {
-      return `${days} day${days !== 1 ? "s" : ""} remaining`
-    } else if (hours > 0) {
-      return `${hours} hour${hours !== 1 ? "s" : ""} remaining`
-    } else {
-      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
-      return `${minutes} minute${minutes !== 1 ? "s" : ""} remaining`
-    }
-  }, [])
+  }
 
   return (
-    <Card className="border shadow-sm">
-      <CardContent className="p-4 sm:p-6">
+    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="container mx-auto px-4 py-4">
         {/* Back Button */}
-        <div className="mb-3 sm:mb-4">
+        <div className="mb-2 sm:mb-3">
           <Button
             variant="ghost"
-            size="sm"
             onClick={handleBack}
-            className="hover:bg-accent hover:text-accent-foreground -ml-2"
+            className="gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white -ml-2 h-8 sm:h-9 text-xs sm:text-sm"
+            aria-label="Go back to find work"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden xs:inline">Back to Find Work</span>
-            <span className="xs:hidden">Back</span>
+            <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Back</span>
           </Button>
         </div>
 
-        {/* Main Header Content */}
-        <div className="flex flex-col gap-3 sm:gap-4">
-          {/* Title and Action Buttons */}
-          <div className="flex flex-col gap-3 sm:gap-4">
-            <div className="flex-1">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 sm:mb-3 leading-tight">
-                {project.name}
-              </h1>
-
-              {/* Badges */}
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                <Badge variant="outline" className="border text-xs sm:text-sm">
-                  {project.category}
-                </Badge>
-                <Badge className={`${getStatusColor(project.status)} border text-xs sm:text-sm`}>
-                  {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className={`${getPriorityColor(project.priority)} border text-xs sm:text-sm`}
-                >
-                  {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
-                </Badge>
-              </div>
-            </div>
-
-            {/* Action Buttons - Mobile optimized with icon-only on small screens */}
-            <div className="flex items-center gap-2 sm:gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBookmark}
-                disabled={isLoading}
-                className={`border hover:bg-accent hover:text-accent-foreground flex-1 sm:flex-initial ${
-                  isBookmarked ? "bg-accent text-accent-foreground" : ""
-                }`}
-                aria-label={isBookmarked ? "Remove bookmark" : "Bookmark project"}
+        {/* Breadcrumb Navigation */}
+        <nav aria-label="Breadcrumb navigation" className="flex items-center flex-wrap">
+          <ol className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm" role="list">
+            {/* Home */}
+            <li className="flex items-center" role="listitem">
+              <Link
+                href="/"
+                className="flex items-center gap-1 sm:gap-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                aria-label="Navigate to home page"
               >
-                <Bookmark
-                  className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`}
-                />
-                <span className="hidden md:inline ml-2">
-                  {isBookmarked ? "Bookmarked" : "Bookmark"}
-                </span>
-              </Button>
+                <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Home</span>
+              </Link>
+            </li>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleShare}
-                className="border hover:bg-accent hover:text-accent-foreground flex-1 sm:flex-initial"
-                aria-label="Share project"
+            {/* Separator */}
+            <li aria-hidden="true" role="presentation">
+              <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-gray-600" />
+            </li>
+
+            {/* Find Work */}
+            <li className="flex items-center" role="listitem">
+              <Link
+                href="/freelancer/findwork"
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                aria-label="Navigate to find work page"
               >
-                <Share2 className="h-4 w-4" />
-                <span className="hidden md:inline ml-2">Share</span>
-              </Button>
-            </div>
-          </div>
+                <span className="hidden sm:inline">Find Work</span>
+                <span className="sm:hidden">Projects</span>
+              </Link>
+            </li>
 
-          {/* Posted Date and Time Remaining */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span>Posted {formatPostedDate(project.createdAt)}</span>
-            </div>
-            <span className="text-muted-foreground/50 hidden xs:inline">•</span>
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span>{getTimeRemaining(project.deadline.endDate)}</span>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+            {/* Separator */}
+            <li aria-hidden="true" role="presentation">
+              <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-gray-600" />
+            </li>
+
+            {/* Category */}
+            <li className="flex items-center" role="listitem">
+              <Link
+                href={`/freelancer/findwork?category=${encodeURIComponent(category)}`}
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors max-w-[100px] sm:max-w-[150px] truncate"
+                aria-label={`Navigate to ${category} category`}
+                title={category}
+              >
+                {category}
+              </Link>
+            </li>
+
+            {/* Separator */}
+            <li aria-hidden="true" role="presentation">
+              <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-gray-600" />
+            </li>
+
+            {/* Current Project */}
+            <li className="flex items-center" role="listitem">
+              <span
+                className="text-gray-900 dark:text-white font-medium max-w-[150px] sm:max-w-[250px] md:max-w-[350px] truncate"
+                aria-current="page"
+                title={projectName}
+              >
+                {projectName}
+              </span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+    </div>
   )
 }

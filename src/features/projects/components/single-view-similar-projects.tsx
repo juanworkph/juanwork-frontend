@@ -115,7 +115,7 @@ export const SingleViewSimilarProjects = ({
   }
 
   return (
-    <Card className="border shadow-sm">
+    <Card className="border shadow-sm gap-0 p-0">
       <CardHeader className="p-4 sm:p-6">
         <CardTitle className="text-base sm:text-lg">Similar Projects</CardTitle>
       </CardHeader>
