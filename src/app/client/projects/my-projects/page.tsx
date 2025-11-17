@@ -96,9 +96,7 @@ export default function MyProjectsPage() {
   };
 
   const handleView = (projectId: string) => {
-    toast.info(`Viewing project ${projectId}`);
-    // In a real app, navigate to project details
-    // router.push(`/client/projects/${projectId}`);
+    router.push(`/client/projects/${projectId}`);
   };
 
   const handleRefresh = async () => {
