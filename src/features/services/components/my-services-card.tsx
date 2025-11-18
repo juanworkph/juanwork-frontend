@@ -54,7 +54,7 @@ export function MyServicesCard({
       className="group hover:shadow-lg transition-all duration-300 overflow-hidden p-0 cursor-pointer border border-gray-200 dark:border-gray-700"
       onClick={handleCardClick}
     >
-      <CardContent className="p-6 h-auto">
+      <CardContent className="p-6 h-full">
         {/* Header: Status, Category, and Upgrades */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-wrap">

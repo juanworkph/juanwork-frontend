@@ -43,7 +43,7 @@ export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden p-0">
-      <CardContent className="p-6">
+      <CardContent className="p-6 h-full">
         {/* Header: Category, Badges and Bookmark */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2 flex-wrap">

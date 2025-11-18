@@ -50,7 +50,7 @@ export function ProjectCard({
 
   return (
     <Card className="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 py-0 overflow-hidden">
-      <CardContent className="p-6">
+      <CardContent className="p-6 h-full">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
