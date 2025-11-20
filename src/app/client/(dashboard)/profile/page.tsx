@@ -2,7 +2,6 @@
 
 import React from "react";
 import {
-  ProfileHeader,
   AboutMeSection,
   LanguagesSection,
   SocialLinks,
@@ -18,17 +17,6 @@ export default function ClientProfilePage() {
 
   return (
     <div className="space-y-6 lg:space-y-8">
-      {/* Profile Header */}
-      <ProfileHeader
-        personalInfo={profile.personalInfo}
-        companyDetails={profile.companyDetails}
-        stats={profile.stats}
-        isVerified={profile.isVerified}
-        profileCompleteness={profile.profileCompleteness}
-        joinDate={profile.joinDate}
-        isOwnProfile={isOwnProfile}
-      />
-
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Left Column - Primary Content */}

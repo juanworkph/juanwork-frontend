@@ -70,8 +70,6 @@ export interface PersonalInfo {
   phone?: string;
   website?: string;
   avatar: string;
-  coverImage?: string;
-  hourlyRate: number;
   availability: "Available" | "Busy" | "Not Available";
   responseTime: string;
 }
@@ -83,16 +81,6 @@ export interface VideoIntroduction {
   title: string;
 }
 
-export interface ProfileStats {
-  totalEarnings: number;
-  completedProjects: number;
-  clientSatisfaction: number;
-  responseRate: number;
-  onTimeDelivery: number;
-  totalReviews: number;
-  averageRating: number;
-}
-
 export interface FreelancerProfile {
   personalInfo: PersonalInfo;
   videoIntroduction?: VideoIntroduction;
@@ -102,11 +90,8 @@ export interface FreelancerProfile {
   certifications: Certification[];
   workExperience: WorkExperience[];
   socialLinks: SocialLinks;
-  stats: ProfileStats;
   joinDate: string;
   lastActive: string;
-  isVerified: boolean;
-  profileCompleteness: number;
 }
 
 // ============================================
@@ -123,7 +108,6 @@ export interface ClientPersonalInfo {
   phone?: string;
   website?: string;
   avatar: string;
-  coverImage?: string;
   availability: "Available" | "Busy" | "Not Available";
   responseTime: string;
 }
@@ -143,26 +127,14 @@ export interface ProjectPreference {
   importance: number; // 1-5 scale
 }
 
-export interface ClientStats {
-  totalProjects: number;
-  activeProjects: number;
-  totalSpent: number;
-  averageRating: number;
-  totalReviews: number;
-  paymentVerified: boolean;
-}
-
 export interface ClientProfile {
   personalInfo: ClientPersonalInfo;
   companyDetails?: CompanyDetails;
   projectPreferences: ProjectPreference[];
   languages: Language[];
   socialLinks: SocialLinks;
-  stats: ClientStats;
   joinDate: string;
   lastActive: string;
-  isVerified: boolean;
-  profileCompleteness: number;
 }
 
 // ============================================
@@ -182,9 +154,6 @@ export const mockFreelancerProfile: FreelancerProfile = {
     website: "https://alexrodriguez.dev",
     avatar:
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-    coverImage:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=400&fit=crop",
-    hourlyRate: 85,
     availability: "Available",
     responseTime: "Within 1 hour",
   },
@@ -354,19 +323,8 @@ export const mockFreelancerProfile: FreelancerProfile = {
     dribbble: "https://dribbble.com/alexrodriguez",
     portfolio: "https://alexrodriguez.dev",
   },
-  stats: {
-    totalEarnings: 125000,
-    completedProjects: 47,
-    clientSatisfaction: 98,
-    responseRate: 100,
-    onTimeDelivery: 96,
-    totalReviews: 89,
-    averageRating: 4.9,
-  },
   joinDate: "2019-01-15",
   lastActive: "2024-01-15T10:30:00Z",
-  isVerified: true,
-  profileCompleteness: 95,
 };
 
 // Client Mock Data
@@ -382,8 +340,6 @@ export const mockClientProfile: ClientProfile = {
     website: "https://techvision.com",
     avatar:
       "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face",
-    coverImage:
-      "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=1200&h=400&fit=crop",
     availability: "Available",
     responseTime: "Within 2 hours",
   },
@@ -414,16 +370,6 @@ export const mockClientProfile: ClientProfile = {
     twitter: "https://twitter.com/michaelthompson",
     github: "https://github.com/michaelthompson",
   },
-  stats: {
-    totalProjects: 24,
-    activeProjects: 5,
-    totalSpent: 175000,
-    averageRating: 4.8,
-    totalReviews: 42,
-    paymentVerified: true,
-  },
   joinDate: "2020-03-10",
   lastActive: "2024-01-18T14:45:00Z",
-  isVerified: true,
-  profileCompleteness: 90,
 };

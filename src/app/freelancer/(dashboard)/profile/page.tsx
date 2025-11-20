@@ -1,17 +1,14 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 import {
-  ProfileHeader,
   AboutMeSection,
   VideoIntroduction,
   SkillsSection,
   LanguagesSection,
   SocialLinks,
-} from '@/features/profile/components';
-import {
-  mockFreelancerProfile
-} from '@/features/profile/schema';
+} from "@/features/profile/components";
+import { mockFreelancerProfile } from "@/features/profile/schema";
 
 export default function FreelancerProfilePage() {
   // Use the mock data from the profile feature
@@ -20,50 +17,37 @@ export default function FreelancerProfilePage() {
 
   return (
     <div className="space-y-6 lg:space-y-8">
-      {/* Profile Header */}
-      <ProfileHeader 
-        personalInfo={profile.personalInfo}
-        stats={profile.stats}
-        isVerified={profile.isVerified}
-        profileCompleteness={profile.profileCompleteness}
-        joinDate={profile.joinDate}
-        isOwnProfile={isOwnProfile}
-      />
-
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Left Column - Primary Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* About Me Section */}
-          <AboutMeSection 
+          <AboutMeSection
             personalInfo={profile.personalInfo}
             joinDate={profile.joinDate}
             isOwnProfile={isOwnProfile}
           />
 
           {/* Video Introduction */}
-          <VideoIntroduction 
+          <VideoIntroduction
             videoIntroduction={profile.videoIntroduction}
             isOwnProfile={isOwnProfile}
           />
 
           {/* Skills Section */}
-          <SkillsSection 
-            skills={profile.skills}
-            isOwnProfile={isOwnProfile}
-          />
+          <SkillsSection skills={profile.skills} isOwnProfile={isOwnProfile} />
         </div>
 
         {/* Right Column - Secondary Content */}
         <div className="space-y-6">
           {/* Languages */}
-          <LanguagesSection 
+          <LanguagesSection
             languages={profile.languages}
             isOwnProfile={isOwnProfile}
           />
 
           {/* Social Links */}
-          <SocialLinks 
+          <SocialLinks
             socialLinks={profile.socialLinks}
             isOwnProfile={isOwnProfile}
           />

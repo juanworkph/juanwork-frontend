@@ -1,5 +1,4 @@
 // Reusable profile components (work for both freelancer and client)
-export { ProfileHeader } from "./profile-header";
 export { AboutMeSection } from "./about-me-section";
 export { LanguagesSection } from "./languages-section";
 export { SocialLinks } from "./social-links";

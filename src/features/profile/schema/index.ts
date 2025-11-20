@@ -9,13 +9,11 @@ export type {
   WorkExperience,
   PersonalInfo,
   VideoIntroduction,
-  ProfileStats,
   FreelancerProfile,
   // Client
   ClientPersonalInfo,
   CompanyDetails,
   ProjectPreference,
-  ClientStats,
   ClientProfile,
 } from "./profile-data";
 
