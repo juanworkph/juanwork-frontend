@@ -85,15 +85,29 @@ export function ProposalCard({
   // Freelancers can withdraw their proposals (not clients)
   const canWithdraw = proposal.status === "pending" && !isClient && onWithdraw;
 
-  // Format submitted date
-  const submittedDate = new Date(proposal.submittedAt).toLocaleDateString(
-    "en-US",
-    {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }
-  );
+  // Format submitted date - consistent between server and client
+  const formatSubmittedDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    return `${
+      months[date.getMonth()]
+    } ${date.getDate()}, ${date.getFullYear()}`;
+  };
+
+  const submittedDate = formatSubmittedDate(proposal.submittedAt);
 
   return (
     <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow duration-200 py-0">

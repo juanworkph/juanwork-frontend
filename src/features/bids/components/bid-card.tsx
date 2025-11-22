@@ -90,12 +90,14 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
   // Calculate time left until deadline
   const timeLeft = bid.expiresAt ? getTimeLeft(bid.expiresAt) : "No deadline";
 
-  // Format bid date
-  const bidDate = new Date(bid.bidDate).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  // Format bid date - consistent between server and client
+  const formatBidDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  };
+
+  const bidDate = formatBidDate(bid.bidDate);
 
   // Check if bid can be withdrawn (only pending bids for freelancers)
   const canWithdraw = bid.status === "pending" && onWithdraw && !isClient;
