@@ -25,6 +25,9 @@ import {
   ExternalLink,
   Pin,
   Zap,
+  DollarSign,
+  Layers,
+  MessageSquare,
 } from "lucide-react";
 
 interface ProposalCardProps {
@@ -82,58 +85,33 @@ export function ProposalCard({
   // Freelancers can withdraw their proposals (not clients)
   const canWithdraw = proposal.status === "pending" && !isClient && onWithdraw;
 
+  // Format submitted date
+  const submittedDate = new Date(proposal.submittedAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }
+  );
+
   return (
-    <Card className="group py-0 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600">
-      <CardContent className="p-6 h-full">
-        {/* Header with Status and Special Badges */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1 pr-3">
-            <div className="flex items-center gap-2 mb-2">
-              {proposal.isPinned && (
-                <Badge
-                  variant="outline"
-                  className="border-amber-300 text-amber-600 dark:text-amber-400 text-xs px-2 py-1"
-                >
-                  <Pin className="h-3 w-3 mr-1 fill-amber-500" />
-                  Pinned
-                </Badge>
-              )}
-
-              {proposal.isUrgent && (
-                <Badge
-                  variant="outline"
-                  className="border-red-300 text-red-600 dark:text-red-400 text-xs px-2 py-1"
-                >
-                  <Zap className="h-3 w-3 mr-1 fill-red-500" />
-                  Urgent
-                </Badge>
-              )}
-
-              {proposal.project.featured && (
-                <Badge
-                  variant="outline"
-                  className="border-blue-300 text-blue-600 dark:text-blue-400 text-xs px-2 py-1"
-                >
-                  <Star className="h-3 w-3 mr-1 fill-blue-500" />
-                  Featured
-                </Badge>
-              )}
+    <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow duration-200 py-0">
+      <CardContent className="flex-1 p-4">
+        {/* Header with date, category and status */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3 whitespace-nowrap">
+            <div className="flex items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5" />
+              <span>{proposal.project.category}</span>
             </div>
-
-            <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              {proposal.project.title}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
-              {proposal.project.description}
-            </p>
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>{submittedDate}</span>
+            </div>
           </div>
-
-          <Badge
-            className={`ml-2 flex-shrink-0 ${getStatusColor(
-              proposal.status
-            )} border`}
-          >
-            <span className="flex items-center gap-1.5 text-xs font-medium">
+          <Badge className={`${getStatusColor(proposal.status)} text-xs`}>
+            <span className="flex items-center gap-1">
               {getStatusIcon(proposal.status)}
               {proposal.status.charAt(0).toUpperCase() +
                 proposal.status.slice(1)}
@@ -141,216 +119,223 @@ export function ProposalCard({
           </Badge>
         </div>
 
-        {/* Company/Freelancer Info */}
-        {isClient ? (
-          // Client view: Show "Your Company" + Freelancer info
-          <div className="flex items-center gap-3 mb-5 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
-            <Image
-              src="/images/logo.png"
-              alt="Your Company"
-              width={40}
-              height={40}
-              className="rounded-full border-2 border-white dark:border-gray-700 shadow-sm"
-            />
+        {/* Badges row */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {proposal.isPinned && (
+            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
+              <Pin className="h-3 w-3 mr-1 fill-amber-600" />
+              Pinned
+            </Badge>
+          )}
+          {proposal.isUrgent && (
+            <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 text-xs">
+              <Zap className="h-3 w-3 mr-1 fill-red-600" />
+              Urgent
+            </Badge>
+          )}
+          {proposal.project.featured && (
+            <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0 text-xs">
+              <Star className="h-3 w-3 mr-1 fill-blue-600" />
+              Featured
+            </Badge>
+          )}
+        </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  Your Company
-                </span>
-                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                <span>Proposal to: {proposal.client.name}</span>
-              </div>
-            </div>
+        {/* Project Title and Description */}
+        <div className="space-y-4">
+          <h3 className="font-medium text-lg line-clamp-2 mb-[10px]">
+            <Link
+              href={proposal.project.projectUrl}
+              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+            >
+              {proposal.project.title}
+            </Link>
+          </h3>
 
-            <div className="flex items-center gap-1.5 text-xs">
-              {proposal.clientViewed ? (
-                <>
-                  <Eye className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  <span className="text-green-600 dark:text-green-400 font-medium">
-                    Viewed
-                  </span>
-                </>
-              ) : (
-                <>
-                  <EyeOff className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-500 dark:text-gray-400">
-                    Pending
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        ) : (
-          // Freelancer view: Show client info
-          <div className="flex items-center gap-3 mb-5 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
-            <div className="relative h-10 w-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-sm">
+          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+            {proposal.project.description}
+          </p>
+
+          {/* Client/Company info with avatar */}
+          {!isClient ? (
+            <div className="flex items-center gap-2">
               <Image
                 src={
                   proposal.client.avatar ||
-                  "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=60&h=60&fit=crop"
+                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
                 }
                 alt={proposal.client.name}
-                fill
-                className="object-cover"
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
               />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {proposal.client.name}
-                </span>
-                {proposal.client.verified && (
-                  <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
-                )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {proposal.client.name}
+                  </p>
+                  {proposal.client.verified && (
+                    <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  {proposal.client.country && (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                      <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {proposal.client.country}
+                      </span>
+                    </div>
+                  )}
+                  {proposal.client.rating && (
+                    <div className="flex items-center gap-1">
+                      <span className="mx-1">•</span>
+                      <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        {proposal.client.rating}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Image
+                src="/images/logo.png"
+                alt="Your Company"
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    Your Company
+                  </p>
+                  <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  To: {proposal.client.name}
+                </p>
+              </div>
+            </div>
+          )}
 
-              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                <span className="truncate">{proposal.client.country}</span>
-
-                {proposal.client.rating && (
-                  <>
-                    <span className="mx-1">•</span>
-                    <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 flex-shrink-0" />
-                    <span>{proposal.client.rating}</span>
-                  </>
-                )}
+          {/* Proposal Details - Compact Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {isClient ? "Bid" : "My Proposal"}
+                </p>
+                <p className="text-sm font-semibold">{formattedAmount}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs">
-              {proposal.clientViewed ? (
-                <>
-                  <Eye className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  <span className="text-green-600 dark:text-green-400 font-medium">
-                    Viewed
-                  </span>
-                </>
-              ) : (
-                <>
-                  <EyeOff className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-500 dark:text-gray-400">
-                    Pending
-                  </span>
-                </>
-              )}
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Budget
+                </p>
+                <p className="text-sm font-semibold">{formattedBudget}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Time Left
+                </p>
+                <p className="text-sm font-semibold">{timeLeft}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Delivery
+                </p>
+                <p className="text-sm font-semibold">
+                  {proposal.deliveryTime}d
+                </p>
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Key Info Grid */}
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-              {isClient ? "Freelancer Bid" : "My Proposal"}
-            </p>
-            <p className="font-bold text-sm text-gray-900 dark:text-white">
-              {formattedAmount}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {proposal.proposalType === "fixed"
-                ? "Fixed Price"
-                : "Hourly Rate"}
-            </p>
-          </div>
+          {/* Engagement indicators */}
+          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+            {proposal.clientViewed ? (
+              <div className="flex items-center gap-1">
+                <Eye className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
+                <span>Viewed</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <EyeOff className="h-3.5 w-3.5" />
+                <span>Not viewed</span>
+              </div>
+            )}
 
-          <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-              {isClient ? "My Budget" : "Client Budget"}
-            </p>
-            <p className="font-bold text-sm text-gray-900 dark:text-white">
-              {formattedBudget}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {proposal.project.budget.type === "fixed"
-                ? "Fixed Budget"
-                : "Hourly Budget"}
-            </p>
-          </div>
-
-          <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-              Time Left
-            </p>
-            <p className="font-bold text-sm text-gray-900 dark:text-white">
-              {timeLeft}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {proposal.deliveryTime} days delivery
-            </p>
+            {proposal.clientMessages && proposal.clientMessages > 0 && (
+              <div className="flex items-center gap-1">
+                <MessageSquare className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
+                <span>{proposal.clientMessages} msg</span>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/20 backdrop-blur-sm">
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <Calendar className="h-3.5 w-3.5" />
-            <span className="font-medium">{proposal.project.category}</span>
-            {proposal.clientMessages && proposal.clientMessages > 0 && (
-              <>
-                <span className="mx-1">•</span>
-                <span className="text-blue-600 dark:text-blue-400 font-medium">
-                  {proposal.clientMessages} message
-                  {proposal.clientMessages > 1 ? "s" : ""}
-                </span>
-              </>
-            )}
-          </div>
-
+      <CardFooter className="p-4 pt-0 mt-auto border-t border-gray-100 dark:border-gray-700">
+        <div className="flex justify-between w-full gap-2">
           <div className="flex gap-2">
-            <Link href={proposal.project.projectUrl} passHref>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs h-8 px-3 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-colors"
-              >
-                <ExternalLink className="h-3 w-3 mr-1" />
-                View
-              </Button>
-            </Link>
-
             {canWithdraw && (
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs h-8 px-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 transition-colors"
+                className="text-xs h-8 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                 onClick={() => onWithdraw(proposal.id)}
               >
+                <ArrowLeft className="h-3 w-3 mr-1" />
                 Withdraw
               </Button>
             )}
 
-            {canAcceptDecline && (
-              <>
-                {onDecline && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-8 px-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 transition-colors"
-                    onClick={() => onDecline(proposal.id)}
-                  >
-                    Decline
-                  </Button>
-                )}
+            {canAcceptDecline && onDecline && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                onClick={() => onDecline(proposal.id)}
+              >
+                <XCircle className="h-3 w-3 mr-1" />
+                Decline
+              </Button>
+            )}
 
-                {onAccept && (
-                  <Button
-                    size="sm"
-                    className="text-xs h-8 px-3 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 shadow-sm hover:shadow transition-all"
-                    onClick={() => onAccept(proposal.id)}
-                  >
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Accept
-                  </Button>
-                )}
-              </>
+            {canAcceptDecline && onAccept && (
+              <Button
+                size="sm"
+                className="text-xs h-8 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                onClick={() => onAccept(proposal.id)}
+              >
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Accept
+              </Button>
             )}
           </div>
+
+          <Link href={proposal.project.projectUrl} passHref>
+            <Button size="sm" className="gap-1 text-xs h-8">
+              <span>View</span>
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          </Link>
         </div>
       </CardFooter>
     </Card>

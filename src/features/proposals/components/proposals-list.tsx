@@ -29,8 +29,8 @@ export function ProposalsList({
 }: ProposalsListProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {[1, 2, 3, 4].map((i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
           <ProposalCardSkeleton key={i} />
         ))}
       </div>
@@ -64,7 +64,7 @@ export function ProposalsList({
   return (
     <div className="space-y-8">
       {/* Proposals Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {proposals.map((proposal) => (
           <ProposalCard
             key={proposal.id}
