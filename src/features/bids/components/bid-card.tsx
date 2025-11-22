@@ -28,6 +28,8 @@ import {
   FileText,
   Star,
   TrendingDown,
+  MapPin,
+  Layers,
 } from "lucide-react";
 
 interface BidCardProps {
@@ -99,345 +101,257 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
   const canWithdraw = bid.status === "pending" && onWithdraw && !isClient;
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 py-0 border-gray-200 dark:border-gray-700">
-      <CardContent className="p-0">
-        {/* Bid Header */}
-        <div className="flex justify-between items-center p-5 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2">
-            <Badge className={`px-3 py-1.5 ${getStatusColor(bid.status)}`}>
-              <span className="flex items-center gap-1.5 text-sm">
-                {getStatusIcon(bid.status)}
-                {bid.status.charAt(0).toUpperCase() + bid.status.slice(1)}
-              </span>
-            </Badge>
-
-            {bid.isPinned && (
-              <Badge
-                variant="outline"
-                className="border-amber-300 text-amber-600 dark:text-amber-400 px-3 py-1"
-              >
-                <Pin className="h-3 w-3 mr-1.5 fill-amber-500" />
-                Pinned
-              </Badge>
-            )}
-
-            {bid.project.featured && (
-              <Badge
-                variant="outline"
-                className="border-blue-300 text-blue-600 dark:text-blue-400 px-3 py-1"
-              >
-                <Star className="h-3 w-3 mr-1.5 fill-blue-500" />
-                Featured
-              </Badge>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <Calendar className="h-4 w-4" />
-            <span>
-              {isClient ? `Bid received ${bidDate}` : `Bid on ${bidDate}`}
-            </span>
-          </div>
-        </div>
-
-        {/* Project Info */}
-        <div className="p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h3 className="font-medium text-xl">
-              <Link
-                href={bid.project.projectUrl}
-                className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
-              >
-                {bid.project.title}
-              </Link>
-            </h3>
-
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs px-2.5 py-1">
-                {bid.project.category}
-              </Badge>
-
-              {bid.project.experience && (
-                <Badge
-                  variant="outline"
-                  className="text-xs capitalize px-2.5 py-1"
-                >
-                  {bid.project.experience} level
-                </Badge>
-              )}
+    <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow duration-200 py-0">
+      <CardContent className="flex-1 p-4">
+        {/* Header with date and status */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3 whitespace-nowrap">
+            <div className="flex items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5" />
+              <span>{bid.project.category}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>{bidDate}</span>
             </div>
           </div>
+          <Badge className={`${getStatusColor(bid.status)} text-xs`}>
+            <span className="flex items-center gap-1">
+              {getStatusIcon(bid.status)}
+              {bid.status.charAt(0).toUpperCase() + bid.status.slice(1)}
+            </span>
+          </Badge>
+        </div>
 
-          <p className="text-sm text-gray-600 dark:text-gray-300 mt-3 line-clamp-2">
+        {/* Badges row */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {bid.project.experience && (
+            <Badge variant="outline" className="text-xs capitalize">
+              {bid.project.experience}
+            </Badge>
+          )}
+          {bid.isPinned && (
+            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
+              <Pin className="h-3 w-3 mr-1 fill-amber-600" />
+              Pinned
+            </Badge>
+          )}
+          {bid.project.featured && (
+            <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0 text-xs">
+              <Star className="h-3 w-3 mr-1 fill-blue-600" />
+              Featured
+            </Badge>
+          )}
+        </div>
+
+        {/* Project Title */}
+        <div className="space-y-4">
+          <h3 className="font-medium text-lg line-clamp-2 mb-[10px]">
+            <Link
+              href={bid.project.projectUrl}
+              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+            >
+              {bid.project.title}
+            </Link>
+          </h3>
+
+          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
             {bid.project.description}
           </p>
 
-          {/* Freelancer/Company Info */}
-          {isClient ? (
-            // Client view: Show "Your Company"
-            <div className="flex items-center gap-3 mt-5 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          {/* Client/Company info with avatar */}
+          {!isClient ? (
+            <div className="flex items-center gap-2">
               <Image
-                src="/images/logo.png"
-                alt="Your Company"
-                width={40}
-                height={40}
-                className="rounded-full border-2 border-white dark:border-gray-700 shadow-sm"
+                src={
+                  bid.client.avatar ||
+                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+                }
+                alt={bid.client.name}
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
               />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium">Your Company</span>
-                  <CheckCircle className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {bid.client.name}
+                  </p>
+                  {bid.client.verified && (
+                    <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  )}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-                  <span>Project Owner</span>
+                <div className="flex items-center gap-1">
+                  {bid.client.country && (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                      <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {bid.client.country}
+                      </span>
+                    </div>
+                  )}
+                  {bid.client.rating && (
+                    <div className="flex items-center gap-1">
+                      <span className="mx-1">•</span>
+                      <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        {bid.client.rating}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           ) : (
-            // Freelancer view: Show client info
-            <div className="flex items-center gap-3 mt-5 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="relative h-10 w-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-sm">
-                <Image
-                  src={
-                    bid.client.avatar ||
-                    "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=60&h=60&fit=crop"
-                  }
-                  alt={bid.client.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-
-              <div className="flex-1">
+            <div className="flex items-center gap-2 mb-4">
+              <Image
+                src="/images/logo.png"
+                alt="Your Company"
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
+              />
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium">{bid.client.name}</span>
-                  {bid.client.verified && (
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
-                  )}
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    Your Company
+                  </p>
+                  <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
                 </div>
-
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-                  {bid.client.rating && (
-                    <>
-                      <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                      <span>{bid.client.rating}</span>
-                      <span className="mx-1.5">•</span>
-                    </>
-                  )}
-                  {bid.client.country && <span>{bid.client.country}</span>}
-                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Project Owner
+                </p>
               </div>
             </div>
           )}
 
-          {/* Bid Details */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
-            {/* My Bid (Freelancer only) */}
+          {/* Bid Details - Compact Grid */}
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            {/* My Bid (Freelancer) */}
             {!isClient && (
-              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  My Bid
-                </p>
-                <p className="text-base font-semibold flex items-center gap-1.5">
-                  <DollarSign className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  {formattedAmount}
-                </p>
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    My Bid
+                  </p>
+                  <p className="text-sm font-semibold">{formattedAmount}</p>
+                </div>
               </div>
             )}
 
-            {/* Minimum Bid (Client) or Client Budget (Freelancer) */}
-            {isClient ? (
-              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20 p-4 rounded-lg border border-green-200 dark:border-green-800 shadow-sm">
-                <p className="text-xs text-green-700 dark:text-green-400 mb-1 font-medium">
-                  Minimum Bid
+            {/* Budget */}
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {isClient ? "My Budget" : "Budget"}
                 </p>
-                <p className="text-base font-bold flex items-center gap-1.5 text-green-900 dark:text-green-300">
-                  <TrendingDown className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  {formattedMinBid}
-                </p>
+                <p className="text-sm font-semibold">{formattedBudget}</p>
               </div>
-            ) : (
-              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Client Budget
-                </p>
-                <p className="text-base font-semibold">{formattedBudget}</p>
-              </div>
-            )}
+            </div>
 
-            {/* My Budget (Client) or Bidders (Freelancer) */}
-            {isClient ? (
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800 shadow-sm">
-                <p className="text-xs text-purple-700 dark:text-purple-400 mb-1 font-medium">
-                  My Budget
-                </p>
-                <p className="text-base font-bold text-purple-900 dark:text-purple-300">
-                  {formattedBudget}
-                </p>
-              </div>
-            ) : (
-              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+            {/* Bidders */}
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Bidders
                 </p>
-                <p className="text-base font-semibold flex items-center gap-1.5">
-                  <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-                  {bid.bidderCount}
-                </p>
+                <p className="text-sm font-semibold">{bid.bidderCount}</p>
               </div>
-            )}
+            </div>
 
-            {/* Total Bidders (Client) or Time Left (Both) */}
-            {isClient ? (
-              <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 shadow-sm">
-                <p className="text-xs text-amber-700 dark:text-amber-400 mb-1 font-medium">
-                  Total Bidders
+            {/* Time Left */}
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Time Left
                 </p>
-                <p className="text-base font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
-                  <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                  {bid.bidderCount}
-                </p>
+                <p className="text-sm font-semibold">{timeLeft}</p>
               </div>
-            ) : null}
-
-            {/* Time Left (Both Client and Freelancer) */}
-            <div
-              className={`p-4 rounded-lg border shadow-sm ${
-                isClient
-                  ? "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 border-blue-200 dark:border-blue-800"
-                  : "bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700"
-              }`}
-            >
-              <p
-                className={`text-xs mb-1 font-medium ${
-                  isClient
-                    ? "text-blue-700 dark:text-blue-400"
-                    : "text-gray-500 dark:text-gray-400"
-                }`}
-              >
-                Time Left
-              </p>
-              <p
-                className={`text-base font-bold flex items-center gap-1.5 ${
-                  isClient ? "text-blue-900 dark:text-blue-300" : ""
-                }`}
-              >
-                <Clock
-                  className={`h-4 w-4 ${
-                    isClient
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-amber-500 dark:text-amber-400"
-                  }`}
-                />
-                {timeLeft}
-              </p>
             </div>
           </div>
 
-          {/* Delivery Time */}
-          {bid.deliveryTime && (
-            <div className="flex items-center gap-2 text-sm p-3 bg-gray-50 dark:bg-gray-800 rounded-lg mt-4">
-              <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <span className="text-gray-700 dark:text-gray-300">
-                <span className="font-medium">Delivery:</span>{" "}
-                {bid.deliveryTime}
-              </span>
-            </div>
-          )}
-
-          {/* Engagement Status */}
-          <div className="flex flex-wrap items-center gap-5 mt-5 p-4 bg-gray-50 dark:bg-gray-800/30 rounded-lg">
-            <div className="flex items-center gap-2 text-sm">
-              {bid.clientViewed ? (
-                <>
-                  <Eye className="h-5 w-5 text-green-500 dark:text-green-400" />
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {isClient ? "You viewed" : "Viewed by client"}
-                    {bid.clientViewedAt &&
-                      ` ${new Date(bid.clientViewedAt).toLocaleDateString()}`}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <EyeOff className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-500 dark:text-gray-400">
-                    Not viewed yet
-                  </span>
-                </>
-              )}
-            </div>
+          {/* Engagement Status - Simplified */}
+          <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-gray-600 dark:text-gray-400">
+            {bid.clientViewed ? (
+              <div className="flex items-center gap-1">
+                <Eye className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
+                <span>Viewed</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <EyeOff className="h-3.5 w-3.5" />
+                <span>Not viewed</span>
+              </div>
+            )}
 
             {bid.clientMessages && bid.clientMessages > 0 && (
-              <div className="flex items-center gap-2 text-sm">
-                <MessageSquare className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-                <span className="text-gray-700 dark:text-gray-300">
-                  {bid.clientMessages} message
-                  {bid.clientMessages > 1 ? "s" : ""} exchanged
-                </span>
+              <div className="flex items-center gap-1">
+                <MessageSquare className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
+                <span>{bid.clientMessages} msg</span>
+              </div>
+            )}
+
+            {bid.deliveryTime && (
+              <div className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                <span>{bid.deliveryTime}</span>
               </div>
             )}
 
             {bid.proposedMilestones && bid.proposedMilestones.length > 0 && (
-              <div className="flex items-center gap-2 text-sm">
-                <FileText className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                <span className="text-gray-700 dark:text-gray-300">
-                  {bid.proposedMilestones.length} milestone
-                  {bid.proposedMilestones.length > 1 ? "s" : ""} proposed
-                </span>
+              <div className="flex items-center gap-1">
+                <FileText className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
+                <span>{bid.proposedMilestones.length} milestones</span>
               </div>
             )}
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="flex justify-between p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20">
-        <div className="flex gap-3">
-          {onPin && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-sm px-4 py-2 h-auto"
-              onClick={() => onPin(bid.id, !bid.isPinned)}
-            >
-              <Pin
-                className={`h-4 w-4 mr-2 ${
-                  bid.isPinned ? "fill-amber-500" : ""
-                }`}
-              />
-              {bid.isPinned ? "Unpin" : "Pin"}
-            </Button>
-          )}
+      <CardFooter className="p-4 pt-0 mt-auto border-t border-gray-100 dark:border-gray-700">
+        <div className="flex justify-between w-full gap-2">
+          <div className="flex gap-2">
+            {onPin && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8"
+                onClick={() => onPin(bid.id, !bid.isPinned)}
+              >
+                <Pin
+                  className={`h-3 w-3 ${bid.isPinned ? "fill-amber-500" : ""}`}
+                />
+              </Button>
+            )}
 
-          {canWithdraw && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-sm px-4 py-2 h-auto text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-              onClick={() => onWithdraw(bid.id)}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Withdraw
-            </Button>
-          )}
-        </div>
+            {canWithdraw && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                onClick={() => onWithdraw(bid.id)}
+              >
+                <ArrowLeft className="h-3 w-3 mr-1" />
+                Withdraw
+              </Button>
+            )}
 
-        <div className="flex gap-3">
-          {bid.attachments && bid.attachments.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-sm px-4 py-2 h-auto"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              {bid.attachments.length} File
-              {bid.attachments.length > 1 ? "s" : ""}
-            </Button>
-          )}
+            {bid.attachments && bid.attachments.length > 0 && (
+              <Button variant="outline" size="sm" className="text-xs h-8">
+                <FileText className="h-3 w-3 mr-1" />
+                {bid.attachments.length}
+              </Button>
+            )}
+          </div>
 
           <Link href={bid.project.projectUrl} passHref>
-            <Button size="sm" className="text-sm gap-2 px-4 py-2 h-auto">
-              View {isClient ? "Details" : "Project"}
-              <ExternalLink className="h-3.5 w-3.5" />
+            <Button size="sm" className="gap-1 text-xs h-8">
+              <span>View</span>
+              <ExternalLink className="h-3 w-3" />
             </Button>
           </Link>
         </div>
