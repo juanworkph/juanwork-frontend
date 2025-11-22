@@ -1,10 +1,6 @@
 export type {
   BookmarkType,
   BookmarkProject,
-  BookmarkClient,
-  BookmarkJob,
-  BookmarkArticle,
-  BookmarkResource,
   BookmarkFreelancer,
   BookmarkService,
   Bookmark,

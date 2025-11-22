@@ -43,6 +43,7 @@ export default function ClientBookmarksPage() {
       <BookmarksGrid
         bookmarksData={bookmarksData}
         onRemoveBookmark={handleRemoveBookmark}
+        userRole="client"
       />
     </div>
   );

@@ -13,14 +13,10 @@ export default function FreelancerBookmarksPage() {
     setBookmarksData(prev => {
       const updatedBookmarks = prev.bookmarks.filter(bookmark => bookmark.id !== id);
       
-      // Recalculate category counts
+      // Recalculate category counts (only projects for freelancer domain)
       const updatedCategories = prev.categories.map(category => {
         const count = updatedBookmarks.filter(bookmark => {
           if (category.name === 'Projects' && bookmark.type === 'project') return true;
-          if (category.name === 'Clients' && bookmark.type === 'client') return true;
-          if (category.name === 'Jobs' && bookmark.type === 'job') return true;
-          if (category.name === 'Articles' && bookmark.type === 'article') return true;
-          if (category.name === 'Resources' && bookmark.type === 'resource') return true;
           return false;
         }).length;
         
@@ -42,6 +38,7 @@ export default function FreelancerBookmarksPage() {
       <BookmarksGrid 
         bookmarksData={bookmarksData}
         onRemoveBookmark={handleRemoveBookmark}
+        userRole="freelancer"
       />
     </div>
   );

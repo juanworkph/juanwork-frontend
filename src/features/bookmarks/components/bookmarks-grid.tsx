@@ -9,11 +9,13 @@ import { AlertCircle } from "lucide-react";
 interface BookmarksGridProps {
   bookmarksData: BookmarksState;
   onRemoveBookmark: (id: string) => void;
+  userRole?: "freelancer" | "client";
 }
 
 export function BookmarksGrid({
   bookmarksData,
   onRemoveBookmark,
+  userRole,
 }: BookmarksGridProps) {
   // State for UI controls
   const [viewMode, setViewMode] = useState<"grid" | "list">(
@@ -37,13 +39,6 @@ export function BookmarksGrid({
       result = result.filter((bookmark) => {
         if (selectedCategory === "Projects" && bookmark.type === "project")
           return true;
-        if (selectedCategory === "Clients" && bookmark.type === "client")
-          return true;
-        if (selectedCategory === "Jobs" && bookmark.type === "job") return true;
-        if (selectedCategory === "Articles" && bookmark.type === "article")
-          return true;
-        if (selectedCategory === "Resources" && bookmark.type === "resource")
-          return true;
         if (
           selectedCategory === "Freelancers" &&
           bookmark.type === "freelancer"
@@ -61,17 +56,15 @@ export function BookmarksGrid({
       result = result.filter((bookmark) => {
         // Search in title/name
         const title =
-          bookmark.type === "client" || bookmark.type === "freelancer"
+          bookmark.type === "freelancer"
             ? bookmark.name.toLowerCase()
             : bookmark.title.toLowerCase();
 
         if (title.includes(query)) return true;
 
-        // Search in description/summary/bio
+        // Search in description/bio
         let description = "";
-        if (bookmark.type === "article") {
-          description = bookmark.summary.toLowerCase();
-        } else if (bookmark.type === "freelancer") {
+        if (bookmark.type === "freelancer") {
           description = bookmark.bio.toLowerCase();
         } else if ("description" in bookmark) {
           description = bookmark.description?.toLowerCase() || "";
@@ -79,17 +72,10 @@ export function BookmarksGrid({
 
         if (description.includes(query)) return true;
 
-        // Search in skills/tags
+        // Search in skills
         if (
           "skills" in bookmark &&
           bookmark.skills.some((skill) => skill.toLowerCase().includes(query))
-        ) {
-          return true;
-        }
-
-        if (
-          "tags" in bookmark &&
-          bookmark.tags.some((tag) => tag.toLowerCase().includes(query))
         ) {
           return true;
         }
@@ -107,10 +93,8 @@ export function BookmarksGrid({
       }
 
       if (sortBy === "name") {
-        const nameA =
-          a.type === "client" || a.type === "freelancer" ? a.name : a.title;
-        const nameB =
-          b.type === "client" || b.type === "freelancer" ? b.name : b.title;
+        const nameA = a.type === "freelancer" ? a.name : a.title;
+        const nameB = b.type === "freelancer" ? b.name : b.title;
         return sortDirection === "asc"
           ? nameA.localeCompare(nameB)
           : nameB.localeCompare(nameA);
@@ -163,18 +147,24 @@ export function BookmarksGrid({
       />
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar with Categories */}
-        <div className="lg:col-span-1">
-          <CategoryFilter
-            categories={bookmarksData.categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-          />
-        </div>
+      <div
+        className={`grid grid-cols-1 gap-6 ${
+          userRole === "client" ? "lg:grid-cols-4" : ""
+        }`}
+      >
+        {/* Sidebar with Categories - Only show for client domain */}
+        {userRole === "client" && (
+          <div className="lg:col-span-1">
+            <CategoryFilter
+              categories={bookmarksData.categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+          </div>
+        )}
 
         {/* Bookmarks Grid/List */}
-        <div className="lg:col-span-3">
+        <div className={userRole === "client" ? "lg:col-span-3" : ""}>
           {filteredBookmarks.length > 0 ? (
             <div
               className={`grid gap-6 ${
@@ -189,6 +179,7 @@ export function BookmarksGrid({
                   bookmark={bookmark}
                   viewMode={viewMode}
                   onRemove={onRemoveBookmark}
+                  userRole={userRole}
                 />
               ))}
             </div>
