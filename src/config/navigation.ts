@@ -8,7 +8,13 @@ export interface NavItem {
   external?: boolean;
 
   isButton?: boolean;
-  variant?: "default" | "ghost" | "outline" | "secondary" | "destructive" | "link";
+  variant?:
+    | "default"
+    | "ghost"
+    | "outline"
+    | "secondary"
+    | "destructive"
+    | "link";
   isDropdown?: boolean;
   dropdownMenu?: DropdownMenuItem[];
 }
@@ -36,7 +42,7 @@ export const navigation: Record<UserRole, NavSection> = {
       { label: "Help Center", href: "/landing/help" },
     ],
     feature: [
-      { label: "Login", href: "/auth/login", isButton: true, variant: "ghost" },
+      { label: "Login", href: "/auth", isButton: true, variant: "ghost" },
       { label: "Sign Up", href: "/auth/signup", isButton: true },
     ],
   },
@@ -49,8 +55,14 @@ export const navigation: Record<UserRole, NavSection> = {
         href: "javascript:void(0)",
         isDropdown: true,
         dropdownMenu: [
-          { label: "Discover Services", href: "/client/hire-talent/discover-services" },
-          { label: "Discover Freelancers", href: "/client/hire-talent/discover-freelancers" },
+          {
+            label: "Discover Services",
+            href: "/client/hire-talent/discover-services",
+          },
+          {
+            label: "Discover Freelancers",
+            href: "/client/hire-talent/discover-freelancers",
+          },
         ],
       },
       {
@@ -65,7 +77,11 @@ export const navigation: Record<UserRole, NavSection> = {
       { label: "Messages", href: "/client/messages" },
     ],
     feature: [
-      { label: "Post a Project", href: "/client/projects/post-project" },
+      {
+        label: "Post a Project",
+        href: "/client/projects/post-project",
+        variant: "secondary",
+      },
       { label: "Workstation", href: "/client/workstation" },
     ],
   },
@@ -79,14 +95,21 @@ export const navigation: Record<UserRole, NavSection> = {
         href: "javascript:void(0)",
         isDropdown: true,
         dropdownMenu: [
-          { label: "Post a Service", href: "/freelancer/services/post-service" },
+          {
+            label: "Post a Service",
+            href: "/freelancer/services/post-service",
+          },
           { label: "My Services", href: "/freelancer/services/my-services" },
         ],
       },
       { label: "Messages", href: "/freelancer/messages" },
     ],
     feature: [
-      { label: "Post a Service", href: "/freelancer/services/post-service", variant: "secondary" },
+      {
+        label: "Post a Service",
+        href: "/freelancer/services/post-service",
+        variant: "secondary",
+      },
       { label: "Workstation", href: "/freelancer/workstation" },
     ],
   },
@@ -106,9 +129,7 @@ export const navigation: Record<UserRole, NavSection> = {
 /**
  * Gets navigation Config specific to a user role
  */
-export const navigationWhereRole = (
-  userRole: UserRole
-): NavSection => {
+export const navigationWhereUserRole = (userRole: UserRole): NavSection => {
   switch (userRole) {
     case "guest":
       return navigation.guest;

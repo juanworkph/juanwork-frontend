@@ -3,10 +3,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { 
   ArrowRight, 
-  Users, 
-  Globe, 
-  Award,
-  Target,
   Heart
 } from 'lucide-react';
 

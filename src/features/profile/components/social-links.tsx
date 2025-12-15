@@ -1,70 +1,79 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  Github, 
-  Linkedin, 
-  Twitter, 
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Github,
+  Linkedin,
+  Twitter,
   Globe,
   Edit,
   Plus,
   ExternalLink,
-  Share2
-} from 'lucide-react';
-import { SocialLinks as SocialLinksType } from '../schema/profile-data';
+  Share2,
+} from "lucide-react";
+import { SocialLinks as SocialLinksType } from "../schema/profile-data";
 
 interface SocialLinksProps {
   socialLinks: SocialLinksType;
   isOwnProfile?: boolean;
 }
 
-export function SocialLinks({ socialLinks, isOwnProfile = false }: SocialLinksProps) {
+export function SocialLinks({
+  socialLinks,
+  isOwnProfile = false,
+}: SocialLinksProps) {
   const socialPlatforms = [
     {
-      name: 'GitHub',
+      name: "GitHub",
       icon: Github,
       url: socialLinks.github,
-      color: 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100',
-      description: 'View code repositories and contributions'
+      color:
+        "hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100",
+      description: "View code repositories and contributions",
     },
     {
-      name: 'LinkedIn',
+      name: "LinkedIn",
       icon: Linkedin,
       url: socialLinks.linkedin,
-      color: 'hover:bg-blue-100 hover:text-blue-900 dark:hover:bg-blue-900/30 dark:hover:text-blue-100',
-      description: 'Professional network and experience'
+      color:
+        "hover:bg-blue-100 hover:text-blue-900 dark:hover:bg-blue-900/30 dark:hover:text-blue-100",
+      description: "Professional network and experience",
     },
     {
-      name: 'Twitter',
+      name: "Twitter",
       icon: Twitter,
       url: socialLinks.twitter,
-      color: 'hover:bg-sky-100 hover:text-sky-900 dark:hover:bg-sky-900/30 dark:hover:text-sky-100',
-      description: 'Latest thoughts and industry insights'
+      color:
+        "hover:bg-sky-100 hover:text-sky-900 dark:hover:bg-sky-900/30 dark:hover:text-sky-100",
+      description: "Latest thoughts and industry insights",
     },
     {
-      name: 'Behance',
+      name: "Behance",
       icon: Globe, // Using Globe as placeholder for Behance
       url: socialLinks.behance,
-      color: 'hover:bg-purple-100 hover:text-purple-900 dark:hover:bg-purple-900/30 dark:hover:text-purple-100',
-      description: 'Creative portfolio and design work'
+      color:
+        "hover:bg-purple-100 hover:text-purple-900 dark:hover:bg-purple-900/30 dark:hover:text-purple-100",
+      description: "Creative portfolio and design work",
     },
     {
-      name: 'Dribbble',
+      name: "Dribbble",
       icon: Globe, // Using Globe as placeholder for Dribbble
       url: socialLinks.dribbble,
-      color: 'hover:bg-pink-100 hover:text-pink-900 dark:hover:bg-pink-900/30 dark:hover:text-pink-100',
-      description: 'Design shots and creative inspiration'
+      color:
+        "hover:bg-pink-100 hover:text-pink-900 dark:hover:bg-pink-900/30 dark:hover:text-pink-100",
+      description: "Design shots and creative inspiration",
     },
     {
-      name: 'Portfolio',
+      name: "Portfolio",
       icon: Globe,
       url: socialLinks.portfolio,
-      color: 'hover:bg-green-100 hover:text-green-900 dark:hover:bg-green-900/30 dark:hover:text-green-100',
-      description: 'Personal website and portfolio'
-    }
+      color:
+        "hover:bg-green-100 hover:text-green-900 dark:hover:bg-green-900/30 dark:hover:text-green-100",
+      description: "Personal website and portfolio",
+    },
   ];
 
-  const availableLinks = socialPlatforms.filter(platform => platform.url);
+  const availableLinks = socialPlatforms.filter((platform) => platform.url);
   const hasAnyLinks = availableLinks.length > 0;
 
   if (!hasAnyLinks && !isOwnProfile) {
@@ -72,14 +81,16 @@ export function SocialLinks({ socialLinks, isOwnProfile = false }: SocialLinksPr
   }
 
   return (
-    <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
+    <Card className="shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-pink-100 dark:bg-pink-900/30 rounded-lg">
               <Share2 className="h-5 w-5 text-pink-600 dark:text-pink-400" />
             </div>
-            <CardTitle className="text-xl font-semibold">Social Links</CardTitle>
+            <CardTitle className="text-xl font-semibold">
+              Social Links
+            </CardTitle>
           </div>
           {isOwnProfile && (
             <Button variant="ghost" size="sm" className="gap-2">
@@ -89,7 +100,7 @@ export function SocialLinks({ socialLinks, isOwnProfile = false }: SocialLinksPr
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {hasAnyLinks ? (
           <div className="space-y-6">
@@ -142,19 +153,19 @@ export function SocialLinks({ socialLinks, isOwnProfile = false }: SocialLinksPr
                   Connected Platforms
                 </p>
               </div>
-              
+
               <div className="text-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                 <p className="text-2xl font-bold text-blue-600">
-                  {socialLinks.github ? '✓' : '–'}
+                  {socialLinks.github ? "✓" : "–"}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Code Portfolio
                 </p>
               </div>
-              
+
               <div className="text-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                 <p className="text-2xl font-bold text-green-600">
-                  {socialLinks.portfolio ? '✓' : '–'}
+                  {socialLinks.portfolio ? "✓" : "–"}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Personal Website
@@ -173,8 +184,12 @@ export function SocialLinks({ socialLinks, isOwnProfile = false }: SocialLinksPr
                     Strong Online Presence
                   </h4>
                   <p className="text-sm text-indigo-700 dark:text-indigo-300">
-                    Connected across {availableLinks.length} platform{availableLinks.length !== 1 ? 's' : ''} to showcase work and maintain professional visibility.
-                    {socialLinks.github && socialLinks.linkedin && ' Active on both technical and professional networks.'}
+                    Connected across {availableLinks.length} platform
+                    {availableLinks.length !== 1 ? "s" : ""} to showcase work
+                    and maintain professional visibility.
+                    {socialLinks.github &&
+                      socialLinks.linkedin &&
+                      " Active on both technical and professional networks."}
                   </p>
                 </div>
               </div>
@@ -191,7 +206,8 @@ export function SocialLinks({ socialLinks, isOwnProfile = false }: SocialLinksPr
                 Connect Your Social Profiles
               </h3>
               <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                Showcase your professional presence by connecting your social media profiles, portfolio, and code repositories.
+                Showcase your professional presence by connecting your social
+                media profiles, portfolio, and code repositories.
               </p>
             </div>
             <div className="flex flex-wrap gap-3 justify-center">
@@ -217,4 +233,4 @@ export function SocialLinks({ socialLinks, isOwnProfile = false }: SocialLinksPr
       </CardContent>
     </Card>
   );
-} 
+}

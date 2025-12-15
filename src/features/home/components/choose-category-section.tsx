@@ -6,7 +6,6 @@ import {
   User, 
   Building2, 
   Laptop, 
-  Briefcase,
   ArrowRight,
   CheckCircle,
   Star,

@@ -1,96 +1,30 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { 
-  LayoutDashboard,
-  User,
-  Briefcase,
-  Bell,
-  Bookmark,
-  FileText,
-  Send,
-  FolderOpen,
-  Star,
-  CreditCard,
-  Settings,
-  Search,
-  Plus,
-  MessageCircle,
-  Calendar,
-  TrendingUp
-} from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Plus, Calendar } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  pageNavigationWhereUserRole,
+  type PageNavItem,
+} from "@/config/page-navigation";
 
 export function PageNavbar() {
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { currentRole } = useAuth();
 
-  const navigationItems = [
-    { 
-      name: 'Dashboard', 
-      href: '/freelancer', 
-      icon: LayoutDashboard,
-      exact: true 
-    },
-    { 
-      name: 'Profile', 
-      href: '/freelancer/profile', 
-      icon: User 
-    },
-    { 
-      name: 'Portfolio', 
-      href: '/freelancer/portfolio', 
-      icon: Briefcase 
-    },
-    { 
-      name: 'Notifications', 
-      href: '/freelancer/notifications', 
-      icon: Bell,
-      badge: 3 
-    },
-    { 
-      name: 'Bookmarks', 
-      href: '/freelancer/bookmarks', 
-      icon: Bookmark 
-    },
-    { 
-      name: 'Bids', 
-      href: '/freelancer/bids', 
-      icon: FileText 
-    },
-    { 
-      name: 'Proposals', 
-      href: '/freelancer/proposals', 
-      icon: Send 
-    },
-    { 
-      name: 'Projects', 
-      href: '/freelancer/projects', 
-      icon: FolderOpen 
-    },
-    { 
-      name: 'Reviews', 
-      href: '/freelancer/reviews', 
-      icon: Star 
-    },
-    { 
-      name: 'Payments', 
-      href: '/freelancer/payments', 
-      icon: CreditCard 
-    },
-    { 
-      name: 'Settings', 
-      href: '/freelancer/settings', 
-      icon: Settings 
-    }
-  ];
+  // Get navigation items based on current role
+  // Default to freelancer if role is guest or admin
+  const navigationItems =
+    currentRole === "freelancer" || currentRole === "client"
+      ? pageNavigationWhereUserRole(currentRole)
+      : pageNavigationWhereUserRole("freelancer");
 
-  const isActive = (item: typeof navigationItems[0]) => {
+  const isActive = (item: PageNavItem) => {
     if (item.exact) {
       return pathname === item.href;
     }
@@ -118,8 +52,8 @@ export function PageNavbar() {
                 <Icon className="h-4 w-4" />
                 <span className="hidden sm:inline">{item.name}</span>
                 {item.badge && (
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className="ml-1 h-4 w-4 lg:h-5 lg:w-5 p-0 text-xs bg-red-500 text-white"
                   >
                     {item.badge}
@@ -128,14 +62,14 @@ export function PageNavbar() {
               </Link>
             );
           })}
-          
+
           {/* More items dropdown for mobile */}
           <div className="lg:hidden">
             <Button variant="ghost" size="sm" className="gap-1 px-2">
               <span className="text-xs">More</span>
             </Button>
           </div>
-          
+
           {/* Remaining items for desktop */}
           <div className="hidden lg:flex items-center space-x-1">
             {navigationItems.slice(4).map((item) => {
@@ -154,8 +88,8 @@ export function PageNavbar() {
                   <Icon className="h-4 w-4" />
                   <span>{item.name}</span>
                   {item.badge && (
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className="ml-1 h-5 w-5 p-0 text-xs bg-red-500 text-white"
                     >
                       {item.badge}
@@ -187,12 +121,16 @@ export function PageNavbar() {
               <MessageCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Messages</span>
             </Button> */}
-            
-            <Button size="sm" variant="outline" className="gap-1 lg:gap-2 px-2 lg:px-3 hidden sm:flex">
+
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1 lg:gap-2 px-2 lg:px-3 hidden sm:flex"
+            >
               <Calendar className="h-4 w-4" />
               <span className="hidden lg:inline">Schedule</span>
             </Button>
-            
+
             <Button size="sm" className="gap-1 lg:gap-2 px-2 lg:px-3">
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">New</span>

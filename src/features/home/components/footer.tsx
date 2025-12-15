@@ -1,74 +1,57 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useAuth } from '@/contexts/auth-context';
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Facebook, 
-  Twitter, 
-  Linkedin, 
+import React from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Facebook,
+  Twitter,
+  Linkedin,
   Instagram,
   Github,
   ArrowRight,
   Heart,
-  Shield,
-  Award,
-  Users,
-  Briefcase,
-  Globe,
-  Clock
-} from 'lucide-react';
+} from "lucide-react";
 
 export function Footer() {
-  const { currentRole } = useAuth();
-  
-  // Only render footer for guest users
-  if (currentRole !== 'guest') {
-    return null;
-  }
-
   const footerLinks = {
     platform: [
-      { name: 'How it Works', href: '/how-it-works' },
-      { name: 'For Freelancers', href: '/freelancer' },
-      { name: 'For Clients', href: '/client' },
-      { name: 'Remote Jobs', href: '/workstation' },
-      { name: 'Success Stories', href: '/success-stories' }
+      { name: "How it Works", href: "/how-it-works" },
+      { name: "For Freelancers", href: "/freelancer" },
+      { name: "For Clients", href: "/client" },
+      { name: "Remote Jobs", href: "/workstation" },
+      { name: "Success Stories", href: "/success-stories" },
     ],
     company: [
-      { name: 'About Us', href: '/about' },
-      { name: 'Our Blog', href: '/blog' },
-      { name: 'Careers', href: '/careers' },
-      { name: 'Press', href: '/press' },
-      { name: 'Partners', href: '/partners' }
+      { name: "About Us", href: "/about" },
+      { name: "Our Blog", href: "/blog" },
+      { name: "Careers", href: "/careers" },
+      { name: "Press", href: "/press" },
+      { name: "Partners", href: "/partners" },
     ],
     support: [
-      { name: 'Help Center', href: '/help' },
-      { name: 'Contact Us', href: '/contact' },
-      { name: 'Community', href: '/community' },
-      { name: 'Guidelines', href: '/guidelines' },
-      { name: 'Safety', href: '/safety' }
+      { name: "Help Center", href: "/help" },
+      { name: "Contact Us", href: "/contact" },
+      { name: "Community", href: "/community" },
+      { name: "Guidelines", href: "/guidelines" },
+      { name: "Safety", href: "/safety" },
     ],
     legal: [
-      { name: 'Privacy Policy', href: '/privacy' },
-      { name: 'Terms of Service', href: '/terms' },
-      { name: 'Cookie Policy', href: '/cookies' },
-      { name: 'GDPR', href: '/gdpr' },
-      { name: 'Accessibility', href: '/accessibility' }
-    ]
+      { name: "Privacy Policy", href: "/privacy" },
+      { name: "Terms of Service", href: "/terms" },
+      { name: "Cookie Policy", href: "/cookies" },
+      { name: "GDPR", href: "/gdpr" },
+      { name: "Accessibility", href: "/accessibility" },
+    ],
   };
 
   const socialLinks = [
-    { name: 'Facebook', href: '#', icon: Facebook },
-    { name: 'Twitter', href: '#', icon: Twitter },
-    { name: 'LinkedIn', href: '#', icon: Linkedin },
-    { name: 'Instagram', href: '#', icon: Instagram },
-    { name: 'GitHub', href: '#', icon: Github }
+    { name: "Facebook", href: "#", icon: Facebook },
+    { name: "Twitter", href: "#", icon: Twitter },
+    { name: "LinkedIn", href: "#", icon: Linkedin },
+    { name: "Instagram", href: "#", icon: Instagram },
+    { name: "GitHub", href: "#", icon: Github },
   ];
 
   return (
@@ -82,23 +65,26 @@ export function Footer() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-                    <span className="font-bold text-lg text-primary-foreground">J</span>
+                    <span className="font-bold text-lg text-primary-foreground">
+                      J
+                    </span>
                   </div>
                   <span className="font-bold text-xl">JuanWork</span>
                 </div>
                 <p className="text-muted-foreground leading-relaxed max-w-sm">
-                  The ultimate platform connecting talented freelancers with innovative companies worldwide. 
-                  Build your future, one project at a time.
+                  The ultimate platform connecting talented freelancers with
+                  innovative companies worldwide. Build your future, one project
+                  at a time.
                 </p>
               </div>
-              
+
               {/* Newsletter */}
               <div className="space-y-4">
                 <h3 className="font-semibold">Stay Updated</h3>
                 <div className="flex gap-2">
-                  <Input 
-                    type="email" 
-                    placeholder="Enter your email" 
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
                     className="flex-1"
                   />
                   <Button size="sm">
@@ -110,15 +96,15 @@ export function Footer() {
                 </p>
               </div>
             </div>
-            
+
             {/* Platform links */}
             <div className="space-y-4">
               <h3 className="font-semibold">Platform</h3>
               <ul className="space-y-3">
                 {footerLinks.platform.map((link) => (
                   <li key={link.name}>
-                    <Link 
-                      href={link.href} 
+                    <Link
+                      href={link.href}
                       className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
                       {link.name}
@@ -127,15 +113,15 @@ export function Footer() {
                 ))}
               </ul>
             </div>
-            
+
             {/* Company links */}
             <div className="space-y-4">
               <h3 className="font-semibold">Company</h3>
               <ul className="space-y-3">
                 {footerLinks.company.map((link) => (
                   <li key={link.name}>
-                    <Link 
-                      href={link.href} 
+                    <Link
+                      href={link.href}
                       className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
                       {link.name}
@@ -144,15 +130,15 @@ export function Footer() {
                 ))}
               </ul>
             </div>
-            
+
             {/* Support links */}
             <div className="space-y-4">
               <h3 className="font-semibold">Support</h3>
               <ul className="space-y-3">
                 {footerLinks.support.map((link) => (
                   <li key={link.name}>
-                    <Link 
-                      href={link.href} 
+                    <Link
+                      href={link.href}
                       className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
                       {link.name}
@@ -161,15 +147,15 @@ export function Footer() {
                 ))}
               </ul>
             </div>
-            
+
             {/* Legal links */}
             <div className="space-y-4">
               <h3 className="font-semibold">Legal</h3>
               <ul className="space-y-3">
                 {footerLinks.legal.map((link) => (
                   <li key={link.name}>
-                    <Link 
-                      href={link.href} 
+                    <Link
+                      href={link.href}
                       className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
                       {link.name}
@@ -180,7 +166,7 @@ export function Footer() {
             </div>
           </div>
         </div>
-        
+
         {/* Stats section */}
         <div className="py-8 border-t border-border/40">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -202,7 +188,7 @@ export function Footer() {
             </div>
           </div>
         </div>
-        
+
         {/* Bottom section */}
         <div className="py-8 border-t border-border/40">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -216,7 +202,7 @@ export function Footer() {
                 <span>for the global workforce</span>
               </div>
             </div>
-            
+
             {/* Social links */}
             <div className="flex items-center gap-4">
               {socialLinks.map((social) => (

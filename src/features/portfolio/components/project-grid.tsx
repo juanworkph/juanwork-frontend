@@ -9,7 +9,7 @@ interface ProjectGridProps {
   isOwnProfile?: boolean;
 }
 
-export function ProjectGrid({ projects, categories, isOwnProfile = false }: ProjectGridProps) {
+export function ProjectGrid({ projects, categories }: ProjectGridProps) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');

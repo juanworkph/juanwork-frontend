@@ -3,12 +3,10 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { 
   ArrowRight, 
-  Sparkles, 
-  Users, 
+  Sparkles,
+  Users,
   Briefcase,
-  CheckCircle,
-  Star,
-  Zap
+  Star
 } from 'lucide-react';
 
 export function CTASection() {

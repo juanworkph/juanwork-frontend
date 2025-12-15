@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from '@/features/home/components/footer';
+import { ConditionalLayout } from "@/components/layout/conditional-layout";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,9 +24,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <Navbar />
-            {children}
-            <Footer />
+            <ConditionalLayout>{children}</ConditionalLayout>
           </AuthProvider>
         </ThemeProvider>
       </body>

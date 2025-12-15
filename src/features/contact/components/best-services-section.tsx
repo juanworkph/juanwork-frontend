@@ -8,17 +8,13 @@ import {
   Users, 
   Laptop, 
   Shield, 
-  Zap, 
   Globe,
   ArrowRight,
   CheckCircle,
   Star,
-  Target,
   Award,
-  Clock,
-  TrendingUp,
   Heart,
-  MessageCircle
+  TrendingUp
 } from 'lucide-react';
 
 export function BestServicesSection() {
