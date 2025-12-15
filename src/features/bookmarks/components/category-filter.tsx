@@ -1,13 +1,15 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
-import { 
-  Briefcase, 
-  Users, 
-  FileText, 
-  BookOpen, 
+import React from "react";
+import { cn } from "@/lib/utils";
+import {
+  Briefcase,
+  Users,
+  FileText,
+  BookOpen,
   Folder,
-  BookMarked
-} from 'lucide-react';
+  BookMarked,
+  User,
+  Package,
+} from "lucide-react";
 
 interface CategoryFilterProps {
   categories: {
@@ -21,21 +23,25 @@ interface CategoryFilterProps {
 export function CategoryFilter({
   categories,
   selectedCategory,
-  onCategoryChange
+  onCategoryChange,
 }: CategoryFilterProps) {
   // Get icon for category
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
-      case 'projects':
+      case "projects":
         return <Briefcase className="h-4 w-4" />;
-      case 'clients':
+      case "clients":
         return <Users className="h-4 w-4" />;
-      case 'jobs':
+      case "jobs":
         return <FileText className="h-4 w-4" />;
-      case 'articles':
+      case "articles":
         return <BookOpen className="h-4 w-4" />;
-      case 'resources':
+      case "resources":
         return <Folder className="h-4 w-4" />;
+      case "freelancers":
+        return <User className="h-4 w-4" />;
+      case "services":
+        return <Package className="h-4 w-4" />;
       default:
         return <BookMarked className="h-4 w-4" />;
     }
@@ -44,9 +50,11 @@ export function CategoryFilter({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="font-medium text-gray-900 dark:text-white">Categories</h2>
+        <h2 className="font-medium text-gray-900 dark:text-white">
+          Categories
+        </h2>
       </div>
-      
+
       <div className="p-2">
         {/* All Categories */}
         <button
@@ -66,7 +74,7 @@ export function CategoryFilter({
             {categories.reduce((total, cat) => total + cat.count, 0)}
           </span>
         </button>
-        
+
         {/* Category List */}
         <div className="mt-2 space-y-1">
           {categories.map((category) => (
@@ -93,4 +101,4 @@ export function CategoryFilter({
       </div>
     </div>
   );
-} 
+}

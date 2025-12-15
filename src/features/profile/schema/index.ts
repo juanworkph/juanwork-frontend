@@ -1,14 +1,20 @@
 export type {
+  // Shared
   Language,
+  SocialLinks,
+  // Freelancer
   Skill,
   Education,
   Certification,
   WorkExperience,
   PersonalInfo,
-  SocialLinks,
   VideoIntroduction,
-  ProfileStats,
-  FreelancerProfile
-} from './profile-data';
+  FreelancerProfile,
+  // Client
+  ClientPersonalInfo,
+  CompanyDetails,
+  ProjectPreference,
+  ClientProfile,
+} from "./profile-data";
 
-export { mockFreelancerProfile } from './profile-data'; 
+export { mockFreelancerProfile, mockClientProfile } from "./profile-data";

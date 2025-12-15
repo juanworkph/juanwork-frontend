@@ -1,413 +1,522 @@
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Bookmark as BookmarkType } from '../schema/bookmarks-data';
-import { formatDate, getTimeAgo } from '../schema/bookmarks-data';
-import { 
-  Bookmark, 
-  ExternalLink, 
-  Star, 
-  MapPin, 
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Bookmark as BookmarkType } from "../schema/bookmarks-data";
+import { formatDate, getTimeAgo } from "../schema/bookmarks-data";
+import {
+  ExternalLink,
+  Star,
+  MapPin,
   Calendar,
   Clock,
   Briefcase,
-  Users,
-  FileText,
-  BookOpen,
-  Folder,
   DollarSign,
-  Tag,
-  CheckCircle
-} from 'lucide-react';
+  CheckCircle,
+  Layers,
+  TrendingUp,
+  Award,
+  Sparkles,
+} from "lucide-react";
 
 interface BookmarkCardProps {
   bookmark: BookmarkType;
-  viewMode: 'grid' | 'list';
+  viewMode: "grid" | "list";
   onRemove: (id: string) => void;
+  userRole?: "freelancer" | "client";
 }
 
-export function BookmarkCard({ bookmark, viewMode, onRemove }: BookmarkCardProps) {
-  // Helper function to get bookmark icon
-  const getBookmarkIcon = () => {
+export function BookmarkCard({
+  bookmark,
+  viewMode,
+  onRemove,
+  userRole,
+}: BookmarkCardProps) {
+  // Helper function to get user avatar
+  const getUserAvatar = () => {
     switch (bookmark.type) {
-      case 'project':
-        return <Briefcase className="h-4 w-4" />;
-      case 'client':
-        return <Users className="h-4 w-4" />;
-      case 'job':
-        return <FileText className="h-4 w-4" />;
-      case 'article':
-        return <BookOpen className="h-4 w-4" />;
-      case 'resource':
-        return <Folder className="h-4 w-4" />;
+      case "project":
+        return (
+          bookmark.client.avatar ||
+          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+        );
+      case "freelancer":
+        return (
+          bookmark.avatar ||
+          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+        );
+      case "service":
+        return (
+          bookmark.freelancer.avatar ||
+          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+        );
       default:
-        return <Bookmark className="h-4 w-4" />;
+        return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face";
+    }
+  };
+
+  // Helper function to get user name
+  const getUserName = () => {
+    switch (bookmark.type) {
+      case "project":
+        return bookmark.client.name;
+      case "freelancer":
+        return bookmark.name;
+      case "service":
+        return bookmark.freelancer.name;
+      default:
+        return "Unknown";
     }
   };
 
   // Helper function to get bookmark title
   const getBookmarkTitle = () => {
     switch (bookmark.type) {
-      case 'project':
-      case 'job':
-      case 'article':
-      case 'resource':
+      case "project":
+      case "service":
         return bookmark.title;
-      case 'client':
+      case "freelancer":
         return bookmark.name;
       default:
-        return 'Bookmark';
+        return "Bookmark";
     }
   };
 
   // Helper function to get bookmark description
   const getBookmarkDescription = () => {
     switch (bookmark.type) {
-      case 'project':
-      case 'job':
-      case 'resource':
+      case "project":
+      case "service":
         return bookmark.description;
-      case 'client':
-        return bookmark.description;
-      case 'article':
-        return bookmark.summary;
+      case "freelancer":
+        return bookmark.bio;
       default:
-        return '';
+        return "";
     }
   };
 
   // Helper function to get bookmark URL
   const getBookmarkUrl = () => {
     switch (bookmark.type) {
-      case 'project':
+      case "project":
         return bookmark.projectUrl;
-      case 'client':
-        return bookmark.clientUrl;
-      case 'job':
-        return bookmark.jobUrl;
-      case 'article':
-        return bookmark.articleUrl;
-      case 'resource':
-        return bookmark.resourceUrl;
+      case "freelancer":
+        return bookmark.freelancerUrl;
+      case "service":
+        return bookmark.serviceUrl;
       default:
-        return '#';
-    }
-  };
-
-  // Helper function to get bookmark thumbnail
-  const getBookmarkThumbnail = () => {
-    switch (bookmark.type) {
-      case 'project':
-        return bookmark.thumbnail || 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&h=400&fit=crop';
-      case 'client':
-        return bookmark.avatar || 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&h=400&fit=crop';
-      case 'job':
-        return bookmark.companyLogo || 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&h=400&fit=crop';
-      case 'article':
-        return bookmark.thumbnail || 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&h=400&fit=crop';
-      case 'resource':
-        return bookmark.thumbnail || 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&h=400&fit=crop';
-      default:
-        return 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&h=400&fit=crop';
+        return "#";
     }
   };
 
   // Render different content based on bookmark type
   const renderSpecificContent = () => {
     switch (bookmark.type) {
-      case 'project':
+      case "project":
         return (
           <>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1">
-                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <span className="text-sm font-medium">
-                  {bookmark.budget.type === 'fixed' 
-                    ? `$${bookmark.budget.min.toLocaleString()} - $${bookmark.budget.max.toLocaleString()}` 
-                    : `$${bookmark.budget.min.toLocaleString()} - $${bookmark.budget.max.toLocaleString()}/hr`}
-                </span>
-              </div>
-              
-              {bookmark.location && (
+            {/* Client info with avatar */}
+            <div className="flex items-center gap-2">
+              <Image
+                src={getUserAvatar()}
+                alt={getUserName()}
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {bookmark.client.name}
+                  </p>
+                  {bookmark.client.verified && (
+                    <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  )}
+                </div>
                 <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <span className="text-sm text-gray-600 dark:text-gray-300">{bookmark.location}</span>
+                  {bookmark.location && (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                      <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {bookmark.location}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Project Details - Compact Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Budget
+                  </p>
+                  <p className="text-sm font-semibold">
+                    {bookmark.budget.type === "fixed"
+                      ? `$${bookmark.budget.min.toLocaleString()}-$${bookmark.budget.max.toLocaleString()}`
+                      : `$${bookmark.budget.min}-$${bookmark.budget.max}/hr`}
+                  </p>
+                </div>
+              </div>
+
+              {bookmark.deadline && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Deadline
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {formatDate(bookmark.deadline)}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
-            
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-xs text-gray-600 dark:text-gray-300">
-                  Posted: {formatDate(bookmark.datePosted)}
-                </span>
-              </div>
-              
-              {bookmark.deadline && (
+
+            {/* Skills */}
+            <div className="flex flex-wrap gap-1.5">
+              {bookmark.skills
+                .slice(0, viewMode === "grid" ? 3 : 5)
+                .map((skill, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {skill}
+                  </Badge>
+                ))}
+              {bookmark.skills.length > (viewMode === "grid" ? 3 : 5) && (
+                <Badge variant="outline" className="text-xs">
+                  +{bookmark.skills.length - (viewMode === "grid" ? 3 : 5)}
+                </Badge>
+              )}
+            </div>
+          </>
+        );
+
+      case "freelancer":
+        return (
+          <>
+            {/* Freelancer info with avatar */}
+            <div className="flex items-center gap-2">
+              <Image
+                src={getUserAvatar()}
+                alt={getUserName()}
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {bookmark.name}
+                  </p>
+                </div>
                 <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4 text-orange-500 dark:text-orange-400" />
-                  <span className="text-xs text-gray-600 dark:text-gray-300">
-                    Due: {formatDate(bookmark.deadline)}
+                  <MapPin className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                  <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {bookmark.location}
+                  </span>
+                  <span className="mx-1">•</span>
+                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {bookmark.rating.toFixed(1)}
                   </span>
                 </div>
-              )}
-            </div>
-            
-            <div className="flex flex-wrap gap-1 mt-3">
-              {bookmark.skills.slice(0, viewMode === 'grid' ? 3 : 5).map((skill, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {skill}
-                </Badge>
-              ))}
-              {bookmark.skills.length > (viewMode === 'grid' ? 3 : 5) && (
-                <Badge variant="outline" className="text-xs">
-                  +{bookmark.skills.length - (viewMode === 'grid' ? 3 : 5)} more
-                </Badge>
-              )}
-            </div>
-          </>
-        );
-        
-      case 'client':
-        return (
-          <>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">{bookmark.location}</span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <Tag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">{bookmark.industry}</span>
               </div>
             </div>
-            
-            <div className="grid grid-cols-3 gap-2 mt-3">
-              <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Projects</p>
-                <p className="text-sm font-medium">{bookmark.projectsPosted}</p>
-              </div>
-              
-              <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Spent</p>
-                <p className="text-sm font-medium">${(bookmark.totalSpent / 1000).toFixed(1)}k</p>
-              </div>
-              
-              <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Hire Rate</p>
-                <p className="text-sm font-medium">{bookmark.hireRate}%</p>
-              </div>
-            </div>
-          </>
-        );
-        
-      case 'job':
-        return (
-          <>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {bookmark.location}
-                  {bookmark.remote && " (Remote)"}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <Briefcase className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {bookmark.employmentType.replace('_', ' ')}
-                </span>
-              </div>
-            </div>
-            
-            {bookmark.salary && (
-              <div className="flex items-center gap-1 mt-2">
+
+            {/* Freelancer Details - Compact Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <span className="text-sm font-medium">
-                  ${bookmark.salary.min.toLocaleString()} - ${bookmark.salary.max.toLocaleString()}/{bookmark.salary.period}
-                </span>
-              </div>
-            )}
-            
-            <div className="flex flex-wrap gap-1 mt-3">
-              {bookmark.skills.slice(0, viewMode === 'grid' ? 3 : 5).map((skill, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {skill}
-                </Badge>
-              ))}
-              {bookmark.skills.length > (viewMode === 'grid' ? 3 : 5) && (
-                <Badge variant="outline" className="text-xs">
-                  +{bookmark.skills.length - (viewMode === 'grid' ? 3 : 5)} more
-                </Badge>
-              )}
-            </div>
-          </>
-        );
-        
-      case 'article':
-        return (
-          <>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {bookmark.readTime} min read
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {formatDate(bookmark.publishedDate)}
-                </span>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-sm text-gray-700 dark:text-gray-300">By {bookmark.author}</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">• {bookmark.source}</span>
-            </div>
-            
-            <div className="flex flex-wrap gap-1 mt-3">
-              {bookmark.tags.slice(0, viewMode === 'grid' ? 3 : 5).map((tag, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-              {bookmark.tags.length > (viewMode === 'grid' ? 3 : 5) && (
-                <Badge variant="outline" className="text-xs">
-                  +{bookmark.tags.length - (viewMode === 'grid' ? 3 : 5)} more
-                </Badge>
-              )}
-            </div>
-          </>
-        );
-        
-      case 'resource':
-        return (
-          <>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1">
-                <Folder className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {bookmark.format.charAt(0).toUpperCase() + bookmark.format.slice(1)}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <Tag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">{bookmark.category}</span>
-              </div>
-              
-              {bookmark.isFree ? (
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0">Free</Badge>
-              ) : (
-                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0">Premium</Badge>
-              )}
-            </div>
-            
-            {bookmark.rating && (
-              <div className="flex items-center gap-1 mt-2">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star 
-                      key={star}
-                      className={`h-3 w-3 ${
-                        star <= Math.floor(bookmark.rating || 0) 
-                          ? 'fill-yellow-400 text-yellow-400' 
-                          : 'text-gray-300 dark:text-gray-600'
-                      }`} 
-                    />
-                  ))}
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Hourly Rate
+                  </p>
+                  <p className="text-sm font-semibold">
+                    ${bookmark.hourlyRate}/hr
+                  </p>
                 </div>
-                <span className="text-xs text-gray-600 dark:text-gray-400">{bookmark.rating.toFixed(1)}</span>
               </div>
-            )}
-            
-            <div className="flex flex-wrap gap-1 mt-3">
-              {bookmark.tags.slice(0, viewMode === 'grid' ? 3 : 5).map((tag, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-              {bookmark.tags.length > (viewMode === 'grid' ? 3 : 5) && (
+
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Jobs Done
+                  </p>
+                  <p className="text-sm font-semibold">{bookmark.totalJobs}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-green-500 dark:text-green-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Success
+                  </p>
+                  <p className="text-sm font-semibold">
+                    {bookmark.successRate}%
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Response
+                  </p>
+                  <p className="text-sm font-semibold">
+                    {bookmark.responseTime}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Availability Badge */}
+            <div>
+              <Badge variant="secondary" className="text-xs">
+                {bookmark.availability}
+              </Badge>
+            </div>
+
+            {/* Skills */}
+            <div className="flex flex-wrap gap-1.5">
+              {bookmark.skills
+                .slice(0, viewMode === "grid" ? 3 : 5)
+                .map((skill, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {skill}
+                  </Badge>
+                ))}
+              {bookmark.skills.length > (viewMode === "grid" ? 3 : 5) && (
                 <Badge variant="outline" className="text-xs">
-                  +{bookmark.tags.length - (viewMode === 'grid' ? 3 : 5)} more
+                  +{bookmark.skills.length - (viewMode === "grid" ? 3 : 5)}
                 </Badge>
               )}
             </div>
           </>
         );
-        
+
+      case "service":
+        return (
+          <>
+            {/* Freelancer info with avatar */}
+            <div className="flex items-center gap-2">
+              <Image
+                src={getUserAvatar()}
+                alt={getUserName()}
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {bookmark.freelancer.name}
+                  </p>
+                  {bookmark.freelancer.verified && (
+                    <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  {bookmark.rating && (
+                    <>
+                      <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        {bookmark.rating.toFixed(1)}
+                      </span>
+                      <span className="mx-1">•</span>
+                    </>
+                  )}
+                  <Award className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {bookmark.totalOrders} orders
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Service Details - Compact Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Pricing
+                  </p>
+                  <p className="text-sm font-semibold">
+                    {bookmark.pricing.type === "fixed"
+                      ? `$${bookmark.pricing.min}-$${bookmark.pricing.max}`
+                      : `$${bookmark.pricing.min}-$${bookmark.pricing.max}/hr`}
+                  </p>
+                </div>
+              </div>
+
+              {bookmark.deliveryTime && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Delivery
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {bookmark.deliveryTime}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Revisions Badge */}
+            {bookmark.revisions && (
+              <div>
+                <Badge variant="outline" className="text-xs">
+                  {bookmark.revisions} revisions
+                </Badge>
+              </div>
+            )}
+
+            {/* Skills */}
+            <div className="flex flex-wrap gap-1.5">
+              {bookmark.skills
+                .slice(0, viewMode === "grid" ? 3 : 5)
+                .map((skill, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {skill}
+                  </Badge>
+                ))}
+              {bookmark.skills.length > (viewMode === "grid" ? 3 : 5) && (
+                <Badge variant="outline" className="text-xs">
+                  +{bookmark.skills.length - (viewMode === "grid" ? 3 : 5)}
+                </Badge>
+              )}
+            </div>
+          </>
+        );
+
       default:
         return null;
     }
   };
 
+  // Get category for display
+  const getCategory = () => {
+    switch (bookmark.type) {
+      case "project":
+        return bookmark.category || "Project";
+      case "freelancer":
+        return bookmark.title || "Freelancer";
+      case "service":
+        return bookmark.category || "Service";
+      default:
+        return "Bookmark";
+    }
+  };
+
+  // Format bookmarked date - consistent between server and client
+  const formatBookmarkedDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    return `${
+      months[date.getMonth()]
+    } ${date.getDate()}, ${date.getFullYear()}`;
+  };
+
   // Render grid or list view
-  if (viewMode === 'grid') {
+  if (viewMode === "grid") {
     return (
       <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow duration-200 py-0">
-        <div className="relative h-40">
-          <Image
-            src={getBookmarkThumbnail()}
-            alt={getBookmarkTitle()}
-            fill
-            className="object-cover"
-          />
-          <div className="absolute top-2 right-2 flex gap-1">
-            <Badge className="bg-white/90 text-gray-800 border-0 backdrop-blur-sm">
+        <CardContent className="flex-1 p-4">
+          {/* Header with category and saved date */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3 whitespace-nowrap">
+              <div className="flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5" />
+                <span>{getCategory()}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                <span>{formatBookmarkedDate(bookmark.bookmarkedAt)}</span>
+              </div>
+            </div>
+            <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border-0 text-xs">
               {bookmark.type.charAt(0).toUpperCase() + bookmark.type.slice(1)}
             </Badge>
-            {bookmark.type === 'project' && bookmark.featured && (
-              <Badge className="bg-yellow-100 text-yellow-800 border-0">Featured</Badge>
+          </div>
+
+          {/* Badges row */}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {bookmark.type === "project" && bookmark.featured && (
+              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
+                <Sparkles className="h-3 w-3 mr-1" />
+                Featured
+              </Badge>
             )}
-            {bookmark.type === 'client' && bookmark.verified && (
-              <Badge className="bg-green-100 text-green-800 border-0 flex items-center gap-1">
-                <CheckCircle className="h-3 w-3" /> Verified
+            {bookmark.type === "service" && bookmark.featured && (
+              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
+                <Sparkles className="h-3 w-3 mr-1" />
+                Featured
+              </Badge>
+            )}
+            {bookmark.type === "freelancer" && bookmark.verified && (
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0 text-xs">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Verified
               </Badge>
             )}
           </div>
-        </div>
-        
-        <CardContent className="flex-1 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-              {getBookmarkIcon()}
-              <span>Saved {getTimeAgo(bookmark.bookmarkedAt)}</span>
-            </div>
+
+          {/* Title and Description */}
+          <div className="space-y-4">
+            <h3 className="font-medium text-lg line-clamp-2 mb-[10px]">
+              <Link
+                href={getBookmarkUrl()}
+                className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+              >
+                {getBookmarkTitle()}
+              </Link>
+            </h3>
+
+            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+              {getBookmarkDescription()}
+            </p>
+
+            {renderSpecificContent()}
           </div>
-          
-          <h3 className="font-medium text-lg mt-2 line-clamp-1">
-            {getBookmarkTitle()}
-          </h3>
-          
-          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
-            {getBookmarkDescription()}
-          </p>
-          
-          {renderSpecificContent()}
         </CardContent>
-        
-        <CardFooter className="p-4 pt-0 mt-auto">
-          <div className="flex justify-between w-full">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-xs"
+
+        <CardFooter className="p-4 pt-0 mt-auto border-t border-gray-100 dark:border-gray-700">
+          <div className="flex justify-between w-full gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs h-8"
               onClick={() => onRemove(bookmark.id)}
             >
               Remove
             </Button>
-            
-            <Link href={getBookmarkUrl()} passHref>
-              <Button size="sm" className="gap-1 text-xs">
+
+            <Link href={getBookmarkUrl()}>
+              <Button size="sm" className="gap-1 text-xs h-8">
                 <span>View</span>
                 <ExternalLink className="h-3 w-3" />
               </Button>
@@ -420,70 +529,83 @@ export function BookmarkCard({ bookmark, viewMode, onRemove }: BookmarkCardProps
     // List view
     return (
       <Card className="overflow-hidden hover:shadow-md transition-shadow duration-200 py-0">
-        <div className="flex flex-col sm:flex-row">
-          <div className="relative h-40 sm:h-auto sm:w-48 flex-shrink-0">
-            <Image
-              src={getBookmarkThumbnail()}
-              alt={getBookmarkTitle()}
-              fill
-              className="object-cover"
-            />
-            <div className="absolute top-2 right-2 flex gap-1">
-              <Badge className="bg-white/90 text-gray-800 border-0 backdrop-blur-sm">
-                {bookmark.type.charAt(0).toUpperCase() + bookmark.type.slice(1)}
-              </Badge>
+        <div className="flex-1 p-4">
+          {/* Header with category and saved date */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5" />
+                <span>{getCategory()}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                <span>{formatBookmarkedDate(bookmark.bookmarkedAt)}</span>
+              </div>
             </div>
+            <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border-0 text-xs">
+              {bookmark.type.charAt(0).toUpperCase() + bookmark.type.slice(1)}
+            </Badge>
           </div>
-          
-          <div className="flex-1 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                {getBookmarkIcon()}
-                <span>Saved {getTimeAgo(bookmark.bookmarkedAt)}</span>
-              </div>
-              
-              <div className="flex gap-1">
-                {bookmark.type === 'project' && bookmark.featured && (
-                  <Badge className="bg-yellow-100 text-yellow-800 border-0">Featured</Badge>
-                )}
-                {bookmark.type === 'client' && bookmark.verified && (
-                  <Badge className="bg-green-100 text-green-800 border-0 flex items-center gap-1">
-                    <CheckCircle className="h-3 w-3" /> Verified
-                  </Badge>
-                )}
-              </div>
-            </div>
-            
-            <h3 className="font-medium text-lg mt-2">
-              {getBookmarkTitle()}
+
+          {/* Badges row */}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {bookmark.type === "project" && bookmark.featured && (
+              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
+                <Sparkles className="h-3 w-3 mr-1" />
+                Featured
+              </Badge>
+            )}
+            {bookmark.type === "service" && bookmark.featured && (
+              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
+                <Sparkles className="h-3 w-3 mr-1" />
+                Featured
+              </Badge>
+            )}
+            {bookmark.type === "freelancer" && bookmark.verified && (
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0 text-xs">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Verified
+              </Badge>
+            )}
+          </div>
+
+          {/* Title and Description */}
+          <div className="space-y-4">
+            <h3 className="font-medium text-lg">
+              <Link
+                href={getBookmarkUrl()}
+                className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+              >
+                {getBookmarkTitle()}
+              </Link>
             </h3>
-            
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
+
+            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
               {getBookmarkDescription()}
             </p>
-            
+
             {renderSpecificContent()}
-            
-            <div className="flex justify-end mt-4 gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-xs"
-                onClick={() => onRemove(bookmark.id)}
-              >
-                Remove
+          </div>
+
+          <div className="flex justify-end mt-4 pt-4 gap-2 border-t border-gray-100 dark:border-gray-700">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs h-8"
+              onClick={() => onRemove(bookmark.id)}
+            >
+              Remove
+            </Button>
+
+            <Link href={getBookmarkUrl()}>
+              <Button size="sm" className="gap-1 text-xs h-8">
+                <span>View</span>
+                <ExternalLink className="h-3 w-3" />
               </Button>
-              
-              <Link href={getBookmarkUrl()} passHref>
-                <Button size="sm" className="gap-1 text-xs">
-                  <span>View</span>
-                  <ExternalLink className="h-3 w-3" />
-                </Button>
-              </Link>
-            </div>
+            </Link>
           </div>
         </div>
       </Card>
     );
   }
-} 
+}

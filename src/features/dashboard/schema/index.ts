@@ -3,7 +3,7 @@ export type {
   Project,
   Activity,
   Deadline,
-  DashboardData
-} from './dashboard-data';
+  DashboardData,
+} from "./dashboard-data";
 
-export { mockDashboardData } from './dashboard-data'; 
+export { mockDashboardData } from "./dashboard-data";

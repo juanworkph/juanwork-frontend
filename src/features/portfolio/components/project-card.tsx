@@ -1,40 +1,48 @@
-import React from 'react';
-import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  ExternalLink, 
-  Github, 
-  Play, 
+import React from "react";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ExternalLink,
+  Github,
+  Play,
   Calendar,
   DollarSign,
   Users,
   Star,
   Award,
-  Eye
-} from 'lucide-react';
-import { PortfolioProject } from '../schema/portfolio-data';
+  Eye,
+} from "lucide-react";
+import { PortfolioProject } from "../schema/portfolio-data";
 
 interface ProjectCardProps {
   project: PortfolioProject;
-  viewMode: 'grid' | 'list';
+  viewMode: "grid" | "list";
   onViewDetails: (project: PortfolioProject) => void;
 }
 
-export function ProjectCard({ project, viewMode, onViewDetails }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  viewMode,
+  onViewDetails,
+}: ProjectCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Completed': return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800';
-      case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800';
-      case 'Concept': return 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
+      case "Completed":
+        return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800";
+      case "In Progress":
+        return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800";
+      case "Concept":
+        return "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
     }
   };
 
-  if (viewMode === 'list') {
+  if (viewMode === "list") {
     return (
-      <Card className="border-0 py-0 shadow-sm hover:shadow-md transition-all duration-300 bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
+      <Card className="py-0 shadow-sm hover:shadow-md transition-all duration-300 bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Project Image */}
@@ -95,7 +103,7 @@ export function ProjectCard({ project, viewMode, onViewDetails }: ProjectCardPro
                     )}
                   </div>
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex gap-2">
                   {project.links.live && (
@@ -153,7 +161,7 @@ export function ProjectCard({ project, viewMode, onViewDetails }: ProjectCardPro
 
   // Grid view
   return (
-    <Card className="border-0 py-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30 group overflow-hidden">
+    <Card className="py-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30 group overflow-hidden">
       {/* Project Image */}
       <div className="relative aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden">
         <Image
@@ -184,7 +192,9 @@ export function ProjectCard({ project, viewMode, onViewDetails }: ProjectCardPro
             )}
           </div>
         </div>
-        <Badge className={`absolute top-3 right-3 ${getStatusColor(project.status)}`}>
+        <Badge
+          className={`absolute top-3 right-3 ${getStatusColor(project.status)}`}
+        >
           {project.status}
         </Badge>
       </div>
@@ -252,4 +262,4 @@ export function ProjectCard({ project, viewMode, onViewDetails }: ProjectCardPro
       </CardContent>
     </Card>
   );
-} 
+}

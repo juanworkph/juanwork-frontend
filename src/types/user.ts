@@ -5,5 +5,8 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
-  // Add other user properties as needed
+  avatar?: string | null;
+  balance?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }

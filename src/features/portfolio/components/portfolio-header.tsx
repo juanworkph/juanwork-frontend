@@ -1,23 +1,19 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Briefcase, 
-  Users, 
-  Star, 
-  Trophy, 
-  Plus,
-  Download
-} from 'lucide-react';
-import { PortfolioStats } from '../schema/portfolio-data';
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Briefcase, Users, Star, Trophy, Plus, Download } from "lucide-react";
+import { PortfolioStats } from "../schema/portfolio-data";
 
 interface PortfolioHeaderProps {
   stats: PortfolioStats;
   isOwnProfile?: boolean;
 }
 
-export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeaderProps) {
+export function PortfolioHeader({
+  stats,
+  isOwnProfile = false,
+}: PortfolioHeaderProps) {
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -27,10 +23,11 @@ export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeader
             My Portfolio
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
-            Showcasing {stats.completedProjects} completed projects across {stats.yearsExperience} years of experience
+            Showcasing {stats.completedProjects} completed projects across{" "}
+            {stats.yearsExperience} years of experience
           </p>
         </div>
-        
+
         {isOwnProfile && (
           <div className="flex flex-col sm:flex-row gap-3">
             <Button variant="outline" className="gap-2">
@@ -47,7 +44,7 @@ export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeader
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
+        <Card className="shadow-sm bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
           <CardContent className="p-4 lg:p-6">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
@@ -65,7 +62,7 @@ export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeader
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+        <Card className="shadow-sm bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
           <CardContent className="p-4 lg:p-6">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
@@ -83,7 +80,7 @@ export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeader
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
+        <Card className="shadow-sm bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
           <CardContent className="p-4 lg:p-6">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
@@ -101,7 +98,7 @@ export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeader
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
+        <Card className="shadow-sm bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
           <CardContent className="p-4 lg:p-6">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
@@ -121,7 +118,7 @@ export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeader
       </div>
 
       {/* Achievement Highlight */}
-      <Card className="border-0 shadow-sm bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/20 dark:via-purple-950/20 dark:to-pink-950/20">
+      <Card className="shadow-sm bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/20 dark:via-purple-950/20 dark:to-pink-950/20">
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full">
@@ -132,7 +129,9 @@ export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeader
                 Top Rated Freelancer
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Maintaining {stats.averageRating}/5.0 rating with {stats.onTimeDelivery}% on-time delivery across {stats.completedProjects} completed projects
+                Maintaining {stats.averageRating}/5.0 rating with{" "}
+                {stats.onTimeDelivery}% on-time delivery across{" "}
+                {stats.completedProjects} completed projects
               </p>
             </div>
             <div className="flex gap-2">
@@ -148,4 +147,4 @@ export function PortfolioHeader({ stats, isOwnProfile = false }: PortfolioHeader
       </Card>
     </div>
   );
-} 
+}

@@ -1,34 +1,44 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  User, 
-  Clock, 
-  Mail, 
-  Phone, 
-  Globe, 
+"use client";
+
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  User,
+  Clock,
+  Mail,
+  Phone,
+  Globe,
   MapPin,
   Calendar,
-  Edit
-} from 'lucide-react';
-import { PersonalInfo } from '../schema/profile-data';
+  Edit,
+} from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import type { PersonalInfo, ClientPersonalInfo } from "../schema";
 
 interface AboutMeSectionProps {
-  personalInfo: PersonalInfo;
+  personalInfo: PersonalInfo | ClientPersonalInfo;
   joinDate: string;
   isOwnProfile?: boolean;
 }
 
-export function AboutMeSection({ personalInfo, joinDate, isOwnProfile = false }: AboutMeSectionProps) {
+export function AboutMeSection({
+  personalInfo,
+  joinDate,
+  isOwnProfile = false,
+}: AboutMeSectionProps) {
+  const { currentRole } = useAuth();
+  const isClient = currentRole === "client";
+
   const formatJoinDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long' 
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
     });
   };
 
   return (
-    <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
+    <Card className="shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -45,7 +55,7 @@ export function AboutMeSection({ personalInfo, joinDate, isOwnProfile = false }:
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Bio */}
         <div>
@@ -61,16 +71,24 @@ export function AboutMeSection({ personalInfo, joinDate, isOwnProfile = false }:
             <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <MapPin className="h-4 w-4 text-gray-500" />
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Location</p>
-                <p className="font-medium text-gray-900 dark:text-gray-100">{personalInfo.location}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Location
+                </p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">
+                  {personalInfo.location}
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <Clock className="h-4 w-4 text-gray-500" />
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Timezone</p>
-                <p className="font-medium text-gray-900 dark:text-gray-100">{personalInfo.timezone}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Timezone
+                </p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">
+                  {personalInfo.timezone}
+                </p>
               </div>
             </div>
           </div>
@@ -80,17 +98,25 @@ export function AboutMeSection({ personalInfo, joinDate, isOwnProfile = false }:
             <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <Mail className="h-4 w-4 text-gray-500" />
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{personalInfo.email}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Email
+                </p>
+                <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                  {personalInfo.email}
+                </p>
               </div>
             </div>
-            
+
             {personalInfo.phone && (
               <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                 <Phone className="h-4 w-4 text-gray-500" />
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{personalInfo.phone}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Phone
+                  </p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                    {personalInfo.phone}
+                  </p>
                 </div>
               </div>
             )}
@@ -103,14 +129,18 @@ export function AboutMeSection({ personalInfo, joinDate, isOwnProfile = false }:
             <Calendar className="h-4 w-4" />
             <span>Joined {formatJoinDate(joinDate)}</span>
           </div>
-          
+
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <Clock className="h-4 w-4" />
             <span>Response time: {personalInfo.responseTime}</span>
           </div>
-          
+
           {personalInfo.website && (
-            <Button variant="ghost" size="sm" className="gap-2 text-blue-600 hover:text-blue-700 p-0 h-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2 text-blue-600 hover:text-blue-700 p-0 h-auto"
+            >
               <Globe className="h-4 w-4" />
               <span className="text-sm">Visit Website</span>
             </Button>
@@ -121,25 +151,28 @@ export function AboutMeSection({ personalInfo, joinDate, isOwnProfile = false }:
         <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg border border-green-200 dark:border-green-800">
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0">
-              <div className={`w-3 h-3 rounded-full ${
-                personalInfo.availability === 'Available' 
-                  ? 'bg-green-500' 
-                  : personalInfo.availability === 'Busy'
-                  ? 'bg-yellow-500'
-                  : 'bg-red-500'
-              }`} />
+              <div
+                className={`w-3 h-3 rounded-full ${
+                  personalInfo.availability === "Available"
+                    ? "bg-green-500"
+                    : personalInfo.availability === "Busy"
+                    ? "bg-yellow-500"
+                    : "bg-red-500"
+                }`}
+              />
             </div>
             <div className="flex-1">
               <p className="font-medium text-green-900 dark:text-green-100">
                 Currently {personalInfo.availability}
               </p>
               <p className="text-sm text-green-700 dark:text-green-300">
-                {personalInfo.availability === 'Available' 
-                  ? 'Ready to take on new projects and respond quickly to messages'
-                  : personalInfo.availability === 'Busy'
-                  ? 'Currently working on projects but can discuss new opportunities'
-                  : 'Not taking on new projects at the moment'
-                }
+                {personalInfo.availability === "Available"
+                  ? isClient
+                    ? "Ready to discuss projects and respond quickly to messages"
+                    : "Ready to take on new projects and respond quickly to messages"
+                  : personalInfo.availability === "Busy"
+                  ? "Currently working on projects but can discuss new opportunities"
+                  : "Not taking on new projects at the moment"}
               </p>
             </div>
           </div>
@@ -147,4 +180,4 @@ export function AboutMeSection({ personalInfo, joinDate, isOwnProfile = false }:
       </CardContent>
     </Card>
   );
-} 
+}

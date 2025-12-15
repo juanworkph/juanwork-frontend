@@ -13,8 +13,10 @@ import {
   Award,
   SortAsc,
   SortDesc,
+  UserCheck,
 } from "lucide-react";
 import { ReviewsState, getStarPercentage, getRatingColor } from "../schema";
+import { useAuth } from "@/contexts/auth-context";
 
 interface ReviewsHeaderProps {
   stats: ReviewsState["stats"];
@@ -31,6 +33,8 @@ export function ReviewsHeader({
   onRefresh,
   isLoading,
 }: ReviewsHeaderProps) {
+  const { currentRole } = useAuth();
+  const isClient = currentRole === "client";
   // Handle rating filter change
   const handleRatingChange = (rating: ReviewsState["filters"]["rating"]) => {
     onFilterChange({ rating });
@@ -54,12 +58,24 @@ export function ReviewsHeader({
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-              <Star className="h-7 w-7 text-yellow-600 dark:text-yellow-400 fill-yellow-600 dark:fill-yellow-400" />
+            <div
+              className={`p-3 ${
+                isClient
+                  ? "bg-blue-100 dark:bg-blue-900/30"
+                  : "bg-yellow-100 dark:bg-yellow-900/30"
+              } rounded-lg`}
+            >
+              <Star
+                className={`h-7 w-7 ${
+                  isClient
+                    ? "text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400"
+                    : "text-yellow-600 dark:text-yellow-400 fill-yellow-600 dark:fill-yellow-400"
+                }`}
+              />
             </div>
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-                Client Reviews
+                {isClient ? "Your Reviews" : "Client Reviews"}
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {stats.total} reviews • {stats.averageRating.toFixed(1)} average
@@ -107,7 +123,9 @@ export function ReviewsHeader({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search reviews by client, project, or message..."
+              placeholder={`Search reviews by ${
+                isClient ? "freelancer" : "client"
+              }, project, or message...`}
               value={filters.search}
               onChange={handleSearchChange}
               className="pl-10 pr-4 h-11"
@@ -133,11 +151,17 @@ export function ReviewsHeader({
       {/* Overall Rating Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Average Rating Card */}
-        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-800">
+        <div
+          className={`bg-gradient-to-br ${
+            isClient
+              ? "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800"
+              : "from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-yellow-200 dark:border-yellow-800"
+          } rounded-lg p-6 border`}
+        >
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Overall Rating
+                {isClient ? "Overall Ratings Given" : "Overall Rating"}
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-4xl font-bold text-gray-900 dark:text-white">
@@ -160,8 +184,18 @@ export function ReviewsHeader({
                 Based on {stats.total} reviews
               </p>
             </div>
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-              <Award className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
+            <div
+              className={`p-3 ${
+                isClient
+                  ? "bg-blue-100 dark:bg-blue-900/30"
+                  : "bg-yellow-100 dark:bg-yellow-900/30"
+              } rounded-full`}
+            >
+              {isClient ? (
+                <UserCheck className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              ) : (
+                <Award className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
+              )}
             </div>
           </div>
         </div>

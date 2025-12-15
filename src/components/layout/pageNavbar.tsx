@@ -6,86 +6,25 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Plus, Calendar } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 import {
-  LayoutDashboard,
-  User,
-  Briefcase,
-  Bell,
-  Bookmark,
-  FileText,
-  Send,
-  FolderOpen,
-  Star,
-  CreditCard,
-  Settings,
-  Plus,
-  Calendar,
-} from "lucide-react";
+  pageNavigationWhereUserRole,
+  type PageNavItem,
+} from "@/config/page-navigation";
 
 export function PageNavbar() {
   const pathname = usePathname();
+  const { currentRole } = useAuth();
 
-  const navigationItems = [
-    {
-      name: "Dashboard",
-      href: "/freelancer",
-      icon: LayoutDashboard,
-      exact: true,
-    },
-    {
-      name: "Profile",
-      href: "/freelancer/profile",
-      icon: User,
-    },
-    {
-      name: "Portfolio",
-      href: "/freelancer/portfolio",
-      icon: Briefcase,
-    },
-    {
-      name: "Notifications",
-      href: "/freelancer/notifications",
-      icon: Bell,
-      badge: 3,
-    },
-    {
-      name: "Bookmarks",
-      href: "/freelancer/bookmarks",
-      icon: Bookmark,
-    },
-    {
-      name: "Bids",
-      href: "/freelancer/bids",
-      icon: FileText,
-    },
-    {
-      name: "Proposals",
-      href: "/freelancer/proposals",
-      icon: Send,
-    },
-    {
-      name: "Projects",
-      href: "/freelancer/projects",
-      icon: FolderOpen,
-    },
-    {
-      name: "Reviews",
-      href: "/freelancer/reviews",
-      icon: Star,
-    },
-    {
-      name: "Payment",
-      href: "/freelancer/payment",
-      icon: CreditCard,
-    },
-    {
-      name: "Settings",
-      href: "/freelancer/settings",
-      icon: Settings,
-    },
-  ];
+  // Get navigation items based on current role
+  // Default to freelancer if role is guest or admin
+  const navigationItems =
+    currentRole === "freelancer" || currentRole === "client"
+      ? pageNavigationWhereUserRole(currentRole)
+      : pageNavigationWhereUserRole("freelancer");
 
-  const isActive = (item: (typeof navigationItems)[0]) => {
+  const isActive = (item: PageNavItem) => {
     if (item.exact) {
       return pathname === item.href;
     }

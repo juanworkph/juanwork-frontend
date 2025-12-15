@@ -1,26 +1,29 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Play, 
-  Pause, 
-  Volume2, 
-  VolumeX, 
-  Maximize, 
+import React, { useState } from "react";
+import Image from "next/image";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
   Video,
   Edit,
-  Upload
-} from 'lucide-react';
-import { VideoIntroduction as VideoIntroType } from '../schema/profile-data';
+  Upload,
+} from "lucide-react";
+import { VideoIntroduction as VideoIntroType } from "../schema/profile-data";
 
 interface VideoIntroductionProps {
   videoIntroduction?: VideoIntroType;
   isOwnProfile?: boolean;
 }
 
-export function VideoIntroduction({ videoIntroduction, isOwnProfile = false }: VideoIntroductionProps) {
+export function VideoIntroduction({
+  videoIntroduction,
+  isOwnProfile = false,
+}: VideoIntroductionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
 
@@ -39,24 +42,26 @@ export function VideoIntroduction({ videoIntroduction, isOwnProfile = false }: V
   }
 
   return (
-    <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
+    <Card className="shadow-sm bg-gradient-to-br from-white to-gray-50/30 dark:from-gray-900 dark:to-gray-800/30">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
               <Video className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <CardTitle className="text-xl font-semibold">Introduction Video</CardTitle>
+            <CardTitle className="text-xl font-semibold">
+              Introduction Video
+            </CardTitle>
           </div>
           {isOwnProfile && (
             <Button variant="ghost" size="sm" className="gap-2">
               <Edit className="h-4 w-4" />
-              {videoIntroduction ? 'Edit' : 'Add'}
+              {videoIntroduction ? "Edit" : "Add"}
             </Button>
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {videoIntroduction ? (
           <div className="space-y-4">
@@ -68,7 +73,7 @@ export function VideoIntroduction({ videoIntroduction, isOwnProfile = false }: V
                 fill
                 className="object-cover"
               />
-              
+
               {/* Play Overlay */}
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-100 group-hover:opacity-80 transition-opacity">
                 <Button
@@ -99,7 +104,7 @@ export function VideoIntroduction({ videoIntroduction, isOwnProfile = false }: V
                       <Play className="h-4 w-4" />
                     )}
                   </Button>
-                  
+
                   <Button
                     size="sm"
                     variant="ghost"
@@ -112,8 +117,8 @@ export function VideoIntroduction({ videoIntroduction, isOwnProfile = false }: V
                       <Volume2 className="h-4 w-4" />
                     )}
                   </Button>
-                  
-                  <Badge variant="secondary" className="bg-black/50 text-white border-0">
+
+                  <Badge variant="secondary" className="bg-black/50 text-white">
                     {videoIntroduction.duration}
                   </Badge>
                 </div>
@@ -134,7 +139,8 @@ export function VideoIntroduction({ videoIntroduction, isOwnProfile = false }: V
                 {videoIntroduction.title}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Get to know me better through this personal introduction where I share my passion for development and design.
+                Get to know me better through this personal introduction where I
+                share my passion for development and design.
               </p>
             </div>
 
@@ -161,7 +167,9 @@ export function VideoIntroduction({ videoIntroduction, isOwnProfile = false }: V
                 Add an Introduction Video
               </h3>
               <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                Stand out from the crowd! Upload a personal video introduction to showcase your personality and build trust with potential clients.
+                Stand out from the crowd! Upload a personal video introduction
+                to showcase your personality and build trust with potential
+                clients.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -184,4 +192,4 @@ export function VideoIntroduction({ videoIntroduction, isOwnProfile = false }: V
       </CardContent>
     </Card>
   );
-} 
+}

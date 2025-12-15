@@ -155,9 +155,8 @@ export default function FindWorkPage() {
     });
   };
 
-
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-full">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
@@ -166,9 +165,9 @@ export default function FindWorkPage() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Scrollable */}
       <div
-        className={`fixed lg:sticky top-0 left-0 h-screen z-40 lg:z-0 transform transition-transform duration-300 lg:transform-none ${
+        className={`fixed lg:static left-0 h-full z-40 lg:z-0 transform transition-transform duration-300 lg:transform-none ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -182,14 +181,16 @@ export default function FindWorkPage() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <FindWorkHeader
-          filters={findWorkData.filters}
-          onFilterChange={handleFilterChange}
-        />
+        {/* Header - Fixed */}
+        <div className="flex-shrink-0">
+          <FindWorkHeader
+            filters={findWorkData.filters}
+            onFilterChange={handleFilterChange}
+          />
+        </div>
 
         {/* Mobile Filter Toggle */}
-        <div className="lg:hidden p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="lg:hidden p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <Button
             variant="outline"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -209,7 +210,7 @@ export default function FindWorkPage() {
           </Button>
         </div>
 
-        {/* Projects List */}
+        {/* Projects List - Scrollable */}
         <main className="flex-1 overflow-y-auto">
           <div className="p-6">
             <ProjectList
