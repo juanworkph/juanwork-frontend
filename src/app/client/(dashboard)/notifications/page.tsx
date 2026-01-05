@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import {
   NotificationsList,
   NotificationSettings,
+  NotificationsHeader,
 } from "@/features/notifications/components";
 import { mockNotificationsData } from "@/features/notifications/schema";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
 
 export default function ClientNotificationsPage() {
   // State for notifications data
@@ -119,105 +119,16 @@ export default function ClientNotificationsPage() {
   return (
     <div className="space-y-6 lg:space-y-8">
       {/* Notifications Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-            <Settings className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-              Notifications
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {notificationsState.unreadCount > 0 ? (
-                <>
-                  You have{" "}
-                  <span className="font-semibold text-blue-600 dark:text-blue-400">
-                    {notificationsState.unreadCount} unread
-                  </span>{" "}
-                  notifications
-                </>
-              ) : (
-                "All caught up! No unread notifications."
-              )}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={handleRefresh}
-          >
-            <span>Refresh</span>
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={handleMarkAllAsRead}
-            disabled={notificationsState.unreadCount === 0}
-          >
-            <span>Mark All Read</span>
-          </Button>
-
-          <Button
-            variant={isSettingsVisible ? "default" : "outline"}
-            size="sm"
-            className="gap-2"
-            onClick={toggleSettings}
-          >
-            <Settings className="h-4 w-4" />
-            <span>Settings</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Filters Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              Total:
-            </span>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {notificationsState.notifications.length}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              Unread:
-            </span>
-            <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-              {notificationsState.unreadCount}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Show unread only
-            </span>
-            <Button
-              variant={
-                notificationsState.settings.showUnreadOnly
-                  ? "default"
-                  : "outline"
-              }
-              size="sm"
-              className="h-8 px-3"
-              onClick={handleToggleUnreadOnly}
-            >
-              {notificationsState.settings.showUnreadOnly ? "On" : "Off"}
-            </Button>
-          </div>
-        </div>
-      </div>
+      <NotificationsHeader
+        unreadCount={notificationsState.unreadCount}
+        totalCount={notificationsState.notifications.length}
+        showUnreadOnly={notificationsState.settings.showUnreadOnly}
+        onToggleUnreadOnly={handleToggleUnreadOnly}
+        onMarkAllAsRead={handleMarkAllAsRead}
+        onRefresh={handleRefresh}
+        onToggleSettings={toggleSettings}
+        lastChecked={new Date().toISOString()}
+      />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
