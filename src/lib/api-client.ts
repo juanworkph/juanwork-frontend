@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 // API Response types
-export interface ApiSuccessResponse<T = any> {
+export interface ApiSuccessResponse<T = unknown> {
   success: true;
   data: T;
   message?: string;
@@ -14,7 +14,7 @@ export interface ApiErrorResponse {
   statusCode: number;
 }
 
-export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse;
+export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 // Token storage
 const TOKEN_KEY = 'accessToken';
@@ -62,6 +62,18 @@ const apiClient: AxiosInstance = axios.create({
   timeout: 30000,
 });
 
+// Validate HTTPS in production
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  if (apiUrl && !apiUrl.startsWith('https://')) {
+    console.error(
+      '⚠️ SECURITY WARNING: API URL must use HTTPS in production. ' +
+      `Current URL: ${apiUrl}. ` +
+      'Please update NEXT_PUBLIC_API_URL to use https://'
+    );
+  }
+}
+
 // Request interceptor - add auth token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -80,10 +92,10 @@ apiClient.interceptors.request.use(
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value?: unknown) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
 }> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);

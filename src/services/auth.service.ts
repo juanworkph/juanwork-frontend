@@ -1,288 +1,113 @@
-import apiClient, {
-  ApiResponse,
-  setAccessToken,
-  setRefreshToken,
-  clearTokens,
-  getAccessToken,
-} from '@/lib/api-client';
-import { User, UserRole } from '@/types/user';
+/**
+ * @deprecated This service is deprecated. Use actions from @/features/auth/actions/auth instead.
+ * This file is kept for backward compatibility only.
+ * 
+ * Migration guide:
+ * - authService.register() -> registerUser()
+ * - authService.login() -> loginUser()
+ * - authService.logout() -> logoutUser()
+ * - authService.refreshToken() -> refreshAccessToken()
+ * - authService.verifyEmail() -> verifyUserEmail()
+ * - authService.resendVerification() -> resendVerificationEmail()
+ * - authService.forgotPassword() -> sendPasswordResetEmail()
+ * - authService.resetPassword() -> resetUserPassword()
+ * - authService.getCurrentUser() -> getCurrentUser()
+ */
 
-// Auth request types
-export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  role?: 'client' | 'freelancer';
-}
+import {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  verifyUserEmail,
+  resendVerificationEmail,
+  sendPasswordResetEmail,
+  resetUserPassword,
+  getCurrentUser,
+} from '@/features/auth/actions/auth';
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+// Re-export types for backward compatibility
+export type {
+  RegisterRequest,
+  LoginRequest,
+  RefreshTokenRequest,
+  VerifyEmailRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  AuthTokens,
+  AuthUserData,
+  AuthResponse,
+} from '@/features/auth/schema/signup-schema';
 
-export interface RefreshTokenRequest {
-  refreshToken: string;
-}
-
-export interface VerifyEmailRequest {
-  token: string;
-}
-
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordRequest {
-  token: string;
-  newPassword: string;
-}
-
-// Auth response types
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface AuthUserData {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: UserRole;
-  emailVerified: boolean;
-  phoneVerified: boolean;
-  twoFactorEnabled: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AuthResponse {
-  user: AuthUserData;
-  tokens?: {
-    accessToken: string;
-    refreshToken: string;
-  };
-  requires2FA?: boolean;
-  userId?: string;
-  message?: string;
-}
-
+/**
+ * @deprecated Use actions from @/features/auth/actions/auth instead
+ */
 class AuthService {
   /**
-   * Register a new user
+   * @deprecated Use registerUser() from @/features/auth/actions/auth
    */
-  async register(data: RegisterRequest): Promise<AuthResponse> {
-    try {
-      const response = await apiClient.post<ApiResponse<AuthResponse>>(
-        '/auth/register',
-        data
-      );
-
-      if (response.data.success && response.data.data) {
-        const authData = response.data.data;
-        
-        // Store tokens
-        if (authData.tokens) {
-          setAccessToken(authData.tokens.accessToken);
-          setRefreshToken(authData.tokens.refreshToken);
-        }
-
-        return authData;
-      }
-
-      throw new Error('Registration failed');
-    } catch (error: any) {
-      const message = error.response?.data?.message || error.message || 'Registration failed';
-      throw new Error(message);
-    }
+  async register(...args: Parameters<typeof registerUser>) {
+    return registerUser(...args);
   }
 
   /**
-   * Login user
+   * @deprecated Use loginUser() from @/features/auth/actions/auth
    */
-  async login(data: LoginRequest): Promise<AuthResponse> {
-    try {
-      const response = await apiClient.post<ApiResponse<AuthResponse>>(
-        '/auth/login',
-        data
-      );
-
-      if (response.data.success && response.data.data) {
-        const authData = response.data.data;
-
-        // Check if 2FA is required
-        if (authData.requires2FA) {
-          return authData;
-        }
-
-        // Store tokens
-        if (authData.tokens) {
-          setAccessToken(authData.tokens.accessToken);
-          setRefreshToken(authData.tokens.refreshToken);
-        }
-
-        return authData;
-      }
-
-      throw new Error('Login failed');
-    } catch (error: any) {
-      // Extract error message from API response
-      const message = error.response?.data?.error || 
-                     error.response?.data?.message || 
-                     error.message || 
-                     'Login failed. Please check your credentials and try again.';
-      throw new Error(message);
-    }
+  async login(...args: Parameters<typeof loginUser>) {
+    return loginUser(...args);
   }
 
   /**
-   * Refresh access token
+   * @deprecated Use refreshAccessToken() from @/features/auth/actions/auth
    */
-  async refreshToken(refreshToken: string): Promise<AuthResponse> {
-    try {
-      const response = await apiClient.post<ApiResponse<AuthResponse>>(
-        '/auth/refresh',
-        { refreshToken }
-      );
-
-      if (response.data.success && response.data.data) {
-        const authData = response.data.data;
-        
-        // Update tokens
-        if (authData.tokens) {
-          setAccessToken(authData.tokens.accessToken);
-          setRefreshToken(authData.tokens.refreshToken);
-        }
-
-        return authData;
-      }
-
-      throw new Error('Token refresh failed');
-    } catch (error: any) {
-      const message = error.response?.data?.message || error.message || 'Token refresh failed';
-      clearTokens();
-      throw new Error(message);
-    }
+  async refreshToken(...args: Parameters<typeof refreshAccessToken>) {
+    return refreshAccessToken(...args);
   }
 
   /**
-   * Logout user
+   * @deprecated Use logoutUser() from @/features/auth/actions/auth
    */
-  async logout(): Promise<void> {
-    try {
-      // Call logout endpoint if it exists
-      const token = getAccessToken();
-      
-      if (token) {
-        await apiClient.post('/auth/logout');
-      }
-    } catch (error) {
-      // Ignore logout errors, clear tokens anyway
-      console.error('Logout error:', error);
-    } finally {
-      // Clear tokens from storage
-      clearTokens();
-    }
+  async logout() {
+    return logoutUser();
   }
 
   /**
-   * Verify email
+   * @deprecated Use verifyUserEmail() from @/features/auth/actions/auth
    */
-  async verifyEmail(data: VerifyEmailRequest): Promise<AuthUserData> {
-    try {
-      const response = await apiClient.post<ApiResponse<{ user: AuthUserData }>>(
-        '/auth/verify-email',
-        data
-      );
-
-      if (response.data.success && response.data.data) {
-        return response.data.data.user;
-      }
-
-      throw new Error('Email verification failed');
-    } catch (error: any) {
-      const message = error.response?.data?.message || error.message || 'Email verification failed';
-      throw new Error(message);
-    }
+  async verifyEmail(...args: Parameters<typeof verifyUserEmail>) {
+    return verifyUserEmail(...args);
   }
 
   /**
-   * Resend verification email
+   * @deprecated Use resendVerificationEmail() from @/features/auth/actions/auth
    */
-  async resendVerification(email: string): Promise<void> {
-    try {
-      const response = await apiClient.post<ApiResponse>(
-        '/auth/resend-verification',
-        { email }
-      );
-
-      if (!response.data.success) {
-        throw new Error('Failed to resend verification email');
-      }
-    } catch (error: any) {
-      const message = error.response?.data?.message || error.message || 'Failed to resend verification email';
-      throw new Error(message);
-    }
+  async resendVerification(...args: Parameters<typeof resendVerificationEmail>) {
+    return resendVerificationEmail(...args);
   }
 
   /**
-   * Forgot password - send reset email
+   * @deprecated Use sendPasswordResetEmail() from @/features/auth/actions/auth
    */
-  async forgotPassword(data: ForgotPasswordRequest): Promise<void> {
-    try {
-      const response = await apiClient.post<ApiResponse>(
-        '/auth/forgot-password',
-        data
-      );
-
-      if (!response.data.success) {
-        throw new Error('Failed to send reset email');
-      }
-    } catch (error: any) {
-      const message = error.response?.data?.message || error.message || 'Failed to send reset email';
-      throw new Error(message);
-    }
+  async forgotPassword(...args: Parameters<typeof sendPasswordResetEmail>) {
+    return sendPasswordResetEmail(...args);
   }
 
   /**
-   * Reset password
+   * @deprecated Use resetUserPassword() from @/features/auth/actions/auth
    */
-  async resetPassword(data: ResetPasswordRequest): Promise<void> {
-    try {
-      const response = await apiClient.post<ApiResponse>(
-        '/auth/reset-password',
-        data
-      );
-
-      if (!response.data.success) {
-        throw new Error('Password reset failed');
-      }
-    } catch (error: any) {
-      const message = error.response?.data?.message || error.message || 'Password reset failed';
-      throw new Error(message);
-    }
+  async resetPassword(...args: Parameters<typeof resetUserPassword>) {
+    return resetUserPassword(...args);
   }
 
   /**
-   * Get current user profile
+   * @deprecated Use getCurrentUser() from @/features/auth/actions/auth
    */
-  async getCurrentUser(): Promise<AuthUserData> {
-    try {
-      const response = await apiClient.get<ApiResponse<{ user: AuthUserData }>>(
-        '/auth/me'
-      );
-
-      if (response.data.success && response.data.data) {
-        return response.data.data.user;
-      }
-
-      throw new Error('Failed to fetch user profile');
-    } catch (error: any) {
-      const message = error.response?.data?.message || error.message || 'Failed to fetch user profile';
-      throw new Error(message);
-    }
+  async getCurrentUser() {
+    return getCurrentUser();
   }
 }
 
+/**
+ * @deprecated Use actions from @/features/auth/actions/auth instead
+ */
 export const authService = new AuthService();

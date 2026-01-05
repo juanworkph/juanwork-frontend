@@ -13,6 +13,7 @@ import { authService } from "@/services/auth.service";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { SiGmail, SiFacebook } from "react-icons/si";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { logError } from "@/utils/logger";
 
 const GmailIcon = () => <SiGmail />;
 const FacebookIcon = () => <SiFacebook />;
@@ -106,7 +107,7 @@ export function LoginForm() {
         // Handle API errors
         const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
         setApiError(errorMessage);
-        console.error("Login error:", error);
+        logError("Login error:", error);
       }
     } finally {
       setIsLoading(false);

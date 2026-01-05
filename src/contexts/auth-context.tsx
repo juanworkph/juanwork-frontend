@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { User, UserRole } from '@/types/user';
 import { authService, AuthUserData } from '@/services/auth.service';
 import { getAccessToken, clearTokens } from '@/lib/api-client';
+import { logError } from '@/utils/logger';
 
 interface AuthContextType {
   user: User | null;
@@ -74,13 +75,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               const parsedUser = JSON.parse(savedUser);
               setUser(parsedUser);
             } catch (error) {
-              console.error('Failed to parse saved user:', error);
+              logError('Failed to parse saved user', error);
               localStorage.removeItem('user');
             }
           }
         }
       } catch (error) {
-        console.error('Auth initialization failed:', error);
+        logError('Auth initialization failed', error);
         // Clear invalid tokens
         clearTokens();
         localStorage.removeItem('user');
@@ -112,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await authService.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      logError('Logout error', error);
     } finally {
       setUser(null);
       setOverrideRole(null);
@@ -144,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
-      console.error('Failed to refresh user:', error);
+      logError('Failed to refresh user', error);
       throw error;
     }
   };
