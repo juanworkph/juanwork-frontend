@@ -15,7 +15,7 @@ import {
   ResetPasswordRequest,
   AuthResponse,
   AuthUserData,
-} from '../schema/signup-schema';
+} from '../schema/auth';
 
 // ============================================================================
 // AUTH ACTIONS

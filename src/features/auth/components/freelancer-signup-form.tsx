@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/auth-context";
-import { signupSchema, type SignupFormData } from "../schema/signup-schema";
-import { authService, type RegisterRequest } from "@/services/auth.service";
+import { signupSchema, type SignupFormData, type RegisterRequest } from "../schema/auth";
+import { registerUser } from "@/features/auth/actions/auth";
 import { User } from "@/types/user";
 import { SocialLoginButton } from "./social-login-button";
 import { Eye, EyeOff, ArrowLeft, CheckCircle2 } from "lucide-react";
@@ -91,10 +91,10 @@ export function FreelancerSignupForm() {
         role: validationResult.data.role,
       };
 
-      // Call authService.register() with transformed data
-      const authResponse = await authService.register(registerData);
+      // Call registerUser() with transformed data
+      const authResponse = await registerUser(registerData);
       
-      // Success! Tokens are already stored by authService
+      // Success! Tokens are already stored by registerUser
       
       // Display success message with email verification notice
       setSuccessMessage(

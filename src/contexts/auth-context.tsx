@@ -3,7 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { User, UserRole } from '@/types/user';
-import { authService, AuthUserData } from '@/services/auth.service';
+import { getCurrentUser, logoutUser } from '@/features/auth/actions/auth';
+import { AuthUserData } from '@/features/auth/schema/auth';
 import { getAccessToken, clearTokens } from '@/lib/api-client';
 import { logError } from '@/utils/logger';
 
@@ -63,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (token) {
           // Try to fetch current user from API
-          const authUser = await authService.getCurrentUser();
+          const authUser = await getCurrentUser();
           const userData = convertAuthUserToUser(authUser);
           setUser(userData);
         } else {
@@ -111,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await authService.logout();
+      await logoutUser();
     } catch (error) {
       logError('Logout error', error);
     } finally {
@@ -140,7 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshUser = async () => {
     try {
-      const authUser = await authService.getCurrentUser();
+      const authUser = await getCurrentUser();
       const userData = convertAuthUserToUser(authUser);
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));

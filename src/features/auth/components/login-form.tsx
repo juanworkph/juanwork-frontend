@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/auth-context";
-import { loginSchema, type LoginFormData } from "../schema/login-schema";
+import { loginSchema, type LoginFormData } from "../schema/auth";
 import { SocialLoginButton } from "./social-login-button";
-import { authService } from "@/services/auth.service";
+import { loginUser } from "@/features/auth/actions/auth";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { SiGmail, SiFacebook } from "react-icons/si";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -54,7 +54,7 @@ export function LoginForm() {
       const validatedData = loginSchema.parse(formData);
 
       // Call the actual login API
-      const response = await authService.login({
+      const response = await loginUser({
         email: validatedData.email,
         password: validatedData.password,
       });
