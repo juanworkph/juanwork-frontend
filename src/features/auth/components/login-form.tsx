@@ -9,8 +9,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/auth-context";
 import { loginSchema, type LoginFormData } from "../schema/login-schema";
 import { SocialLoginButton } from "./social-login-button";
-import { Eye, EyeOff } from "lucide-react";
+import { authService } from "@/services/auth.service";
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { SiGmail, SiFacebook } from "react-icons/si";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const GmailIcon = () => <SiGmail />;
 const FacebookIcon = () => <SiFacebook />;
@@ -24,6 +26,7 @@ export function LoginForm() {
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState<string>("");
 
   const { login } = useAuth();
   const router = useRouter();
@@ -34,33 +37,57 @@ export function LoginForm() {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
+    // Clear API error
+    if (apiError) {
+      setApiError("");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setApiError("");
 
     try {
       // Validate form data
       const validatedData = loginSchema.parse(formData);
 
-      // Mock login - create a user object
-      const mockUser = {
-        id: "1",
+      // Call the actual login API
+      const response = await authService.login({
         email: validatedData.email,
-        name: "John Doe",
-        role: "freelancer" as const,
+        password: validatedData.password,
+      });
+
+      // Check if 2FA is required
+      if (response.requires2FA) {
+        // TODO: Redirect to 2FA verification page
+        setApiError("2FA verification required. This feature is coming soon.");
+        return;
+      }
+
+      // Convert AuthUserData to User format for context
+      const user = {
+        id: response.user.id,
+        email: response.user.email,
+        name: `${response.user.firstName} ${response.user.lastName}`,
+        role: response.user.role,
         avatar: null,
-        balance: 1250.75,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        balance: 0, // Will be fetched separately if needed
+        createdAt: response.user.createdAt,
+        updatedAt: response.user.updatedAt,
       };
 
       // Login user
-      login(mockUser);
+      login(user);
 
-      // Redirect to freelancer dashboard
-      router.push("/freelancer");
+      // Redirect based on user role
+      const redirectPath = 
+        response.user.role === 'freelancer' ? '/freelancer' :
+        response.user.role === 'client' ? '/client' :
+        response.user.role === 'admin' ? '/admin' :
+        '/';
+      
+      router.push(redirectPath);
     } catch (error) {
       if (error instanceof Error && error.name === "ZodError") {
         // Handle validation errors
@@ -76,8 +103,10 @@ export function LoginForm() {
 
         setErrors(fieldErrors);
       } else {
+        // Handle API errors
+        const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
+        setApiError(errorMessage);
         console.error("Login error:", error);
-        alert("Login failed. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -115,6 +144,14 @@ export function LoginForm() {
           </span>
         </div>
       </div>
+
+      {/* API Error Alert */}
+      {apiError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{apiError}</AlertDescription>
+        </Alert>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
