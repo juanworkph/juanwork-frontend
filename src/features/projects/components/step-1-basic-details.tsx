@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,8 +11,20 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Upload, X, FileText } from "lucide-react";
-import type { ProjectFormData } from "../schema";
-import { formatFileSize } from "../schema/post-project-data";
+import type { ProjectFormData } from "../schema/project-form.schema";
+import { formatFileSize } from "../utils/format-helpers";
+import {
+  validateProjectName,
+  validateDescription,
+  validateBudget,
+  validateDeliveryDays,
+} from "../utils/project-form-validator";
+import {
+  projectNameSchema,
+  descriptionSchema,
+  budgetSchema,
+  deliveryDaysSchema,
+} from "../schema/project-form.schema";
 
 interface Step1Props {
   formData: ProjectFormData;
@@ -23,6 +35,40 @@ const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
 export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // State for validation errors
+  const [errors, setErrors] = useState<{
+    projectName?: string;
+    description?: string;
+    budget?: string;
+    deliveryDays?: string;
+  }>({});
+
+  // Validation handlers
+  const handleProjectNameBlur = () => {
+    const result = validateProjectName(formData.projectName);
+    setErrors((prev) => ({ ...prev, projectName: result.error }));
+  };
+
+  const handleDescriptionBlur = () => {
+    const result = validateDescription(formData.description);
+    setErrors((prev) => ({ ...prev, description: result.error }));
+  };
+
+  const handleBudgetBlur = () => {
+    if (formData.projectType === "fixed") {
+      const result = validateBudget(formData.budget.min, formData.budget.max);
+      setErrors((prev) => ({ ...prev, budget: result.error }));
+    } else {
+      // Clear budget error for hourly rate
+      setErrors((prev) => ({ ...prev, budget: undefined }));
+    }
+  };
+
+  const handleDeliveryDaysBlur = () => {
+    const result = validateDeliveryDays(formData.deliveryDays);
+    setErrors((prev) => ({ ...prev, deliveryDays: result.error }));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -78,10 +124,25 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
         <Input
           id="projectName"
           value={formData.projectName}
-          onChange={(e) => onUpdate({ projectName: e.target.value })}
+          onChange={(e) => {
+            onUpdate({ projectName: e.target.value });
+            // Clear error when user starts typing
+            if (errors.projectName) {
+              setErrors((prev) => ({ ...prev, projectName: undefined }));
+            }
+          }}
+          onBlur={handleProjectNameBlur}
           placeholder="e.g. Build a modern e-commerce website with React"
           className="focus-visible:ring-[#F45A0B]"
         />
+        {errors.projectName && (
+          <p className="text-sm text-red-500">{errors.projectName}</p>
+        )}
+        {!errors.projectName && (
+          <p className="text-sm text-gray-500">
+            10-200 characters
+          </p>
+        )}
       </div>
 
       {/* Description */}
@@ -92,14 +153,26 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => onUpdate({ description: e.target.value })}
+          onChange={(e) => {
+            onUpdate({ description: e.target.value });
+            // Clear error when user starts typing
+            if (errors.description) {
+              setErrors((prev) => ({ ...prev, description: undefined }));
+            }
+          }}
+          onBlur={handleDescriptionBlur}
           placeholder="Describe your project in detail. What do you need? What are the requirements? What are your expectations?..."
           rows={6}
           className="focus-visible:ring-[#F45A0B]"
         />
-        <p className="text-sm text-gray-500">
-          {formData.description.length} characters
-        </p>
+        {errors.description && (
+          <p className="text-sm text-red-500">{errors.description}</p>
+        )}
+        {!errors.description && (
+          <p className="text-sm text-gray-500">
+            {formData.description.length} characters (50-5000 required)
+          </p>
+        )}
       </div>
 
       {/* Project Type */}
@@ -125,43 +198,58 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
 
       {/* Budget */}
       {formData.projectType === "fixed" ? (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="budgetMin">
-              Minimum Budget (USD) <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="budgetMin"
-              type="number"
-              min="0"
-              value={formData.budget.min || ""}
-              onChange={(e) =>
-                onUpdate({
-                  budget: { ...formData.budget, min: Number(e.target.value) },
-                })
-              }
-              placeholder="500"
-              className="focus-visible:ring-[#F45A0B]"
-            />
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="budgetMin">
+                Minimum Budget (USD) <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="budgetMin"
+                type="number"
+                min="0"
+                value={formData.budget.min || ""}
+                onChange={(e) => {
+                  onUpdate({
+                    budget: { ...formData.budget, min: Number(e.target.value) },
+                  });
+                  // Clear error when user starts typing
+                  if (errors.budget) {
+                    setErrors((prev) => ({ ...prev, budget: undefined }));
+                  }
+                }}
+                onBlur={handleBudgetBlur}
+                placeholder="500"
+                className="focus-visible:ring-[#F45A0B]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="budgetMax">
+                Maximum Budget (USD) <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="budgetMax"
+                type="number"
+                min="0"
+                value={formData.budget.max || ""}
+                onChange={(e) => {
+                  onUpdate({
+                    budget: { ...formData.budget, max: Number(e.target.value) },
+                  });
+                  // Clear error when user starts typing
+                  if (errors.budget) {
+                    setErrors((prev) => ({ ...prev, budget: undefined }));
+                  }
+                }}
+                onBlur={handleBudgetBlur}
+                placeholder="1000"
+                className="focus-visible:ring-[#F45A0B]"
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="budgetMax">
-              Maximum Budget (USD) <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="budgetMax"
-              type="number"
-              min="0"
-              value={formData.budget.max || ""}
-              onChange={(e) =>
-                onUpdate({
-                  budget: { ...formData.budget, max: Number(e.target.value) },
-                })
-              }
-              placeholder="1000"
-              className="focus-visible:ring-[#F45A0B]"
-            />
-          </div>
+          {errors.budget && (
+            <p className="text-sm text-red-500">{errors.budget}</p>
+          )}
         </div>
       ) : (
         <div className="space-y-2">
@@ -186,6 +274,38 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
           />
         </div>
       )}
+
+      {/* Delivery Days */}
+      <div className="space-y-2">
+        <Label htmlFor="deliveryDays">
+          Delivery Days <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          id="deliveryDays"
+          type="number"
+          min="1"
+          max="365"
+          value={formData.deliveryDays || ""}
+          onChange={(e) => {
+            onUpdate({ deliveryDays: Number(e.target.value) });
+            // Clear error when user starts typing
+            if (errors.deliveryDays) {
+              setErrors((prev) => ({ ...prev, deliveryDays: undefined }));
+            }
+          }}
+          onBlur={handleDeliveryDaysBlur}
+          placeholder="7"
+          className="focus-visible:ring-[#F45A0B]"
+        />
+        {errors.deliveryDays && (
+          <p className="text-sm text-red-500">{errors.deliveryDays}</p>
+        )}
+        {!errors.deliveryDays && (
+          <p className="text-sm text-gray-500">
+            How many days do you need to complete this project? (1-365 days)
+          </p>
+        )}
+      </div>
 
       {/* File Attachments */}
       <div className="space-y-2">

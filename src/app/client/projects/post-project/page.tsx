@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/auth-context";
 import {
   Step1BasicDetails,
   Step2CategoriesSkills,
@@ -15,16 +17,94 @@ import {
 import {
   ProjectFormData,
   initialFormData,
-  calculateTotalUpgradeCost,
-} from "@/features/projects/schema";
+} from "@/features/projects/schema/project-form.schema";
+import { calculateTotalUpgradeCost } from "@/features/projects/utils/project-form-mapper";
+import { createProject } from "@/features/projects/actions/project-post.actions";
+import { mapFormDataToApiRequest } from "@/features/projects/utils/project-form-mapper";
+import { handleApiError } from "@/features/projects/utils/project-form-validator";
+import { createProjectSchema } from "@/features/projects/schema/project-post.schema";
+import { useProjectFormData } from "@/features/projects/hooks/use-project-form-data";
+import { ZodError } from "zod";
 
 const STEPS = ["Basic Details", "Categories & Skills", "Upgrades", "Review"];
 
+// LocalStorage key for form data persistence
+const FORM_DATA_STORAGE_KEY = "juanwork_project_form_draft";
+
+// Helper functions for form data persistence
+const saveFormDataToStorage = (formData: ProjectFormData): void => {
+  try {
+    // Create a copy without File objects (can't be serialized)
+    const serializableData = {
+      ...formData,
+      attachments: [], // Don't persist file objects
+    };
+    localStorage.setItem(FORM_DATA_STORAGE_KEY, JSON.stringify(serializableData));
+  } catch (error) {
+    console.error("Error saving form data to localStorage:", error);
+  }
+};
+
+const restoreFormDataFromStorage = (): ProjectFormData | null => {
+  try {
+    const savedData = localStorage.getItem(FORM_DATA_STORAGE_KEY);
+    if (savedData) {
+      return JSON.parse(savedData) as ProjectFormData;
+    }
+  } catch (error) {
+    console.error("Error restoring form data from localStorage:", error);
+  }
+  return null;
+};
+
+const clearFormDataFromStorage = (): void => {
+  try {
+    localStorage.removeItem(FORM_DATA_STORAGE_KEY);
+  } catch (error) {
+    console.error("Error clearing form data from localStorage:", error);
+  }
+};
+
 export default function PostAProjectPage() {
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ProjectFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
+
+  // Fetch upgrade types for calculating total cost
+  const { upgradeTypes } = useProjectFormData();
+
+  // Restore form data from localStorage on mount (if user was redirected after 401)
+  useEffect(() => {
+    const savedFormData = restoreFormDataFromStorage();
+    if (savedFormData) {
+      setFormData(savedFormData);
+      toast.info("Your previous form data has been restored");
+    }
+  }, []);
+
+  // Authentication guard - redirect if not authenticated or not a client
+  useEffect(() => {
+    // Wait for auth to finish loading
+    if (isAuthLoading) return;
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.error("Please log in to post a project");
+      router.push("/auth");
+      return;
+    }
+
+    // Check if user is a client
+    if (user?.role !== "client") {
+      // User is authenticated but not a client (e.g., freelancer)
+      toast.error("Only clients can post projects");
+      // Don't redirect, show error message in UI instead
+    }
+  }, [isAuthenticated, isAuthLoading, user, router]);
 
   const handleUpdate = (data: Partial<ProjectFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
@@ -98,16 +178,52 @@ export default function PostAProjectPage() {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Step 1: Transform form data to API request format
+      const apiRequest = mapFormDataToApiRequest(formData);
 
-      // Here you would typically make an API call to submit the project
-      console.log("Submitting project:", formData);
+      // Step 2: Validate the transformed data using Zod schema
+      try {
+        createProjectSchema.parse(apiRequest);
+      } catch (validationError) {
+        if (validationError instanceof ZodError) {
+          const firstError = validationError.issues[0];
+          toast.error(firstError.message || "Validation failed");
+          setIsSubmitting(false);
+          return;
+        }
+        throw validationError;
+      }
 
+      // Step 3: Call the API to create the project
+      const response = await createProject(apiRequest);
+
+      // Step 4: Handle success
+      setCreatedProjectId(response.id);
       setIsSubmitted(true);
-      toast.success("Project submitted successfully!");
+      
+      // Clear saved form data from localStorage after successful submission
+      clearFormDataFromStorage();
+      
+      toast.success(`Project "${response.name}" created successfully!`);
     } catch (error) {
-      toast.error("Failed to submit project. Please try again.");
+      // Step 5: Handle errors
+      const errorMessage = handleApiError(error);
+      
+      // Check if it's a 401 error (unauthorized)
+      if (errorMessage === "Please log in to continue") {
+        // Save form data before redirecting to login
+        saveFormDataToStorage(formData);
+        toast.error("Your session has expired. Please log in again.");
+        
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          router.push("/auth");
+        }, 1500);
+        return;
+      }
+      
+      // For other errors, display the error message
+      toast.error(errorMessage);
       console.error("Submit error:", error);
     } finally {
       setIsSubmitting(false);
@@ -128,10 +244,16 @@ export default function PostAProjectPage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               Project Submitted Successfully!
             </h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-2 max-w-2xl mx-auto">
+              Your project "{formData.projectName}" has been created successfully.
+            </p>
+            {createdProjectId && (
+              <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">
+                Project ID: {createdProjectId}
+              </p>
+            )}
             <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-              Your project "{formData.projectName}" has been submitted for
-              review. Our team will review it and notify you once it's approved
-              and live. This usually takes 24-48 hours.
+              Freelancers can now view and bid on your project. You'll receive notifications when proposals come in.
             </p>
             <div className="flex gap-4 justify-center">
               <Button
@@ -139,16 +261,83 @@ export default function PostAProjectPage() {
                   setIsSubmitted(false);
                   setCurrentStep(1);
                   setFormData(initialFormData);
+                  setCreatedProjectId(null);
                 }}
                 variant="outline"
               >
                 Post Another Project
               </Button>
               <Button
-                onClick={() => (window.location.href = "/client/projects")}
+                onClick={() => router.push("/client/projects/my-projects")}
                 className="bg-[#F45A0B] hover:bg-[#F45A0B]/90"
               >
                 View My Projects
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Loading state while checking authentication
+  if (isAuthLoading) {
+    return (
+      <div className="max-w-4xl mx-auto py-10">
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[#F45A0B]" />
+            <p className="text-gray-600 dark:text-gray-400">
+              Checking authentication...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error state for non-client users
+  if (isAuthenticated && user?.role !== "client") {
+    return (
+      <div className="max-w-4xl mx-auto py-10">
+        <Card className="border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10">
+          <CardContent className="p-12 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <svg
+                  className="h-12 w-12 text-red-600 dark:text-red-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Access Restricted
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+              Only clients can post projects. You are currently logged in as a{" "}
+              <span className="font-semibold">{user?.role}</span>.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={() => router.push(`/${user?.role}`)}
+                variant="outline"
+              >
+                Go to {user?.role} Dashboard
+              </Button>
+              <Button
+                onClick={() => router.push("/client")}
+                className="bg-[#F45A0B] hover:bg-[#F45A0B]/90"
+              >
+                Switch to Client Account
               </Button>
             </div>
           </CardContent>
@@ -251,9 +440,10 @@ export default function PostAProjectPage() {
                 </span>
                 <span className="font-bold text-lg text-[#F45A0B]">
                   $
-                  {calculateTotalUpgradeCost(formData.selectedUpgrades).toFixed(
-                    2
-                  )}{" "}
+                  {calculateTotalUpgradeCost(
+                    formData.selectedUpgrades,
+                    upgradeTypes
+                  ).toFixed(2)}{" "}
                   USD
                 </span>
               </div>
