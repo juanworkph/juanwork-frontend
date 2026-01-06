@@ -30,7 +30,7 @@ interface UseProjectFormDataReturn {
 }
 
 export const useProjectFormData = (
-  selectedCategorySlug?: string
+  selectedCategoryId?: string
 ): UseProjectFormDataReturn => {
   // State for data
   const [categories, setCategories] = useState<Category[]>([]);
@@ -70,9 +70,9 @@ export const useProjectFormData = (
     fetchCategories();
   }, []);
 
-  // Fetch skills when selectedCategorySlug changes
+  // Fetch skills when selectedCategoryId changes
   useEffect(() => {
-    if (!selectedCategorySlug) {
+    if (!selectedCategoryId) {
       setSkills([]);
       return;
     }
@@ -82,7 +82,7 @@ export const useProjectFormData = (
       setErrorSkills(null);
 
       try {
-        const data = await getSkillsByCategory(selectedCategorySlug);
+        const data = await getSkillsByCategory(selectedCategoryId);
         setSkills(data);
       } catch (error) {
         const errorMessage =
@@ -96,7 +96,7 @@ export const useProjectFormData = (
     };
 
     fetchSkills();
-  }, [selectedCategorySlug]);
+  }, [selectedCategoryId]);
 
   // Fetch upgrade types on mount
   useEffect(() => {
@@ -141,12 +141,12 @@ export const useProjectFormData = (
     }
   };
 
-  const refetchSkills = async (categorySlug: string): Promise<void> => {
+  const refetchSkills = async (categoryId: string): Promise<void> => {
     setIsLoadingSkills(true);
     setErrorSkills(null);
 
     try {
-      const data = await getSkillsByCategory(categorySlug);
+      const data = await getSkillsByCategory(categoryId);
       setSkills(data);
     } catch (error) {
       const errorMessage =

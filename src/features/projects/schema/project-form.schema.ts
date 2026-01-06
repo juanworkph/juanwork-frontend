@@ -36,6 +36,8 @@ export interface ProjectFormData {
   categoryId: string; // Category UUID for API
   categorySlug: string; // Category slug for fetching skills
   skills: string[]; // Skill names for display
+  skillIds: string[]; // Existing skill IDs for API
+  customSkillNames: string[]; // Custom skill names for API
 
   // Step 3: Upgrades
   selectedUpgrades: string[]; // Upgrade IDs for API
@@ -61,6 +63,8 @@ export const initialFormData: ProjectFormData = {
   categoryId: '',
   categorySlug: '',
   skills: [],
+  skillIds: [],
+  customSkillNames: [],
   selectedUpgrades: [],
   status: 'draft',
 };

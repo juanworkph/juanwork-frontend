@@ -1,5 +1,3 @@
-'use server';
-
 import apiClient from '@/lib/api-client';
 import { 
   Category, 
@@ -28,19 +26,19 @@ export const getAllCategories = async (): Promise<Category[]> => {
 };
 
 /**
- * Fetch skills for a specific category by its slug
- * @param categorySlug - The slug identifier of the category
+ * Fetch skills for a specific category by its ID
+ * @param categoryId - The UUID identifier of the category
  * @returns Promise<Skill[]> - Array of skill objects for the category
  * @throws Error if the API request fails
  */
-export const getSkillsByCategory = async (categorySlug: string): Promise<Skill[]> => {
+export const getSkillsByCategory = async (categoryId: string): Promise<Skill[]> => {
   try {
     const response = await apiClient.get<ApiSuccessResponse<{ skills: Skill[] }>>(
-      `/categories/${categorySlug}/skills`
+      `/categories/${categoryId}/skills`
     );
     return response.data.data.skills;
   } catch (error) {
-    console.error(`Error fetching skills for category ${categorySlug}:`, error);
+    console.error(`Error fetching skills for category ${categoryId}:`, error);
     throw error;
   }
 };

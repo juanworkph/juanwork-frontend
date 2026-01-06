@@ -37,8 +37,13 @@ export const mapFormDataToApiRequest = (
     // Requirement 9.6: Include deliveryDays as number
     deliveryDays: formData.deliveryDays,
     
-    // Requirement 9.3: Map skills to customSkills array (only if skills exist)
-    customSkills: formData.skills.length > 0 ? formData.skills : undefined,
+    // Requirement 9.3: Map existing skill IDs to skills array
+    skills: formData.skillIds && formData.skillIds.length > 0 ? formData.skillIds : undefined,
+    
+    // Requirement 9.3: Map custom skill names to customSkills array
+    customSkills: formData.customSkillNames && formData.customSkillNames.length > 0 
+      ? formData.customSkillNames 
+      : undefined,
     
     // Requirement 9.4: Map selectedUpgrades to upgradeTypeIds array (only if upgrades exist)
     upgradeTypeIds: formData.selectedUpgrades.length > 0 
@@ -84,6 +89,7 @@ export const findUpgradesByIds = (
 /**
  * Calculates the total cost of selected upgrades
  * Sums up the basePrice of all selected upgrade types
+ * Handles basePrice as either number or string (from database)
  * 
  * @param upgradeIds - Array of selected upgrade type IDs
  * @param upgrades - Array of all available upgrade types
@@ -96,5 +102,11 @@ export const calculateTotalUpgradeCost = (
   upgrades: UpgradeType[]
 ): number => {
   const selectedUpgrades = findUpgradesByIds(upgradeIds, upgrades);
-  return selectedUpgrades.reduce((total, upgrade) => total + upgrade.basePrice, 0);
+  return selectedUpgrades.reduce((total, upgrade) => {
+    // Convert basePrice to number (handles both string and number types)
+    const price = typeof upgrade.basePrice === 'string' 
+      ? parseFloat(upgrade.basePrice) 
+      : upgrade.basePrice;
+    return total + (isNaN(price) ? 0 : price);
+  }, 0);
 };

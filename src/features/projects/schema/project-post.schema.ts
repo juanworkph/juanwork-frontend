@@ -52,13 +52,14 @@ export interface Skill {
 
 /**
  * Upgrade type entity from the backend
+ * Note: basePrice comes from PostgreSQL numeric type as string
  */
 export interface UpgradeType {
   id: string;
   name: string;
   slug: string;
   description: string;
-  basePrice: number;
+  basePrice: number | string; // Can be string from database or number after parsing
   isActive: boolean;
 }
 
