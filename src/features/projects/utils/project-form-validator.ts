@@ -225,7 +225,8 @@ export const validateDeliveryDays = (days: number): ValidationResult => {
  *   description: 'A detailed description...',
  *   budgetMin: 100,
  *   budgetMax: 500,
- *   deliveryDays: 30
+ *   deliveryDays: 30,
+ *   projectType: 'fixed'
  * });
  * 
  * if (!results.projectName.isValid) {
@@ -238,6 +239,7 @@ export const validateAllFields = (formData: {
   budgetMin: number;
   budgetMax: number;
   deliveryDays: number;
+  projectType: 'fixed' | 'hourly';
 }): {
   projectName: ValidationResult;
   description: ValidationResult;
@@ -248,7 +250,11 @@ export const validateAllFields = (formData: {
   const projectName = validateProjectName(formData.projectName);
   const description = validateDescription(formData.description);
   const budget = validateBudget(formData.budgetMin, formData.budgetMax);
-  const deliveryDays = validateDeliveryDays(formData.deliveryDays);
+  
+  // Only validate delivery days for fixed price projects
+  const deliveryDays = formData.projectType === 'fixed' 
+    ? validateDeliveryDays(formData.deliveryDays)
+    : { isValid: true }; // Skip validation for hourly projects
 
   return {
     projectName,

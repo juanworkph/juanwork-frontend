@@ -56,18 +56,19 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
   };
 
   const handleBudgetBlur = () => {
-    if (formData.projectType === "fixed") {
-      const result = validateBudget(formData.budget.min, formData.budget.max);
-      setErrors((prev) => ({ ...prev, budget: result.error }));
-    } else {
-      // Clear budget error for hourly rate
-      setErrors((prev) => ({ ...prev, budget: undefined }));
-    }
+    const result = validateBudget(formData.budget.min, formData.budget.max);
+    setErrors((prev) => ({ ...prev, budget: result.error }));
   };
 
   const handleDeliveryDaysBlur = () => {
-    const result = validateDeliveryDays(formData.deliveryDays);
-    setErrors((prev) => ({ ...prev, deliveryDays: result.error }));
+    // Only validate delivery days for fixed price projects
+    if (formData.projectType === 'fixed') {
+      const result = validateDeliveryDays(formData.deliveryDays);
+      setErrors((prev) => ({ ...prev, deliveryDays: result.error }));
+    } else {
+      // Clear error for hourly projects
+      setErrors((prev) => ({ ...prev, deliveryDays: undefined }));
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -236,115 +237,106 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
         </div>
       </div>
 
-      {/* Budget */}
-      {formData.projectType === "fixed" ? (
+      {/* Delivery Days - Only for Fixed Price projects */}
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          formData.projectType === "fixed" 
+            ? "max-h-40 opacity-100" 
+            : "max-h-0 opacity-0"
+        }`}
+      >
         <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="budgetMin">
-                Minimum Budget (USD) <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="budgetMin"
-                type="number"
-                min="0"
-                value={formData.budget.min || ""}
-                onChange={(e) => {
-                  onUpdate({
-                    budget: { ...formData.budget, min: Number(e.target.value) },
-                  });
-                  // Clear error when user starts typing
-                  if (errors.budget) {
-                    setErrors((prev) => ({ ...prev, budget: undefined }));
-                  }
-                }}
-                onBlur={handleBudgetBlur}
-                placeholder="500"
-                className="focus-visible:ring-[#F45A0B]"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="budgetMax">
-                Maximum Budget (USD) <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="budgetMax"
-                type="number"
-                min="0"
-                value={formData.budget.max || ""}
-                onChange={(e) => {
-                  onUpdate({
-                    budget: { ...formData.budget, max: Number(e.target.value) },
-                  });
-                  // Clear error when user starts typing
-                  if (errors.budget) {
-                    setErrors((prev) => ({ ...prev, budget: undefined }));
-                  }
-                }}
-                onBlur={handleBudgetBlur}
-                placeholder="1000"
-                className="focus-visible:ring-[#F45A0B]"
-              />
-            </div>
-          </div>
-          {errors.budget && (
-            <p className="text-sm text-red-500">{errors.budget}</p>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <Label htmlFor="hourlyRate">
-            Hourly Rate (USD) <span className="text-red-500">*</span>
+          <Label htmlFor="deliveryDays">
+            Delivery Days {formData.projectType === "fixed" && <span className="text-red-500">*</span>}
           </Label>
           <Input
-            id="hourlyRate"
+            id="deliveryDays"
             type="number"
-            min="0"
-            value={formData.budget.hourlyRate || ""}
-            onChange={(e) =>
-              onUpdate({
-                budget: {
-                  ...formData.budget,
-                  hourlyRate: Number(e.target.value),
-                },
-              })
-            }
-            placeholder="50"
+            min="1"
+            max="365"
+            value={formData.deliveryDays || ""}
+            onChange={(e) => {
+              onUpdate({ deliveryDays: Number(e.target.value) });
+              // Clear error when user starts typing
+              if (errors.deliveryDays) {
+                setErrors((prev) => ({ ...prev, deliveryDays: undefined }));
+              }
+            }}
+            onBlur={handleDeliveryDaysBlur}
+            placeholder="7"
             className="focus-visible:ring-[#F45A0B]"
+            disabled={formData.projectType !== "fixed"}
+            required={formData.projectType === "fixed"}
           />
+          {errors.deliveryDays && formData.projectType === "fixed" && (
+            <p className="text-sm text-red-500">{errors.deliveryDays}</p>
+          )}
+          {!errors.deliveryDays && formData.projectType === "fixed" && (
+            <p className="text-sm text-gray-500">
+              How many days do you need to complete this project? (1-365 days)
+            </p>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Delivery Days */}
+      {/* Budget - Same for both Fixed and Hourly */}
       <div className="space-y-2">
-        <Label htmlFor="deliveryDays">
-          Delivery Days <span className="text-red-500">*</span>
-        </Label>
-        <Input
-          id="deliveryDays"
-          type="number"
-          min="1"
-          max="365"
-          value={formData.deliveryDays || ""}
-          onChange={(e) => {
-            onUpdate({ deliveryDays: Number(e.target.value) });
-            // Clear error when user starts typing
-            if (errors.deliveryDays) {
-              setErrors((prev) => ({ ...prev, deliveryDays: undefined }));
-            }
-          }}
-          onBlur={handleDeliveryDaysBlur}
-          placeholder="7"
-          className="focus-visible:ring-[#F45A0B]"
-        />
-        {errors.deliveryDays && (
-          <p className="text-sm text-red-500">{errors.deliveryDays}</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="budgetMin">
+              Minimum Budget (PHP) <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="budgetMin"
+              type="number"
+              min="0"
+              value={formData.budget.min || ""}
+              onChange={(e) => {
+                onUpdate({
+                  budget: { ...formData.budget, min: Number(e.target.value) },
+                });
+                // Clear error when user starts typing
+                if (errors.budget) {
+                  setErrors((prev) => ({ ...prev, budget: undefined }));
+                }
+              }}
+              onBlur={handleBudgetBlur}
+              placeholder="500"
+              className="focus-visible:ring-[#F45A0B]"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="budgetMax">
+              Maximum Budget (PHP) <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="budgetMax"
+              type="number"
+              min="0"
+              value={formData.budget.max || ""}
+              onChange={(e) => {
+                onUpdate({
+                  budget: { ...formData.budget, max: Number(e.target.value) },
+                });
+                // Clear error when user starts typing
+                if (errors.budget) {
+                  setErrors((prev) => ({ ...prev, budget: undefined }));
+                }
+              }}
+              onBlur={handleBudgetBlur}
+              placeholder="1000"
+              className="focus-visible:ring-[#F45A0B]"
+            />
+          </div>
+        </div>
+        {errors.budget && (
+          <p className="text-sm text-red-500">{errors.budget}</p>
         )}
-        {!errors.deliveryDays && (
-          <p className="text-sm text-gray-500">
-            How many days do you need to complete this project? (1-365 days)
-          </p>
-        )}
+        <p className="text-sm text-gray-500">
+          {formData.projectType === "fixed" 
+            ? "Set your project budget range" 
+            : "Set your hourly rate range"}
+        </p>
       </div>
 
       {/* File Attachments */}

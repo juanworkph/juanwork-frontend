@@ -121,18 +121,19 @@ export default function PostAProjectPage() {
           toast.error("Please enter a description");
           return false;
         }
+        // Validate budget (both min and max are required for both payment types)
+        if (formData.budget.min <= 0 || formData.budget.max <= 0) {
+          toast.error("Please enter valid budget amounts");
+          return false;
+        }
+        if (formData.budget.min > formData.budget.max) {
+          toast.error("Minimum budget cannot be greater than maximum budget");
+          return false;
+        }
+        // Validate delivery days only for fixed price projects
         if (formData.projectType === "fixed") {
-          if (formData.budget.min <= 0 || formData.budget.max <= 0) {
-            toast.error("Please enter valid budget amounts");
-            return false;
-          }
-          if (formData.budget.min > formData.budget.max) {
-            toast.error("Minimum budget cannot be greater than maximum budget");
-            return false;
-          }
-        } else {
-          if (!formData.budget.hourlyRate || formData.budget.hourlyRate <= 0) {
-            toast.error("Please enter a valid hourly rate");
+          if (!formData.deliveryDays || formData.deliveryDays <= 0) {
+            toast.error("Please enter valid delivery days");
             return false;
           }
         }
