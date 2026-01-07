@@ -80,6 +80,12 @@ export function Step4Preview({ formData }: Step4Props) {
                 </Badge>
               </div>
               <div>
+                <p className="text-sm text-gray-500 mb-1">Experience Level</p>
+                <Badge variant="secondary" className="text-sm capitalize">
+                  {formData.experienceLevel}
+                </Badge>
+              </div>
+              <div>
                 <p className="text-sm text-gray-500 mb-1">Budget</p>
                 <p className="font-semibold text-gray-900 dark:text-white">
                   {formData.projectType === "fixed"
@@ -225,7 +231,9 @@ export function Step4Preview({ formData }: Step4Props) {
                     </p>
                   </div>
                   <div className="font-semibold text-gray-900 dark:text-white ml-4 flex-shrink-0">
-                    {formatCurrency(upgrade.basePrice)}
+                    {formatCurrency(typeof upgrade.basePrice === 'string' 
+                      ? parseFloat(upgrade.basePrice) 
+                      : upgrade.basePrice)}
                   </div>
                 </div>
               ))}

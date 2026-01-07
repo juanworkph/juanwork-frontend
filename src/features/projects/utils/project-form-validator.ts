@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { ZodError } from 'zod';
 import { ApiErrorResponse } from '../schema/project-post.schema';
 import {
   projectNameSchema,
@@ -103,10 +104,16 @@ export const validateProjectName = (name: string): ValidationResult => {
   try {
     projectNameSchema.parse(name);
     return { isValid: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      return {
+        isValid: false,
+        error: error.issues?.[0]?.message || 'Invalid project name',
+      };
+    }
     return {
       isValid: false,
-      error: error.errors?.[0]?.message || 'Invalid project name',
+      error: 'Invalid project name',
     };
   }
 };
@@ -128,10 +135,16 @@ export const validateDescription = (description: string): ValidationResult => {
   try {
     descriptionSchema.parse(description);
     return { isValid: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      return {
+        isValid: false,
+        error: error.issues?.[0]?.message || 'Invalid description',
+      };
+    }
     return {
       isValid: false,
-      error: error.errors?.[0]?.message || 'Invalid description',
+      error: 'Invalid description',
     };
   }
 };
@@ -154,10 +167,16 @@ export const validateBudget = (min: number, max: number): ValidationResult => {
   try {
     budgetSchema.parse({ min, max });
     return { isValid: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      return {
+        isValid: false,
+        error: error.issues?.[0]?.message || 'Invalid budget values',
+      };
+    }
     return {
       isValid: false,
-      error: error.errors?.[0]?.message || 'Invalid budget values',
+      error: 'Invalid budget values',
     };
   }
 };
@@ -179,10 +198,16 @@ export const validateDeliveryDays = (days: number): ValidationResult => {
   try {
     deliveryDaysSchema.parse(days);
     return { isValid: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      return {
+        isValid: false,
+        error: error.issues?.[0]?.message || 'Invalid delivery days',
+      };
+    }
     return {
       isValid: false,
-      error: error.errors?.[0]?.message || 'Invalid delivery days',
+      error: 'Invalid delivery days',
     };
   }
 };

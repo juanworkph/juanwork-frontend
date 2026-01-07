@@ -15,7 +15,8 @@ export interface CreateProjectRequest {
   budgetMin: number;
   budgetMax: number;
   deliveryDays: number;
-  customSkills?: string[];
+  skills?: string[]; // Existing skill IDs
+  customSkills?: string[]; // Custom skill names to create
   upgradeTypeIds?: string[];
 }
 
@@ -64,6 +65,37 @@ export interface UpgradeType {
 }
 
 /**
+ * Full project entity from the backend
+ */
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  categoryId: string;
+  paymentType: 'fixed' | 'hourly';
+  budgetMin: number;
+  budgetMax: number;
+  deliveryDays: number;
+  status: string;
+  clientId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Paginated projects list response
+ */
+export interface ProjectsListResponse {
+  projects: Project[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+/**
  * Generic success response wrapper from the API
  */
 export interface ApiSuccessResponse<T> {
@@ -108,6 +140,7 @@ export const createProjectSchema = z.object({
   deliveryDays: z.number()
     .min(1, 'Delivery days must be at least 1')
     .max(365, 'Delivery days must not exceed 365'),
+  skills: z.array(z.string().uuid()).optional(),
   customSkills: z.array(z.string()).optional(),
   upgradeTypeIds: z.array(z.string().uuid()).optional(),
 }).refine(data => data.budgetMin <= data.budgetMax, {

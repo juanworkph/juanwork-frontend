@@ -230,7 +230,9 @@ export function Step3Upgrades({ formData, onUpdate }: Step3Props) {
                         <div className="text-lg font-bold text-gray-900 dark:text-white">
                           {upgrade.basePrice === 0
                             ? "FREE"
-                            : formatCurrency(upgrade.basePrice)}
+                            : formatCurrency(typeof upgrade.basePrice === 'string' 
+                                ? parseFloat(upgrade.basePrice) 
+                                : upgrade.basePrice)}
                         </div>
                       )}
                     </div>

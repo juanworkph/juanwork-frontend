@@ -10,6 +10,11 @@ import { z } from 'zod';
 export type ProjectType = 'fixed' | 'hourly';
 
 /**
+ * Experience level for freelancers
+ */
+export type ExperienceLevel = 'beginner' | 'intermediate' | 'expert';
+
+/**
  * Status of a project post
  */
 export type PostProjectStatus = 'draft' | 'pending' | 'active' | 'rejected';
@@ -23,6 +28,7 @@ export interface ProjectFormData {
   projectName: string;
   description: string;
   projectType: ProjectType;
+  experienceLevel: ExperienceLevel;
   budget: {
     min: number;
     max: number;
@@ -53,6 +59,7 @@ export const initialFormData: ProjectFormData = {
   projectName: '',
   description: '',
   projectType: 'fixed',
+  experienceLevel: 'intermediate',
   budget: {
     min: 0,
     max: 0,
@@ -120,6 +127,13 @@ export const deliveryDaysSchema = z.number()
  */
 export const projectTypeSchema = z.enum(['fixed', 'hourly'], {
   message: 'Project type must be either fixed or hourly'
+});
+
+/**
+ * Zod schema for validating experience level
+ */
+export const experienceLevelSchema = z.enum(['beginner', 'intermediate', 'expert'], {
+  message: 'Experience level must be beginner, intermediate, or expert'
 });
 
 /**

@@ -175,25 +175,65 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
         )}
       </div>
 
-      {/* Project Type */}
-      <div className="space-y-2">
-        <Label htmlFor="projectType">
-          Project Type <span className="text-red-500">*</span>
-        </Label>
-        <Select
-          value={formData.projectType}
-          onValueChange={(value: "fixed" | "hourly") =>
-            onUpdate({ projectType: value })
-          }
-        >
-          <SelectTrigger className="focus:ring-[#F45A0B]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="fixed">Fixed Price</SelectItem>
-            <SelectItem value="hourly">Hourly Rate</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Project Type and Experience Level */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Project Type */}
+        <div className="space-y-2">
+          <Label htmlFor="projectType">
+            Project Type <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            value={formData.projectType}
+            onValueChange={(value: "fixed" | "hourly") =>
+              onUpdate({ projectType: value })
+            }
+          >
+            <SelectTrigger className="focus:ring-[#F45A0B] w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fixed">Fixed Price</SelectItem>
+              <SelectItem value="hourly">Hourly Rate</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Experience Level */}
+        <div className="space-y-2">
+          <Label htmlFor="experienceLevel">
+            Experience Level <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            value={formData.experienceLevel}
+            onValueChange={(value: "beginner" | "intermediate" | "expert") =>
+              onUpdate({ experienceLevel: value })
+            }
+          >
+            <SelectTrigger className="focus:ring-[#F45A0B] w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="beginner">
+                <div className="flex flex-col">
+                  <span className="font-medium">Beginner</span>
+                  <span className="text-xs text-gray-500">Entry-level freelancers</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="intermediate">
+                <div className="flex flex-col">
+                  <span className="font-medium">Intermediate</span>
+                  <span className="text-xs text-gray-500">Mid-level freelancers</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="expert">
+                <div className="flex flex-col">
+                  <span className="font-medium">Expert</span>
+                  <span className="text-xs text-gray-500">Senior-level freelancers</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Budget */}

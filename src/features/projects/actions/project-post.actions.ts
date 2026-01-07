@@ -5,7 +5,9 @@ import {
   UpgradeType, 
   CreateProjectRequest, 
   CreateProjectResponse,
-  ApiSuccessResponse 
+  ApiSuccessResponse,
+  Project,
+  ProjectsListResponse
 } from '../schema/project-post.schema';
 
 /**
@@ -82,12 +84,12 @@ export const createProject = async (data: CreateProjectRequest): Promise<CreateP
 /**
  * Fetch a single project by its ID
  * @param projectId - The UUID of the project to fetch
- * @returns Promise<any> - Project data object
+ * @returns Promise<Project> - Project data object
  * @throws Error if the API request fails
  */
-export const getSingleProject = async (projectId: string): Promise<any> => {
+export const getSingleProject = async (projectId: string): Promise<Project> => {
   try {
-    const response = await apiClient.get<ApiSuccessResponse<any>>(
+    const response = await apiClient.get<ApiSuccessResponse<Project>>(
       `/projects/${projectId}`
     );
     return response.data.data;
@@ -100,7 +102,7 @@ export const getSingleProject = async (projectId: string): Promise<any> => {
 /**
  * Fetch all projects with optional filtering
  * @param filters - Optional filters for status, categoryId, pagination
- * @returns Promise<any> - Projects data with pagination info
+ * @returns Promise<ProjectsListResponse> - Projects data with pagination info
  * @throws Error if the API request fails
  */
 export const getAllProjects = async (filters?: {
@@ -108,7 +110,7 @@ export const getAllProjects = async (filters?: {
   categoryId?: string;
   page?: number;
   limit?: number;
-}): Promise<any> => {
+}): Promise<ProjectsListResponse> => {
   try {
     const params = new URLSearchParams();
     
@@ -128,7 +130,7 @@ export const getAllProjects = async (filters?: {
     const queryString = params.toString();
     const url = queryString ? `/projects?${queryString}` : '/projects';
     
-    const response = await apiClient.get<ApiSuccessResponse<any>>(url);
+    const response = await apiClient.get<ApiSuccessResponse<ProjectsListResponse>>(url);
     return response.data.data;
   } catch (error) {
     console.error('Error fetching projects:', error);
