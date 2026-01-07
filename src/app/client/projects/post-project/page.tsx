@@ -132,11 +132,12 @@ export default function PostAProjectPage() {
         }
         // Validate delivery days only for fixed price projects
         if (formData.projectType === "fixed") {
-          if (!formData.deliveryDays || formData.deliveryDays <= 0) {
-            toast.error("Please enter valid delivery days");
+          if (!formData.deliveryDays || formData.deliveryDays <= 0 || formData.deliveryDays > 365) {
+            toast.error("Please enter valid delivery days (1-365)");
             return false;
           }
         }
+        // For hourly projects, delivery days validation is skipped
         return true;
 
       case 2:

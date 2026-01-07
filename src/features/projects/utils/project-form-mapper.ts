@@ -35,7 +35,8 @@ export const mapFormDataToApiRequest = (
     budgetMax: formData.budget.max,
     
     // Requirement 9.6: Include deliveryDays as number (only for fixed price projects)
-    deliveryDays: formData.projectType === 'fixed' ? formData.deliveryDays : 0,
+    // For hourly projects, send 1 as placeholder (backend requires positive number)
+    deliveryDays: formData.projectType === 'fixed' ? formData.deliveryDays : 1,
     
     // Requirement 9.3: Map existing skill IDs to skills array
     skills: formData.skillIds && formData.skillIds.length > 0 ? formData.skillIds : undefined,
