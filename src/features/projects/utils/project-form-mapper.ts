@@ -30,6 +30,9 @@ export const mapFormDataToApiRequest = (
     // Requirement 9.5: Map projectType to paymentType
     paymentType: formData.projectType,
     
+    // Requirement 9.3: Map experienceLevel from formData to API request
+    experienceLevel: formData.experienceLevel,
+    
     // Requirement 9.6: Include budgetMin and budgetMax as numbers
     budgetMin: formData.budget.min,
     budgetMax: formData.budget.max,
@@ -39,17 +42,17 @@ export const mapFormDataToApiRequest = (
     deliveryDays: formData.projectType === 'fixed' ? formData.deliveryDays : 1,
     
     // Requirement 9.3: Map existing skill IDs to skills array
-    skills: formData.skillIds && formData.skillIds.length > 0 ? formData.skillIds : undefined,
+    skills: formData.skillIds && formData.skillIds.length > 0 ? formData.skillIds : [],
     
     // Requirement 9.3: Map custom skill names to customSkills array
     customSkills: formData.customSkillNames && formData.customSkillNames.length > 0 
       ? formData.customSkillNames 
-      : undefined,
+      : [],
     
     // Requirement 9.4: Map selectedUpgrades to upgradeTypeIds array (only if upgrades exist)
     upgradeTypeIds: formData.selectedUpgrades.length > 0 
       ? formData.selectedUpgrades 
-      : undefined,
+      : [],
   };
 };
 

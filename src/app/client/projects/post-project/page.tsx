@@ -73,6 +73,7 @@ export default function PostAProjectPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   // Fetch upgrade types for calculating total cost
   const { upgradeTypes } = useProjectFormData();
@@ -111,33 +112,57 @@ export default function PostAProjectPage() {
   };
 
   const validateStep = (step: number): boolean => {
+    const errors: Record<string, string> = {};
+    
     switch (step) {
       case 1:
+        // Validate project name
         if (!formData.projectName.trim()) {
-          toast.error("Please enter a project name");
-          return false;
+          errors.projectName = "Project name is required";
+        } else if (formData.projectName.trim().length < 10) {
+          errors.projectName = "Project name must be at least 10 characters";
+        } else if (formData.projectName.trim().length > 200) {
+          errors.projectName = "Project name must not exceed 200 characters";
         }
+        
+        // Validate description
         if (!formData.description.trim()) {
-          toast.error("Please enter a description");
-          return false;
+          errors.description = "Description is required";
+        } else if (formData.description.trim().length < 50) {
+          errors.description = "Description must be at least 50 characters";
+        } else if (formData.description.trim().length > 5000) {
+          errors.description = "Description must not exceed 5000 characters";
         }
+        
         // Validate budget (both min and max are required for both payment types)
-        if (formData.budget.min <= 0 || formData.budget.max <= 0) {
-          toast.error("Please enter valid budget amounts");
-          return false;
+        if (!formData.budget.min || formData.budget.min <= 0) {
+          errors.budgetMin = "Minimum budget must be greater than 0";
         }
-        if (formData.budget.min > formData.budget.max) {
-          toast.error("Minimum budget cannot be greater than maximum budget");
-          return false;
+        if (!formData.budget.max || formData.budget.max <= 0) {
+          errors.budgetMax = "Maximum budget must be greater than 0";
         }
+        if (formData.budget.min && formData.budget.max && formData.budget.min > formData.budget.max) {
+          errors.budget = "Minimum budget cannot be greater than maximum budget";
+        }
+        
         // Validate delivery days only for fixed price projects
         if (formData.projectType === "fixed") {
-          if (!formData.deliveryDays || formData.deliveryDays <= 0 || formData.deliveryDays > 365) {
-            toast.error("Please enter valid delivery days (1-365)");
-            return false;
+          if (!formData.deliveryDays || formData.deliveryDays <= 0) {
+            errors.deliveryDays = "Delivery days must be at least 1";
+          } else if (formData.deliveryDays > 365) {
+            errors.deliveryDays = "Delivery days must not exceed 365";
           }
         }
-        // For hourly projects, delivery days validation is skipped
+        
+        // Set all errors at once
+        setValidationErrors(errors);
+        
+        // Show toast with first error if any
+        if (Object.keys(errors).length > 0) {
+          const firstError = Object.values(errors)[0];
+          toast.error(firstError);
+          return false;
+        }
         return true;
 
       case 2:
@@ -166,6 +191,8 @@ export default function PostAProjectPage() {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
+      // Clear validation errors when moving to next step
+      setValidationErrors({});
       setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
     }
   };
@@ -182,6 +209,12 @@ export default function PostAProjectPage() {
     try {
       // Step 1: Transform form data to API request format
       const apiRequest = mapFormDataToApiRequest(formData);
+      
+      // DEBUG: Log the request data
+      console.log('=== API Request Data ===');
+      console.log(JSON.stringify(apiRequest, null, 2));
+      console.log('Experience Level:', apiRequest.experienceLevel);
+      console.log('=======================');
 
       // Step 2: Validate the transformed data using Zod schema
       try {
@@ -369,7 +402,11 @@ export default function PostAProjectPage() {
         <Card>
           <CardContent className="p-6 lg:p-8">
             {currentStep === 1 && (
-              <Step1BasicDetails formData={formData} onUpdate={handleUpdate} />
+              <Step1BasicDetails 
+                formData={formData} 
+                onUpdate={handleUpdate}
+                validationErrors={validationErrors}
+              />
             )}
             {currentStep === 2 && (
               <Step2CategoriesSkills

@@ -29,20 +29,26 @@ import {
 interface Step1Props {
   formData: ProjectFormData;
   onUpdate: (data: Partial<ProjectFormData>) => void;
+  validationErrors?: Record<string, string>;
 }
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
-export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
+export function Step1BasicDetails({ formData, onUpdate, validationErrors = {} }: Step1Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // State for validation errors
+  // State for validation errors (local errors from blur events)
   const [errors, setErrors] = useState<{
     projectName?: string;
     description?: string;
     budget?: string;
+    budgetMin?: string;
+    budgetMax?: string;
     deliveryDays?: string;
   }>({});
+
+  // Merge validation errors from parent with local errors
+  const allErrors = { ...validationErrors, ...errors };
 
   // Validation handlers
   const handleProjectNameBlur = () => {
@@ -128,20 +134,22 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
           onChange={(e) => {
             onUpdate({ projectName: e.target.value });
             // Clear error when user starts typing
-            if (errors.projectName) {
+            if (allErrors.projectName) {
               setErrors((prev) => ({ ...prev, projectName: undefined }));
             }
           }}
           onBlur={handleProjectNameBlur}
           placeholder="e.g. Build a modern e-commerce website with React"
-          className="focus-visible:ring-[#F45A0B]"
+          className={`focus-visible:ring-[#F45A0B] ${
+            allErrors.projectName ? "border-red-500 focus-visible:ring-red-500" : ""
+          }`}
         />
-        {errors.projectName && (
-          <p className="text-sm text-red-500">{errors.projectName}</p>
+        {allErrors.projectName && (
+          <p className="text-sm text-red-500">{allErrors.projectName}</p>
         )}
-        {!errors.projectName && (
+        {!allErrors.projectName && (
           <p className="text-sm text-gray-500">
-            10-200 characters
+            {formData.projectName.length}/200 characters (minimum 10)
           </p>
         )}
       </div>
@@ -157,21 +165,23 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
           onChange={(e) => {
             onUpdate({ description: e.target.value });
             // Clear error when user starts typing
-            if (errors.description) {
+            if (allErrors.description) {
               setErrors((prev) => ({ ...prev, description: undefined }));
             }
           }}
           onBlur={handleDescriptionBlur}
           placeholder="Describe your project in detail. What do you need? What are the requirements? What are your expectations?..."
           rows={6}
-          className="focus-visible:ring-[#F45A0B]"
+          className={`focus-visible:ring-[#F45A0B] ${
+            allErrors.description ? "border-red-500 focus-visible:ring-red-500" : ""
+          }`}
         />
-        {errors.description && (
-          <p className="text-sm text-red-500">{errors.description}</p>
+        {allErrors.description && (
+          <p className="text-sm text-red-500">{allErrors.description}</p>
         )}
-        {!errors.description && (
+        {!allErrors.description && (
           <p className="text-sm text-gray-500">
-            {formData.description.length} characters (50-5000 required)
+            {formData.description.length}/5000 characters (minimum 50)
           </p>
         )}
       </div>
@@ -258,20 +268,24 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
             onChange={(e) => {
               onUpdate({ deliveryDays: Number(e.target.value) });
               // Clear error when user starts typing
-              if (errors.deliveryDays) {
+              if (allErrors.deliveryDays) {
                 setErrors((prev) => ({ ...prev, deliveryDays: undefined }));
               }
             }}
             onBlur={handleDeliveryDaysBlur}
             placeholder="7"
-            className="focus-visible:ring-[#F45A0B]"
+            className={`focus-visible:ring-[#F45A0B] ${
+              allErrors.deliveryDays && formData.projectType === "fixed" 
+                ? "border-red-500 focus-visible:ring-red-500" 
+                : ""
+            }`}
             disabled={formData.projectType !== "fixed"}
             required={formData.projectType === "fixed"}
           />
-          {errors.deliveryDays && formData.projectType === "fixed" && (
-            <p className="text-sm text-red-500">{errors.deliveryDays}</p>
+          {allErrors.deliveryDays && formData.projectType === "fixed" && (
+            <p className="text-sm text-red-500">{allErrors.deliveryDays}</p>
           )}
-          {!errors.deliveryDays && formData.projectType === "fixed" && (
+          {!allErrors.deliveryDays && formData.projectType === "fixed" && (
             <p className="text-sm text-gray-500">
               How many days do you need to complete this project? (1-365 days)
             </p>
@@ -296,14 +310,21 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
                   budget: { ...formData.budget, min: Number(e.target.value) },
                 });
                 // Clear error when user starts typing
-                if (errors.budget) {
+                if (allErrors.budget || allErrors.budgetMin) {
                   setErrors((prev) => ({ ...prev, budget: undefined }));
                 }
               }}
               onBlur={handleBudgetBlur}
               placeholder="500"
-              className="focus-visible:ring-[#F45A0B]"
+              className={`focus-visible:ring-[#F45A0B] ${
+                allErrors.budgetMin || allErrors.budget 
+                  ? "border-red-500 focus-visible:ring-red-500" 
+                  : ""
+              }`}
             />
+            {allErrors.budgetMin && (
+              <p className="text-sm text-red-500">{allErrors.budgetMin}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="budgetMax">
@@ -319,24 +340,33 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
                   budget: { ...formData.budget, max: Number(e.target.value) },
                 });
                 // Clear error when user starts typing
-                if (errors.budget) {
+                if (allErrors.budget || allErrors.budgetMax) {
                   setErrors((prev) => ({ ...prev, budget: undefined }));
                 }
               }}
               onBlur={handleBudgetBlur}
               placeholder="1000"
-              className="focus-visible:ring-[#F45A0B]"
+              className={`focus-visible:ring-[#F45A0B] ${
+                allErrors.budgetMax || allErrors.budget 
+                  ? "border-red-500 focus-visible:ring-red-500" 
+                  : ""
+              }`}
             />
+            {allErrors.budgetMax && (
+              <p className="text-sm text-red-500">{allErrors.budgetMax}</p>
+            )}
           </div>
         </div>
-        {errors.budget && (
-          <p className="text-sm text-red-500">{errors.budget}</p>
+        {allErrors.budget && (
+          <p className="text-sm text-red-500">{allErrors.budget}</p>
         )}
-        <p className="text-sm text-gray-500">
-          {formData.projectType === "fixed" 
-            ? "Set your project budget range" 
-            : "Set your hourly rate range"}
-        </p>
+        {!allErrors.budget && !allErrors.budgetMin && !allErrors.budgetMax && (
+          <p className="text-sm text-gray-500">
+            {formData.projectType === "fixed" 
+              ? "Set your project budget range" 
+              : "Set your hourly rate range"}
+          </p>
+        )}
       </div>
 
       {/* File Attachments */}

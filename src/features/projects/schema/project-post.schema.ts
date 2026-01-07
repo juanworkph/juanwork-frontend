@@ -12,6 +12,7 @@ export interface CreateProjectRequest {
   description: string;
   categoryId: string;
   paymentType: 'fixed' | 'hourly';
+  experienceLevel: 'beginner' | 'intermediate' | 'expert';
   budgetMin: number;
   budgetMax: number;
   deliveryDays: number;
@@ -73,6 +74,7 @@ export interface Project {
   description: string;
   categoryId: string;
   paymentType: 'fixed' | 'hourly';
+  experienceLevel: 'beginner' | 'intermediate' | 'expert';
   budgetMin: number;
   budgetMax: number;
   deliveryDays: number;
@@ -132,6 +134,9 @@ export const createProjectSchema = z.object({
   categoryId: z.string().uuid('Invalid category'),
   paymentType: z.enum(['fixed', 'hourly'], {
     message: 'Payment type must be either fixed or hourly'
+  }),
+  experienceLevel: z.enum(['beginner', 'intermediate', 'expert'], {
+    message: 'Experience level must be beginner, intermediate, or expert'
   }),
   budgetMin: z.number()
     .min(1, 'Minimum budget must be at least 1'),
