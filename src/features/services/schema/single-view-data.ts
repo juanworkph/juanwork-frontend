@@ -1,8 +1,50 @@
-import type { DiscoverService, DeliveryTime } from "./discover-services-data";
+import type { ProviderLevel } from "./discover-services-data";
+
+// Delivery time type
+export type DeliveryTime = "1-week" | "2-weeks" | "1-month" | "2-months" | "3-months";
 
 // Extended service details with additional information
-export interface ServiceDetailsData extends DiscoverService {
+export interface ServiceDetailsData {
+  id: string;
+  serviceName: string;
+  description: string;
   longDescription: string;
+  category: string;
+  skills: string[];
+  pricing: {
+    type: "package" | "hourly" | "fixed";
+    starting: number;
+    packages?: {
+      basic: number;
+      standard: number;
+      premium: number;
+    };
+    hourlyRate?: number;
+    currency: string;
+  };
+  deliveryTime: string;
+  provider: {
+    id: string;
+    name: string;
+    avatar: string;
+    title: string;
+    country: string;
+    countryCode: string;
+    rating: number;
+    reviewsCount: number;
+    verified: boolean;
+    level: ProviderLevel;
+    responseTime: string;
+  };
+  rating: number;
+  reviewsCount: number;
+  totalOrders: number;
+  isFeatured: boolean;
+  isTopRated: boolean;
+  thumbnail: string;
+  gallery: string[];
+  revisions: number;
+  serviceUrl: string;
   features: string[];
   requirements?: string[];
   faqs?: FAQ[];

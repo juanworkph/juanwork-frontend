@@ -7,61 +7,123 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Star,
-  CheckCircle,
   Bookmark,
   Clock,
-  MapPin,
   Award,
-  ShoppingCart,
-  RefreshCw,
   Package,
+  MapPin,
+  CheckCircle,
+  Users,
+  TrendingUp,
+  Zap,
+  Shield,
+  Lock,
+  CreditCard,
+  Calendar,
 } from "lucide-react";
 import {
-  DiscoverService,
+  Service,
   formatCurrency,
-  getDeliveryTimeLabel,
-  getPricingTypeLabel,
+  getExperienceLevelLabel,
 } from "../schema";
 
 interface ServiceDiscoveryCardProps {
-  service: DiscoverService;
+  service: Service;
 }
 
 export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
   const router = useRouter();
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const getPriceDisplay = () => {
-    if (service.pricing.type === "hourly") {
-      return `${formatCurrency(service.pricing.hourlyRate || 0)}/hr`;
-    } else if (service.pricing.type === "package") {
-      return `${formatCurrency(service.pricing.starting)}`;
-    } else {
-      return formatCurrency(service.pricing.starting);
-    }
+  // Budget display showing range (min - max)
+  const budgetDisplay = `${formatCurrency(service.pricing.starting)} - ${formatCurrency(service.pricing.starting * 2)}`;
+  
+  const paymentTypeLabel = service.pricing.type === "fixed" ? "Fixed" : "Hourly";
+
+  const getDescriptionPreview = (description: string, maxLength: number = 150): string => {
+    if (description.length <= maxLength) return description;
+    return description.substring(0, maxLength).trim() + "...";
   };
 
+  // Placeholder image for provider avatar
+  const placeholderAvatar = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face";
+
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden p-0">
+    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 dark:border-gray-700 p-0">
       <CardContent className="p-6 h-full">
-        {/* Header: Category, Badges and Bookmark */}
-        <div className="flex items-start justify-between mb-3">
+        {/* Header with badges */}
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 flex-wrap">
-            {service.isTopRated && (
-              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 text-xs">
-                <Award className="h-3 w-3 mr-1 fill-white" />
-                Top Rated
-              </Badge>
-            )}
-            {service.isFeatured && (
-              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 text-xs">
-                <Star className="h-3 w-3 mr-1 fill-white" />
-                Featured
-              </Badge>
-            )}
+            {/* Render upgrades dynamically */}
+            {service.upgrades && service.upgrades.length > 0 && service.upgrades.map((upgrade) => {
+              const upgradeName = upgrade.name.toLowerCase();
+
+              if (upgradeName === "featured") {
+                return (
+                  <Badge
+                    key={upgrade.id}
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 text-xs"
+                  >
+                    <Star className="h-3 w-3 mr-1 fill-white" />
+                    Featured
+                  </Badge>
+                );
+              }
+
+              if (upgradeName === "urgent") {
+                return (
+                  <Badge
+                    key={upgrade.id}
+                    className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0 text-xs"
+                  >
+                    <Zap className="h-3 w-3 mr-1 fill-white" />
+                    Urgent
+                  </Badge>
+                );
+              }
+
+              if (upgradeName === "sealed" || upgradeName === "nda") {
+                return (
+                  <Badge
+                    key={upgrade.id}
+                    className="bg-gradient-to-r from-slate-600 to-slate-700 text-white border-0 text-xs"
+                  >
+                    <Shield className="h-3 w-3 mr-1" />
+                    {upgrade.name}
+                  </Badge>
+                );
+              }
+
+              if (upgradeName === "private") {
+                return (
+                  <Badge
+                    key={upgrade.id}
+                    className="bg-gradient-to-r from-gray-500 to-gray-600 text-white border-0 text-xs"
+                  >
+                    <Lock className="h-3 w-3 mr-1" />
+                    Private
+                  </Badge>
+                );
+              }
+
+              // Default style for other upgrades
+              return (
+                <Badge
+                  key={upgrade.id}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 text-xs"
+                >
+                  <Award className="h-3 w-3 mr-1" />
+                  {upgrade.name}
+                </Badge>
+              );
+            })}
             <Badge variant="secondary" className="text-xs">
               <Package className="h-3 w-3 mr-1" />
-              {service.category}
+              {service.category.name}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              <CreditCard className="h-3 w-3 mr-1" />
+              {paymentTypeLabel}
             </Badge>
           </div>
           <button
@@ -87,7 +149,7 @@ export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
 
         {/* Description */}
         <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3 leading-relaxed">
-          {service.description}
+          {getDescriptionPreview(service.description)}
         </p>
 
         {/* Skills */}
@@ -107,13 +169,10 @@ export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
           )}
         </div>
 
-        {/* Provider Info with Image */}
+        {/* Provider Info */}
         <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg mb-4">
           <Image
-            src={
-              service.provider.avatar ||
-              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-            }
+            src={placeholderAvatar}
             alt={service.provider.name}
             width={40}
             height={40}
@@ -124,72 +183,58 @@ export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
               <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {service.provider.name}
               </span>
-              {service.provider.verified && (
-                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
-              )}
+              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
               <MapPin className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate">{service.provider.country}</span>
+              <span className="truncate">Philippines</span>
               <span>•</span>
-              <Badge
-                variant="secondary"
-                className="text-xs h-4 px-1.5 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 capitalize"
-              >
-                {service.provider.level}
-              </Badge>
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <span>{service.rating > 0 ? service.rating.toFixed(1) : "0.0"}</span>
+              <span className="text-gray-400">({service.reviewCount})</span>
             </div>
           </div>
         </div>
 
         {/* Service Details */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="flex items-center gap-2 text-sm">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Rating</p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {service.rating} ({service.reviewsCount})
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <ShoppingCart className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Orders</p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {service.totalOrders}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+            <Calendar className="h-4 w-4 text-blue-500 dark:text-blue-400" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Delivery
+                Delivery Days
               </p>
               <p className="font-semibold text-gray-900 dark:text-white text-xs">
-                {getDeliveryTimeLabel(service.deliveryTime)}
+                {service.deliveryDays} days
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <RefreshCw className="h-4 w-4 text-green-500 dark:text-green-400" />
+            <TrendingUp className="h-4 w-4 text-purple-500 dark:text-purple-400" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Revisions
+                Experience Level
               </p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {service.revisions}
+              <p className="font-semibold text-gray-900 dark:text-white text-xs capitalize">
+                {getExperienceLevelLabel(service.experienceLevel)}
               </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Users className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Proposals
+              </p>
+              <p className="font-semibold text-gray-900 dark:text-white">0</p>
             </div>
           </div>
         </div>
 
-        {/* Pricing Type */}
+        {/* Posted Time */}
         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-          <Package className="h-3 w-3" />
-          <span>{getPricingTypeLabel(service.pricing.type)}</span>
+          <Clock className="h-3 w-3" />
+          <span>Posted {service.postedAgo}</span>
         </div>
       </CardContent>
 
@@ -200,7 +245,7 @@ export function ServiceDiscoveryCard({ service }: ServiceDiscoveryCardProps) {
               Starting at
             </p>
             <p className="text-xl font-bold text-gray-900 dark:text-white">
-              {getPriceDisplay()}
+              {budgetDisplay}
             </p>
           </div>
           <Button

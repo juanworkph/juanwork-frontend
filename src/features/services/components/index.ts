@@ -15,6 +15,7 @@ export { ServiceDiscoveryCard } from "./service-discovery-card";
 export { ServiceDiscoveryList } from "./service-discovery-list";
 export { ServiceFilterSidebar } from "./service-filter-sidebar";
 export { DiscoverServicesHeader } from "./discover-services-header";
+export { LoadingOverlay } from "./loading-overlay";
 // Single View Components
 export { SingleViewHeader } from "./single-view-header";
 export { SingleViewGallery } from "./single-view-gallery";

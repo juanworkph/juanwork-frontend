@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -10,55 +10,94 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
 import {
   Filter,
-  X,
   DollarSign,
   Clock,
-  Star,
   Award,
   Package,
 } from "lucide-react";
 import {
   DiscoverServicesFilters,
-  ServicePricingType,
-  DeliveryTime,
+  DeliveryTimeFilter,
+  Category,
 } from "../schema";
 import {
   formatCurrency,
-  getDeliveryTimeLabel,
   availableSkills,
 } from "../schema/discover-services-data";
+import { fetchSkillsByCategory } from "../actions/discover-services";
 
 interface ServiceFilterSidebarProps {
   filters: DiscoverServicesFilters;
+  categories: Category[];
   onFilterChange: (filters: Partial<DiscoverServicesFilters>) => void;
   onClearFilters: () => void;
   totalServices: number;
+  isLoading: boolean;
 }
 
 export function ServiceFilterSidebar({
   filters,
+  categories,
   onFilterChange,
   onClearFilters,
   totalServices,
+  isLoading,
 }: ServiceFilterSidebarProps) {
-  const handleSkillToggle = (skill: string) => {
-    const newSkills = filters.skills.includes(skill)
-      ? filters.skills.filter((s) => s !== skill)
-      : [...filters.skills, skill];
-    onFilterChange({ skills: newSkills });
+  const [categorySkills, setCategorySkills] = useState<string[]>(availableSkills);
+  const [isLoadingSkills, setIsLoadingSkills] = useState(false);
+
+  // Fetch skills when category changes
+  useEffect(() => {
+    const loadSkills = async () => {
+      if (filters.category === "all") {
+        // Show all skills when no category is selected
+        setCategorySkills(availableSkills);
+        return;
+      }
+
+      setIsLoadingSkills(true);
+      try {
+        const skills = await fetchSkillsByCategory(filters.category);
+        setCategorySkills(skills.length > 0 ? skills : availableSkills);
+      } catch (error) {
+        console.error("Failed to load skills:", error);
+        setCategorySkills(availableSkills);
+      } finally {
+        setIsLoadingSkills(false);
+      }
+    };
+
+    loadSkills();
+  }, [filters.category]);
+
+  // Convert skills array to Option format for MultipleSelector
+  const skillOptions = useMemo<Option[]>(
+    () => categorySkills.map((skill) => ({ value: skill, label: skill })),
+    [categorySkills]
+  );
+
+  const selectedSkillOptions = useMemo<Option[]>(
+    () => filters.skills.map((skill) => ({ value: skill, label: skill })),
+    [filters.skills]
+  );
+
+  const handleSkillsChange = (options: Option[]) => {
+    const skills = options.map((opt) => opt.value);
+    onFilterChange({ skills });
   };
 
   const hasActiveFilters =
     filters.pricingType !== "all" ||
+    filters.experienceLevel !== "all" ||
     filters.deliveryTime !== "all" ||
     filters.providerLevel !== "all" ||
+    filters.category !== "all" ||
     filters.skills.length > 0 ||
     filters.priceRange.min > 0 ||
-    filters.priceRange.max < 10000 ||
-    filters.minRating > 0;
+    filters.priceRange.max < 10000;
 
   return (
     <aside className="w-full lg:w-80 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
@@ -76,7 +115,7 @@ export function ServiceFilterSidebar({
               variant="ghost"
               size="sm"
               onClick={onClearFilters}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700"
+              className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700"
             >
               Clear all
             </Button>
@@ -84,8 +123,8 @@ export function ServiceFilterSidebar({
         </div>
 
         {/* Results Count */}
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">
+        <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+          <p className="text-sm text-orange-900 dark:text-orange-100 font-medium">
             {totalServices} service{totalServices !== 1 ? "s" : ""} found
           </p>
         </div>
@@ -106,34 +145,12 @@ export function ServiceFilterSidebar({
               min={0}
               step={100}
               className="w-full"
+              disabled={isLoading}
             />
             <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
               <span>{formatCurrency(filters.priceRange.min)}</span>
               <span>{formatCurrency(filters.priceRange.max)}</span>
             </div>
-          </div>
-        </div>
-
-        {/* Minimum Rating */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-base font-semibold">
-            <Star className="h-4 w-4" />
-            Minimum Rating
-          </Label>
-          <div className="grid grid-cols-5 gap-2">
-            {[0, 3, 3.5, 4, 4.5].map((rating) => (
-              <button
-                key={rating}
-                onClick={() => onFilterChange({ minRating: rating })}
-                className={`px-3 py-2 rounded-md text-xs font-medium transition-colors ${
-                  filters.minRating === rating
-                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-                }`}
-              >
-                {rating === 0 ? "Any" : `${rating}+`}
-              </button>
-            ))}
           </div>
         </div>
 
@@ -146,43 +163,90 @@ export function ServiceFilterSidebar({
           <div className="space-y-2">
             <button
               onClick={() => onFilterChange({ pricingType: "all" })}
+              disabled={isLoading}
               className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                 filters.pricingType === "all"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               All Types
             </button>
             <button
               onClick={() => onFilterChange({ pricingType: "fixed" })}
+              disabled={isLoading}
               className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                 filters.pricingType === "fixed"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               Fixed Price
             </button>
             <button
               onClick={() => onFilterChange({ pricingType: "hourly" })}
+              disabled={isLoading}
               className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                 filters.pricingType === "hourly"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               Hourly Rate
             </button>
+          </div>
+        </div>
+
+        {/* Experience Level */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-base font-semibold">
+            <Award className="h-4 w-4" />
+            Experience Level
+          </Label>
+          <div className="space-y-2">
             <button
-              onClick={() => onFilterChange({ pricingType: "package" })}
+              onClick={() => onFilterChange({ experienceLevel: "all" })}
+              disabled={isLoading}
               className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                filters.pricingType === "package"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
+                filters.experienceLevel === "all"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              Package Pricing
+              All Levels
+            </button>
+            <button
+              onClick={() => onFilterChange({ experienceLevel: "beginner" })}
+              disabled={isLoading}
+              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                filters.experienceLevel === "beginner"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              Beginner
+            </button>
+            <button
+              onClick={() => onFilterChange({ experienceLevel: "intermediate" })}
+              disabled={isLoading}
+              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                filters.experienceLevel === "intermediate"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              Intermediate
+            </button>
+            <button
+              onClick={() => onFilterChange({ experienceLevel: "expert" })}
+              disabled={isLoading}
+              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                filters.experienceLevel === "expert"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              Expert
             </button>
           </div>
         </div>
@@ -196,7 +260,7 @@ export function ServiceFilterSidebar({
           <Select
             value={filters.deliveryTime}
             onValueChange={(value) =>
-              onFilterChange({ deliveryTime: value as DeliveryTime | "all" })
+              onFilterChange({ deliveryTime: value as DeliveryTimeFilter })
             }
           >
             <SelectTrigger className="w-full">
@@ -206,9 +270,8 @@ export function ServiceFilterSidebar({
               <SelectItem value="all">All Delivery Times</SelectItem>
               <SelectItem value="24-hours">24 Hours</SelectItem>
               <SelectItem value="3-days">3 Days</SelectItem>
-              <SelectItem value="1-week">1 Week</SelectItem>
-              <SelectItem value="2-weeks">2 Weeks</SelectItem>
-              <SelectItem value="1-month">1 Month</SelectItem>
+              <SelectItem value="7-days">7 Days</SelectItem>
+              <SelectItem value="anytime">Anytime</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -223,11 +286,7 @@ export function ServiceFilterSidebar({
             value={filters.providerLevel}
             onValueChange={(value) =>
               onFilterChange({
-                providerLevel: value as
-                  | "entry"
-                  | "intermediate"
-                  | "expert"
-                  | "all",
+                providerLevel: value as "new" | "level1" | "level2" | "top" | "all",
               })
             }
           >
@@ -236,11 +295,44 @@ export function ServiceFilterSidebar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="entry">Entry Level</SelectItem>
-              <SelectItem value="intermediate">Intermediate</SelectItem>
-              <SelectItem value="expert">Expert</SelectItem>
+              <SelectItem value="new">New Seller</SelectItem>
+              <SelectItem value="level1">Level 1</SelectItem>
+              <SelectItem value="level2">Level 2</SelectItem>
+              <SelectItem value="top">Top Rated</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Category */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-base font-semibold">
+            <Package className="h-4 w-4" />
+            Category
+          </Label>
+          {isLoading && categories.length === 0 ? (
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : (
+            <Select
+              value={filters.category}
+              onValueChange={(value) => onFilterChange({ category: value })}
+              disabled={isLoading}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                    {category.serviceCount !== undefined && ` (${category.serviceCount})`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Skills */}
@@ -248,46 +340,27 @@ export function ServiceFilterSidebar({
           <Label className="text-base font-semibold">
             Skills ({filters.skills.length} selected)
           </Label>
-          <div className="max-h-64 overflow-y-auto space-y-2 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-            {availableSkills.map((skill) => (
-              <div key={skill} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`skill-${skill}`}
-                  checked={filters.skills.includes(skill)}
-                  onCheckedChange={() => handleSkillToggle(skill)}
-                />
-                <label
-                  htmlFor={`skill-${skill}`}
-                  className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-                >
-                  {skill}
-                </label>
-              </div>
-            ))}
-          </div>
+          {isLoadingSkills ? (
+            <Skeleton className="h-10 w-full" />
+          ) : (
+            <MultipleSelector
+              value={selectedSkillOptions}
+              onChange={handleSkillsChange}
+              options={skillOptions}
+              placeholder="Select skills..."
+              emptyIndicator={
+                <p className="text-center text-sm text-gray-500">
+                  {filters.category === "all" 
+                    ? "No skills found" 
+                    : "No skills found for this category"}
+                </p>
+              }
+              disabled={isLoading || isLoadingSkills}
+              className="w-full"
+              badgeClassName="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
+            />
+          )}
         </div>
-
-        {/* Selected Skills */}
-        {filters.skills.length > 0 && (
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-600 dark:text-gray-400">
-              Selected Skills:
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {filters.skills.map((skill) => (
-                <Badge
-                  key={skill}
-                  variant="secondary"
-                  className="gap-1 pr-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                  onClick={() => handleSkillToggle(skill)}
-                >
-                  {skill}
-                  <X className="h-3 w-3" />
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </aside>
   );

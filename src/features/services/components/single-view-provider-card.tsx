@@ -14,7 +14,7 @@ import {
   User,
   ExternalLink,
 } from "lucide-react";
-import type { ServiceProvider } from "../schema/discover-services-data";
+import type { ServiceProvider, ProviderLevel } from "../schema/discover-services-data";
 
 interface SingleViewProviderCardProps {
   provider: ServiceProvider;
@@ -32,24 +32,38 @@ export const SingleViewProviderCard = memo(({ provider }: SingleViewProviderCard
   };
 
   // Get level badge styling
-  const getLevelBadgeStyle = (
-    level: "entry" | "intermediate" | "expert"
-  ): string => {
+  const getLevelBadgeStyle = (level: ProviderLevel): string => {
     switch (level) {
       case "expert":
+      case "top":
         return "bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0";
-      case "intermediate":
+      case "level2":
         return "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0";
-      case "entry":
+      case "level1":
         return "bg-gradient-to-r from-green-500 to-green-600 text-white border-0";
+      case "new":
+        return "bg-gradient-to-r from-gray-500 to-gray-600 text-white border-0";
       default:
         return "";
     }
   };
 
   // Get level label
-  const getLevelLabel = (level: "entry" | "intermediate" | "expert"): string => {
-    return level.charAt(0).toUpperCase() + level.slice(1);
+  const getLevelLabel = (level: ProviderLevel): string => {
+    switch (level) {
+      case "expert":
+        return "Expert";
+      case "top":
+        return "Top Rated";
+      case "level2":
+        return "Level 2";
+      case "level1":
+        return "Level 1";
+      case "new":
+        return "New Seller";
+      default:
+        return level;
+    }
   };
 
   // Get country flag emoji
@@ -93,16 +107,20 @@ export const SingleViewProviderCard = memo(({ provider }: SingleViewProviderCard
           </div>
 
           {/* Title */}
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
-            {provider.title}
-          </p>
+          {provider.title && (
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
+              {provider.title}
+            </p>
+          )}
 
           {/* Country */}
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
-            <span className="mr-1" role="img" aria-label={`Country: ${provider.country}`}>{getCountryFlag(provider.countryCode)}</span>
-            <span>{provider.country}</span>
-          </div>
+          {provider.country && provider.countryCode && (
+            <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+              <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+              <span className="mr-1" role="img" aria-label={`Country: ${provider.country}`}>{getCountryFlag(provider.countryCode)}</span>
+              <span>{provider.country}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -117,28 +135,32 @@ export const SingleViewProviderCard = memo(({ provider }: SingleViewProviderCard
       {/* Stats */}
       <div className="space-y-3" role="list" aria-label="Provider statistics">
         {/* Rating */}
-        <div className="flex items-center justify-between" role="listitem">
-          <div className="flex items-center gap-2" aria-label={`Rating: ${provider.rating.toFixed(1)} out of 5 stars`}>
-            <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
-            <span className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
-              {provider.rating.toFixed(1)}
+        {provider.rating !== undefined && provider.reviewsCount !== undefined && (
+          <div className="flex items-center justify-between" role="listitem">
+            <div className="flex items-center gap-2" aria-label={`Rating: ${provider.rating.toFixed(1)} out of 5 stars`}>
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
+              <span className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                {provider.rating.toFixed(1)}
+              </span>
+            </div>
+            <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              {provider.reviewsCount} {provider.reviewsCount === 1 ? 'review' : 'reviews'}
             </span>
           </div>
-          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-            {provider.reviewsCount} {provider.reviewsCount === 1 ? 'review' : 'reviews'}
-          </span>
-        </div>
+        )}
 
         {/* Response Time */}
-        <div className="flex items-center justify-between" role="listitem">
-          <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
-            <span className="text-xs sm:text-sm">Response time</span>
+        {provider.responseTime && (
+          <div className="flex items-center justify-between" role="listitem">
+            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+              <span className="text-xs sm:text-sm">Response time</span>
+            </div>
+            <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
+              {provider.responseTime}
+            </span>
           </div>
-          <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
-            {provider.responseTime}
-          </span>
-        </div>
+        )}
       </div>
 
       {/* View Profile Button */}

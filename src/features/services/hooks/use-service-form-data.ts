@@ -7,13 +7,13 @@ import {
   getAllUpgradeTypes,
 } from '../actions/service-post.actions';
 import {
-  Category,
+  CategoryEntity,
   Skill,
   UpgradeType,
 } from '../schema/service-post.schema';
 
 interface UseServiceFormDataReturn {
-  categories: Category[];
+  categories: CategoryEntity[];
   skills: Skill[];
   upgradeTypes: UpgradeType[];
   isLoadingCategories: boolean;
@@ -38,7 +38,7 @@ export const useServiceFormData = (
   selectedCategoryId?: string
 ): UseServiceFormDataReturn => {
   // State for data
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryEntity[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [upgradeTypes, setUpgradeTypes] = useState<UpgradeType[]>([]);
 

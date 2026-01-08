@@ -1,16 +1,18 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Loader2 } from "lucide-react";
-import { DiscoverService } from "../schema";
+import { Package, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { Service } from "../schema";
 import { ServiceDiscoveryCard } from "./service-discovery-card";
 
 interface ServiceDiscoveryListProps {
-  services: DiscoverService[];
+  services: Service[];
   isLoading: boolean;
   onLoadMore?: () => void;
   hasMore?: boolean;
   loadingMore?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 export function ServiceDiscoveryList({
@@ -19,10 +21,35 @@ export function ServiceDiscoveryList({
   onLoadMore,
   hasMore,
   loadingMore,
+  error,
+  onRetry,
 }: ServiceDiscoveryListProps) {
+  // Show error state
+  if (error && services.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          Failed to load services
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400 max-w-md mb-6">
+          {error}
+        </p>
+        {onRetry && (
+          <Button onClick={onRetry} className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Retry
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="border rounded-lg overflow-hidden">
             <Skeleton className="h-48 w-full" />
@@ -77,7 +104,7 @@ export function ServiceDiscoveryList({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {services.map((service) => (
           <ServiceDiscoveryCard key={service.id} service={service} />
         ))}
@@ -103,6 +130,28 @@ export function ServiceDiscoveryList({
               </>
             )}
           </Button>
+        </div>
+      )}
+
+      {/* Show error for pagination failures */}
+      {error && services.length > 0 && (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+          {onRetry && (
+            <Button onClick={onRetry} variant="outline" className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Try Again
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Show "No more services" message */}
+      {!hasMore && services.length > 0 && !loadingMore && (
+        <div className="flex justify-center pt-8">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            No more services to load
+          </p>
         </div>
       )}
     </div>
