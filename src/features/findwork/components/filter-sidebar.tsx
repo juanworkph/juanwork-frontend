@@ -12,19 +12,16 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Filter, X, DollarSign, Clock, Award, Briefcase } from "lucide-react";
-import {
-  FindWorkFilters,
-  ExperienceLevel,
-  ProjectDuration,
-  availableSkills,
-  formatCurrency,
-} from "../schema";
+import { FindWorkFilters, ExperienceLevel, Category } from "../schema";
+import { formatCurrency } from "../context/findwork";
+import { getCategorySkills } from "../actions/findwork";
 
 interface FilterSidebarProps {
   filters: FindWorkFilters;
   onFilterChange: (filters: Partial<FindWorkFilters>) => void;
   onClearFilters: () => void;
   totalProjects: number;
+  categories: Category[];
 }
 
 export function FilterSidebar({
@@ -32,7 +29,10 @@ export function FilterSidebar({
   onFilterChange,
   onClearFilters,
   totalProjects,
+  categories,
 }: FilterSidebarProps) {
+  const [availableSkills, setAvailableSkills] = React.useState<string[]>([]);
+
   const handleSkillToggle = (skill: string) => {
     const newSkills = filters.skills.includes(skill)
       ? filters.skills.filter((s) => s !== skill)
@@ -40,10 +40,31 @@ export function FilterSidebar({
     onFilterChange({ skills: newSkills });
   };
 
+  // Fetch available skills based on category
+  React.useEffect(() => {
+    const fetchSkills = async () => {
+      if (filters.category && filters.category !== "All Categories") {
+        const category = categories.find((c) => c.name === filters.category);
+        if (category) {
+          const skills = await getCategorySkills(category.id);
+          setAvailableSkills(skills.map((s) => s.name).sort());
+        } else {
+          setAvailableSkills([]);
+        }
+      } else {
+        setAvailableSkills([]);
+      }
+    };
+
+    fetchSkills();
+  }, [filters.category, categories]);
+
+  const currentSkills = availableSkills;
+
   const hasActiveFilters =
     filters.projectType !== "all" ||
     filters.experienceLevel !== "all" ||
-    filters.duration !== "all" ||
+    filters.deliveryDays < 180 || // Default max is 180
     filters.skills.length > 0 ||
     filters.budgetRange.min > 0 ||
     filters.budgetRange.max < 10000;
@@ -113,7 +134,7 @@ export function FilterSidebar({
               onClick={() => onFilterChange({ projectType: "all" })}
               className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                 filters.projectType === "all"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
               }`}
             >
@@ -123,7 +144,7 @@ export function FilterSidebar({
               onClick={() => onFilterChange({ projectType: "fixed" })}
               className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                 filters.projectType === "fixed"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
               }`}
             >
@@ -133,7 +154,7 @@ export function FilterSidebar({
               onClick={() => onFilterChange({ projectType: "hourly" })}
               className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                 filters.projectType === "hourly"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
+                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-medium"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
               }`}
             >
@@ -168,31 +189,48 @@ export function FilterSidebar({
           </Select>
         </div>
 
-        {/* Project Duration */}
+        {/* Delivery Days */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-base font-semibold">
             <Clock className="h-4 w-4" />
-            Project Duration
+            Max Delivery Days: {filters.deliveryDays}
+          </Label>
+          <div className="space-y-4 px-1">
+            <Slider
+              value={[filters.deliveryDays]}
+              onValueChange={([val]) => onFilterChange({ deliveryDays: val })}
+              max={180}
+              min={1}
+              step={1}
+              className="w-full"
+            />
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+              <span>1 day</span>
+              <span>180 days</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Category */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-base font-semibold">
+            <Briefcase className="h-4 w-4" />
+            Category
           </Label>
           <Select
-            value={filters.duration}
-            onValueChange={(value) =>
-              onFilterChange({ duration: value as ProjectDuration | "all" })
-            }
+            value={filters.category}
+            onValueChange={(value) => onFilterChange({ category: value })}
           >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Durations</SelectItem>
-              <SelectItem value="less-than-1-month">
-                Less than 1 month
-              </SelectItem>
-              <SelectItem value="1-3-months">1-3 months</SelectItem>
-              <SelectItem value="3-6-months">3-6 months</SelectItem>
-              <SelectItem value="more-than-6-months">
-                More than 6 months
-              </SelectItem>
+              <SelectItem value="All Categories">All Categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.name}>
+                  {category.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -200,10 +238,13 @@ export function FilterSidebar({
         {/* Skills */}
         <div className="space-y-3">
           <Label className="text-base font-semibold">
-            Skills ({filters.skills.length} selected)
+            {filters.category && filters.category !== "All Categories"
+              ? `Skills for ${filters.category}`
+              : "All Skills"}{" "}
+            ({filters.skills.length} selected)
           </Label>
           <div className="max-h-64 overflow-y-auto space-y-2 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-            {availableSkills.map((skill) => (
+            {currentSkills.map((skill) => (
               <div key={skill} className="flex items-center space-x-2">
                 <Checkbox
                   id={`skill-${skill}`}

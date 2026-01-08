@@ -23,13 +23,13 @@ import {
   CreditCard,
   Award,
 } from "lucide-react";
+import { Project } from "../schema";
 import {
-  Project,
   formatCurrency,
   formatTimeAgo,
   getExperienceLevelLabel,
   getDurationLabel,
-} from "../schema";
+} from "../context/findwork";
 
 interface ProjectCardProps {
   project: Project;

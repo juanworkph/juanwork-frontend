@@ -21,7 +21,7 @@ const DEFAULT_FILTERS: FindWorkFilters = {
   projectType: "all",
   skills: [],
   experienceLevel: "all",
-  duration: "all",
+  deliveryDays: 180,
   location: "",
   sortBy: "newest",
 };
@@ -171,10 +171,11 @@ export default function FindWorkPage() {
       );
     }
 
-    // Filter by duration
-    if (filters.duration !== "all") {
+    // Filter by delivery days
+    if (filters.deliveryDays < 180) {
+      // Only filter if not at max (assuming 180 is max/any)
       result = result.filter(
-        (project) => project.duration === filters.duration
+        (project) => project.deliveryDays <= filters.deliveryDays
       );
     }
 
@@ -267,6 +268,7 @@ export default function FindWorkPage() {
           onFilterChange={handleFilterChange}
           onClearFilters={handleClearFilters}
           totalProjects={filteredProjects.length}
+          categories={categories}
         />
       </div>
 

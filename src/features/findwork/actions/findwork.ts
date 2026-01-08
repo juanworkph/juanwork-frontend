@@ -6,6 +6,8 @@ import {
   APIProject,
   Project,
   Category,
+  Skill,
+  SkillsResponse,
   ExperienceLevel,
   ProjectDuration,
 } from "../schema/findwork-data";
@@ -71,6 +73,28 @@ export const fetchCategories = async (): Promise<
   } catch (error) {
     console.error("[API] Error fetching categories:", error);
     throw error;
+  }
+};
+
+/**
+ * Fetch skills for a specific category
+ * @param categoryId - The ID of the category
+ * @returns Array of skills
+ */
+export const getCategorySkills = async (
+  categoryId: string
+): Promise<Skill[]> => {
+  try {
+    const response = await apiClient.get<ApiSuccessResponse<SkillsResponse>>(
+      `/categories/${categoryId}/skills`
+    );
+    return response.data.data.skills;
+  } catch (error) {
+    console.error(
+      `[API] Error fetching skills for category ${categoryId}:`,
+      error
+    );
+    return [];
   }
 };
 

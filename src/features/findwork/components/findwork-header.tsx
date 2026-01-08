@@ -28,7 +28,7 @@ import {
   LogOut,
   Briefcase,
 } from "lucide-react";
-import { FindWorkFilters, categories } from "../schema";
+import { FindWorkFilters } from "../schema";
 
 interface FindWorkHeaderProps {
   filters: FindWorkFilters;
@@ -69,7 +69,6 @@ export function FindWorkHeader({
   return (
     <header className="border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 shadow-sm">
       <div className="px-6 py-4">
-
         {/* Search and Filter Row */}
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
@@ -82,23 +81,6 @@ export function FindWorkHeader({
               className="pl-10 h-11"
             />
           </div>
-
-          {/* Category */}
-          <Select
-            value={filters.category}
-            onValueChange={(value) => onFilterChange({ category: value })}
-          >
-            <SelectTrigger className="w-full sm:w-[200px] h-11">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
 
           {/* Sort */}
           <Button

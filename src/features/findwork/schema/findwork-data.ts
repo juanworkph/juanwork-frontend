@@ -22,6 +22,16 @@ export interface Category {
   projectCount?: number;
 }
 
+export interface Skill {
+  id: string;
+  name: string;
+  isCustom: boolean;
+}
+
+export interface SkillsResponse {
+  skills: Skill[];
+}
+
 // API Project model (from backend)
 export interface APIProject {
   id: string;
@@ -146,7 +156,7 @@ export interface FindWorkFilters {
   projectType: ProjectType | "all";
   skills: string[];
   experienceLevel: ExperienceLevel | "all";
-  duration: ProjectDuration | "all";
+  deliveryDays: number;
   location: string;
   sortBy: "newest" | "budget-high" | "budget-low" | "proposals";
 }
@@ -157,120 +167,7 @@ export interface FindWorkState {
   totalProjects: number;
 }
 
-// Helper functions
-export const formatCurrency = (
-  amount: number,
-  currency: string = "USD"
-): string => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
-export const formatTimeAgo = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 60) {
-    return `${diffMins} minute${diffMins !== 1 ? "s" : ""} ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
-  } else {
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  }
-};
-
-export const getExperienceLevelLabel = (level: ExperienceLevel): string => {
-  switch (level) {
-    case "entry":
-      return "Entry Level";
-    case "intermediate":
-      return "Intermediate";
-    case "expert":
-      return "Expert";
-    default:
-      return level;
-  }
-};
-
-export const getDurationLabel = (duration: ProjectDuration): string => {
-  switch (duration) {
-    case "less-than-1-month":
-      return "Less than 1 month";
-    case "1-3-months":
-      return "1-3 months";
-    case "3-6-months":
-      return "3-6 months";
-    case "more-than-6-months":
-      return "More than 6 months";
-    default:
-      return duration;
-  }
-};
-
-// Available skills for filtering
-export const availableSkills = [
-  "React",
-  "Next.js",
-  "TypeScript",
-  "JavaScript",
-  "Node.js",
-  "Python",
-  "Django",
-  "Flask",
-  "PHP",
-  "Laravel",
-  "Vue.js",
-  "Angular",
-  "Tailwind CSS",
-  "CSS",
-  "HTML",
-  "MongoDB",
-  "PostgreSQL",
-  "MySQL",
-  "AWS",
-  "Docker",
-  "Kubernetes",
-  "GraphQL",
-  "REST API",
-  "UI/UX Design",
-  "Figma",
-  "Adobe XD",
-  "Photoshop",
-  "Illustrator",
-];
-
-// Available categories
-export const categories = [
-  "All Categories",
-  "Web Development",
-  "Mobile Development",
-  "UI/UX Design",
-  "Graphic Design",
-  "Data Science",
-  "Machine Learning",
-  "DevOps",
-  "Backend Development",
-  "Frontend Development",
-  "Full Stack Development",
-  "WordPress",
-  "E-commerce",
-  "Content Writing",
-  "Marketing",
-];
+// Helper functions and constants have been moved to ../context/findwork.ts
 
 // Mock data
 export const mockFindWorkData: FindWorkState = {
@@ -643,7 +540,7 @@ export const mockFindWorkData: FindWorkState = {
     projectType: "all",
     skills: [],
     experienceLevel: "all",
-    duration: "all",
+    deliveryDays: 180,
     location: "",
     sortBy: "newest",
   },
