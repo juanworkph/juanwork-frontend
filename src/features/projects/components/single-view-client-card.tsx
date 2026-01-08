@@ -18,7 +18,7 @@ import {
   CreditCard,
 } from "lucide-react"
 import { ExtendedClientInfo } from "../schema/projects-data"
-import { formatTimeAgo } from "@/features/findwork/schema/findwork-data"
+import { formatTimeAgo } from "@/features/findwork/context/findwork"
 
 interface SingleViewClientCardProps {
   client: ExtendedClientInfo
