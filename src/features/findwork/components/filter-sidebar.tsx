@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Filter, X, DollarSign, Clock, Award, Briefcase } from "lucide-react";
 import { FindWorkFilters, ExperienceLevel, Category } from "../schema";
-import { formatCurrency } from "../context/findwork";
+import { formatCurrency } from "../utils/findwork";
 import { getCategorySkills } from "../actions/findwork";
 
 interface FilterSidebarProps {

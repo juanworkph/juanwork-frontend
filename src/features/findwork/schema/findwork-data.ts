@@ -167,7 +167,7 @@ export interface FindWorkState {
   totalProjects: number;
 }
 
-// Helper functions and constants have been moved to ../context/findwork.ts
+// Helper functions and constants have been moved to ../utils/findwork.ts
 
 // Mock data
 export const mockFindWorkData: FindWorkState = {

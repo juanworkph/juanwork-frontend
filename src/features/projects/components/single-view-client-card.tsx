@@ -1,13 +1,8 @@
-"use client"
+"use client";
 
-import React from "react"
-import Image from "next/image"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import React from "react";
+import Image from "next/image";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   CheckCircle,
   Star,
@@ -16,12 +11,12 @@ import {
   UserCheck,
   Clock,
   CreditCard,
-} from "lucide-react"
-import { ExtendedClientInfo } from "../schema/projects-data"
-import { formatTimeAgo } from "@/features/findwork/context/findwork"
+} from "lucide-react";
+import { ExtendedClientInfo } from "../schema/projects-data";
+import { formatTimeAgo } from "@/features/findwork/utils/findwork";
 
 interface SingleViewClientCardProps {
-  client: ExtendedClientInfo
+  client: ExtendedClientInfo;
 }
 
 const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
@@ -29,17 +24,17 @@ const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
 }) => {
   // Format member since date
   const formatMemberSince = (dateString: string): string => {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
       year: "numeric",
-    })
-  }
+    });
+  };
 
   // Render star rating
   const renderStarRating = () => {
-    const rating = client.rating || 0
-    const reviewCount = client.reviewCount || 0
+    const rating = client.rating || 0;
+    const reviewCount = client.reviewCount || 0;
 
     return (
       <div className="flex items-center gap-2">
@@ -64,17 +59,17 @@ const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
           </span>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   // Get country flag emoji from country code
   const getCountryFlag = (countryCode: string): string => {
     const codePoints = countryCode
       .toUpperCase()
       .split("")
-      .map((char) => 127397 + char.charCodeAt(0))
-    return String.fromCodePoint(...codePoints)
-  }
+      .map((char) => 127397 + char.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+  };
 
   return (
     <Card className="gap-0 p-0">
@@ -101,7 +96,9 @@ const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
           </div>
           <div className="flex-1 space-y-0.5 sm:space-y-1 min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{client.name}</h3>
+              <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">
+                {client.name}
+              </h3>
               {client.verified && (
                 <CheckCircle
                   className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0"
@@ -111,7 +108,9 @@ const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
             </div>
             <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-muted-foreground">
               <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-              <span className="mr-0.5 sm:mr-1">{getCountryFlag(client.countryCode)}</span>
+              <span className="mr-0.5 sm:mr-1">
+                {getCountryFlag(client.countryCode)}
+              </span>
               <span className="truncate">{client.country}</span>
             </div>
           </div>
@@ -168,9 +167,7 @@ const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
           <div className="flex items-center justify-between text-xs sm:text-sm">
             <span className="text-muted-foreground">Last Active</span>
             <span className="font-medium text-foreground">
-              {client.lastActive
-                ? formatTimeAgo(client.lastActive)
-                : "Unknown"}
+              {client.lastActive ? formatTimeAgo(client.lastActive) : "Unknown"}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -192,7 +189,7 @@ const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default SingleViewClientCard
+export default SingleViewClientCard;
