@@ -1,3 +1,7 @@
+// ============================================================================
+// API Types - Backend Integration
+// ============================================================================
+
 export type ProjectType = "fixed" | "hourly";
 export type ExperienceLevel = "entry" | "intermediate" | "expert";
 export type ProjectDuration =
@@ -5,6 +9,83 @@ export type ProjectDuration =
   | "1-3-months"
   | "3-6-months"
   | "more-than-6-months";
+
+export type SortOption = "newest" | "budget-high" | "budget-low" | "proposals";
+
+// Category from API
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  projectCount?: number;
+}
+
+// API Project model (from backend)
+export interface APIProject {
+  id: string;
+  name: string;
+  description: string;
+  categoryId: string;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  paymentType: "fixed" | "hourly";
+  budgetMin: number;
+  budgetMax: number;
+  deliveryDays: number;
+  experienceLevel: ExperienceLevel;
+  status: "draft" | "pending" | "active" | "completed" | "paused" | "cancelled";
+  createdAt: string;
+  updatedAt: string;
+  skills?: Array<{
+    id: string;
+    name: string;
+    isCustom: boolean;
+  }>;
+  upgrades?: Array<{
+    id: string;
+    name: string;
+    pricePaid: number;
+  }>;
+}
+
+// API Query Parameters
+export interface ProjectQueryParams {
+  status?:
+    | "active"
+    | "draft"
+    | "pending"
+    | "completed"
+    | "paused"
+    | "cancelled";
+  categoryId?: string;
+  page?: number;
+  limit?: number;
+}
+
+// API Response for projects
+export interface ProjectsResponse {
+  projects: APIProject[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+// API Response for categories
+export interface CategoriesResponse {
+  categories: Category[];
+}
+
+// ============================================================================
+// Frontend Types - UI Components
+// ============================================================================
 
 export interface Client {
   id: string;
@@ -29,6 +110,12 @@ export interface Budget {
   currency: string;
 }
 
+export interface Upgrade {
+  id: string;
+  name: string;
+  pricePaid: number;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -39,11 +126,11 @@ export interface Project {
   client: Client;
   experienceLevel: ExperienceLevel;
   duration: ProjectDuration;
+  deliveryDays: number;
   postedDate: string;
   deadline?: string;
   proposalsCount: number;
-  isFeatured: boolean;
-  isUrgent: boolean;
+  upgrades: Upgrade[];
   location?: string;
   projectUrl: string;
   attachments?: number;
@@ -217,10 +304,13 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "expert",
       duration: "1-3-months",
+      deliveryDays: 60,
       postedDate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 12,
-      isFeatured: true,
-      isUrgent: true,
+      upgrades: [
+        { id: "u1", name: "Featured", pricePaid: 10 },
+        { id: "u2", name: "Urgent", pricePaid: 5 },
+      ],
       projectUrl: "/freelancer/projects/1",
       attachments: 3,
     },
@@ -252,10 +342,10 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "intermediate",
       duration: "less-than-1-month",
+      deliveryDays: 20,
       postedDate: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 8,
-      isFeatured: false,
-      isUrgent: false,
+      upgrades: [],
       projectUrl: "/freelancer/projects/2",
     },
     {
@@ -287,10 +377,10 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "intermediate",
       duration: "1-3-months",
+      deliveryDays: 45,
       postedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 15,
-      isFeatured: true,
-      isUrgent: false,
+      upgrades: [{ id: "u3", name: "Featured", pricePaid: 10 }],
       projectUrl: "/freelancer/projects/3",
       attachments: 2,
     },
@@ -323,10 +413,10 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "intermediate",
       duration: "less-than-1-month",
+      deliveryDays: 14,
       postedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 22,
-      isFeatured: false,
-      isUrgent: true,
+      upgrades: [{ id: "u4", name: "Urgent", pricePaid: 5 }],
       projectUrl: "/freelancer/projects/4",
     },
     {
@@ -357,10 +447,10 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "expert",
       duration: "3-6-months",
+      deliveryDays: 120,
       postedDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 18,
-      isFeatured: true,
-      isUrgent: false,
+      upgrades: [{ id: "u5", name: "Featured", pricePaid: 10 }],
       projectUrl: "/freelancer/projects/5",
       attachments: 5,
     },
@@ -393,10 +483,10 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "intermediate",
       duration: "less-than-1-month",
+      deliveryDays: 7,
       postedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 31,
-      isFeatured: false,
-      isUrgent: false,
+      upgrades: [],
       projectUrl: "/freelancer/projects/6",
     },
     {
@@ -427,10 +517,13 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "expert",
       duration: "more-than-6-months",
+      deliveryDays: 180,
       postedDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 25,
-      isFeatured: true,
-      isUrgent: true,
+      upgrades: [
+        { id: "u6", name: "Featured", pricePaid: 10 },
+        { id: "u7", name: "Urgent", pricePaid: 5 },
+      ],
       projectUrl: "/freelancer/projects/7",
       attachments: 4,
     },
@@ -463,10 +556,10 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "expert",
       duration: "3-6-months",
+      deliveryDays: 100,
       postedDate: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 9,
-      isFeatured: false,
-      isUrgent: false,
+      upgrades: [],
       projectUrl: "/freelancer/projects/8",
     },
     {
@@ -497,10 +590,10 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "intermediate",
       duration: "1-3-months",
+      deliveryDays: 45,
       postedDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 14,
-      isFeatured: false,
-      isUrgent: false,
+      upgrades: [],
       projectUrl: "/freelancer/projects/9",
     },
     {
@@ -532,10 +625,10 @@ export const mockFindWorkData: FindWorkState = {
       },
       experienceLevel: "expert",
       duration: "1-3-months",
+      deliveryDays: 30,
       postedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
       proposalsCount: 11,
-      isFeatured: true,
-      isUrgent: false,
+      upgrades: [{ id: "u8", name: "Featured", pricePaid: 10 }],
       projectUrl: "/freelancer/projects/10",
       attachments: 1,
     },

@@ -11,10 +11,17 @@ import {
   Star,
   CheckCircle,
   Bookmark,
-  FileText,
+  Users,
   TrendingUp,
   Zap,
-  Layers,
+  Briefcase,
+  Calendar,
+  Shield,
+  Rocket,
+  Lock,
+  Gem,
+  CreditCard,
+  Award,
 } from "lucide-react";
 import {
   Project,
@@ -31,37 +38,88 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const budgetDisplay =
-    project.budget.type === "fixed"
-      ? `${formatCurrency(project.budget.min || 0)} - ${formatCurrency(
-          project.budget.max || 0
-        )}`
-      : `${formatCurrency(project.budget.hourlyRate || 0)}/hr`;
+  // Both payment types show budget range
+  const budgetDisplay = `${formatCurrency(
+    project.budget.min || 0
+  )} - ${formatCurrency(project.budget.max || 0)}`;
+
+  const paymentTypeLabel = project.budget.type === "fixed" ? "Fixed" : "Hourly";
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 dark:border-gray-700 p-0">
       <CardContent className="p-6 h-full">
         {/* Header with badges */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 flex-wrap">
-            {project.isFeatured && (
-              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
-                <Star className="h-3 w-3 mr-1 fill-white" />
-                Featured
-              </Badge>
-            )}
-            {project.isUrgent && (
-              <Badge
-                variant="outline"
-                className="border-red-300 text-red-600 dark:text-red-400"
-              >
-                <Zap className="h-3 w-3 mr-1 fill-red-500" />
-                Urgent
-              </Badge>
-            )}
+            {project.upgrades.map((upgrade) => {
+              const upgradeName = upgrade.name.toLowerCase();
+
+              if (upgradeName === "featured") {
+                return (
+                  <Badge
+                    key={upgrade.id}
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 text-xs"
+                  >
+                    <Star className="h-3 w-3 mr-1 fill-white" />
+                    Featured
+                  </Badge>
+                );
+              }
+
+              if (upgradeName === "urgent") {
+                return (
+                  <Badge
+                    key={upgrade.id}
+                    className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0 text-xs"
+                  >
+                    <Zap className="h-3 w-3 mr-1 fill-white" />
+                    Urgent
+                  </Badge>
+                );
+              }
+
+              if (upgradeName === "sealed" || upgradeName === "nda") {
+                return (
+                  <Badge
+                    key={upgrade.id}
+                    className="bg-gradient-to-r from-slate-600 to-slate-700 text-white border-0 text-xs"
+                  >
+                    <Shield className="h-3 w-3 mr-1" />
+                    {upgrade.name}
+                  </Badge>
+                );
+              }
+
+              if (upgradeName === "private") {
+                return (
+                  <Badge
+                    key={upgrade.id}
+                    className="bg-gradient-to-r from-gray-500 to-gray-600 text-white border-0 text-xs"
+                  >
+                    <Lock className="h-3 w-3 mr-1" />
+                    Private
+                  </Badge>
+                );
+              }
+
+              // Default style for other upgrades
+              return (
+                <Badge
+                  key={upgrade.id}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 text-xs"
+                >
+                  <Award className="h-3 w-3 mr-1" />
+                  {upgrade.name}
+                </Badge>
+              );
+            })}
             <Badge variant="secondary" className="text-xs">
-              <Layers className="h-3 w-3 mr-1" />
+              <Briefcase className="h-3 w-3 mr-1" />
               {project.category}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              <CreditCard className="h-3 w-3 mr-1" />
+              {paymentTypeLabel}
             </Badge>
           </div>
           <button
@@ -131,13 +189,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
               <MapPin className="h-3 w-3 flex-shrink-0" />
               <span className="truncate">{project.client.country}</span>
-              {project.client.rating && (
-                <>
-                  <span>•</span>
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                  <span>{project.client.rating}</span>
-                </>
-              )}
+              <span>•</span>
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <span>0.0</span>
+              <span className="text-gray-400">(0)</span>
             </div>
           </div>
         </div>
@@ -148,7 +203,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <DollarSign className="h-4 w-4 text-green-500 dark:text-green-400" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {project.budget.type === "fixed" ? "Budget" : "Hourly Rate"}
+                Budget Fee
               </p>
               <p className="font-semibold text-gray-900 dark:text-white">
                 {budgetDisplay}
@@ -156,34 +211,34 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+            <Calendar className="h-4 w-4 text-blue-500 dark:text-blue-400" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Duration
+                Delivery Days
               </p>
               <p className="font-semibold text-gray-900 dark:text-white text-xs">
-                {getDurationLabel(project.duration)}
+                {project.deliveryDays} days
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <TrendingUp className="h-4 w-4 text-purple-500 dark:text-purple-400" />
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Level</p>
-              <p className="font-semibold text-gray-900 dark:text-white text-xs">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Experience Level
+              </p>
+              <p className="font-semibold text-gray-900 dark:text-white text-xs capitalize">
                 {getExperienceLevelLabel(project.experienceLevel)}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <FileText className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+            <Users className="h-4 w-4 text-orange-500 dark:text-orange-400" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Proposals
+                Bidders
               </p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {project.proposalsCount}
-              </p>
+              <p className="font-semibold text-gray-900 dark:text-white">0</p>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Briefcase, Loader2 } from "lucide-react";
+import { Briefcase, Loader2, AlertCircle } from "lucide-react";
 import { Project } from "../schema";
 import { ProjectCard } from "./project-card";
 
@@ -11,6 +11,8 @@ interface ProjectListProps {
   onLoadMore?: () => void;
   hasMore?: boolean;
   loadingMore?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 export function ProjectList({
@@ -19,7 +21,32 @@ export function ProjectList({
   onLoadMore,
   hasMore,
   loadingMore,
+  error,
+  onRetry,
 }: ProjectListProps) {
+  // Error state
+  if (error && !isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          Error Loading Projects
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400 max-w-md mb-6">
+          {error}
+        </p>
+        {onRetry && (
+          <Button onClick={onRetry} className="gap-2">
+            <Briefcase className="h-4 w-4" />
+            Try Again
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
