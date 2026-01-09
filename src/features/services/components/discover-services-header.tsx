@@ -54,7 +54,7 @@ export function DiscoverServicesHeader({
     if (filters.search !== searchInput) {
       setSearchInput(filters.search);
     }
-  }, [filters.search]);
+  }, [filters.search, searchInput]);
 
   // Update parent filter when debounced value changes
   useEffect(() => {

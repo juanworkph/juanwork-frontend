@@ -1,299 +1,192 @@
-import React from "react";
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Filter, X, DollarSign, Award, Clock, Star, Globe } from "lucide-react";
-import {
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { X } from "lucide-react";
+import type {
+  Category,
   DiscoverFreelancersFilters,
-  FreelancerExperienceLevel,
-  AvailabilityStatus,
-  availableSkills,
-  availableLanguages,
-  formatCurrency,
-} from "../schema";
+} from "../schema/discover-freelancers-data";
+import { CategoryFilter } from "./category-filter";
+import { SkillsFilter } from "./skills-filter";
+import { HourlyRateFilter } from "./hourly-rate-filter";
+import { ExperienceLevelFilter } from "./experience-level-filter";
+import { AvailabilityFilter } from "./availability-filter";
+import { LanguagesFilter } from "./languages-filter";
+import { MinRatingFilter } from "./min-rating-filter";
+import { LocationFilter } from "./location-filter";
 
 interface FreelancerFilterSidebarProps {
   filters: DiscoverFreelancersFilters;
+  categories: Category[];
+  availableSkills: string[];
+  isLoadingSkills: boolean;
   onFilterChange: (filters: Partial<DiscoverFreelancersFilters>) => void;
+  onCategoryChange: (categoryId: string) => void;
   onClearFilters: () => void;
   totalFreelancers: number;
+  isLoading: boolean;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function FreelancerFilterSidebar({
+const FilterSidebarContent = ({
   filters,
+  categories,
+  availableSkills,
+  isLoadingSkills,
   onFilterChange,
+  onCategoryChange,
   onClearFilters,
   totalFreelancers,
-}: FreelancerFilterSidebarProps) {
-  const handleSkillToggle = (skill: string) => {
-    const newSkills = filters.skills.includes(skill)
-      ? filters.skills.filter((s) => s !== skill)
-      : [...filters.skills, skill];
-    onFilterChange({ skills: newSkills });
-  };
-
-  const handleLanguageToggle = (language: string) => {
-    const newLanguages = filters.languages.includes(language)
-      ? filters.languages.filter((l) => l !== language)
-      : [...filters.languages, language];
-    onFilterChange({ languages: newLanguages });
-  };
-
-  const hasActiveFilters =
-    filters.availability !== "all" ||
-    filters.experienceLevel !== "all" ||
-    filters.skills.length > 0 ||
-    filters.languages.length > 0 ||
-    filters.hourlyRateRange.min > 0 ||
-    filters.hourlyRateRange.max < 200 ||
-    filters.minRating > 0;
-
+  isLoading,
+}: Omit<FreelancerFilterSidebarProps, "isMobileOpen" | "onMobileClose">) => {
   return (
-    <aside className="w-full lg:w-80 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
-      <div className="p-6 space-y-6">
-        {/* Header */}
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Filter className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Filters
-            </h2>
-          </div>
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClearFilters}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700"
-            >
-              Clear all
-            </Button>
-          )}
-        </div>
-
-        {/* Results Count */}
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">
-            {totalFreelancers} freelancer{totalFreelancers !== 1 ? "s" : ""}{" "}
-            found
-          </p>
-        </div>
-
-        {/* Hourly Rate Range */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-base font-semibold">
-            <DollarSign className="h-4 w-4" />
-            Hourly Rate Range
-          </Label>
-          <div className="space-y-4 px-1">
-            <Slider
-              value={[filters.hourlyRateRange.min, filters.hourlyRateRange.max]}
-              onValueChange={([min, max]) =>
-                onFilterChange({ hourlyRateRange: { min, max } })
-              }
-              max={200}
-              min={0}
-              step={5}
-              className="w-full"
-            />
-            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-              <span>{formatCurrency(filters.hourlyRateRange.min)}/hr</span>
-              <span>{formatCurrency(filters.hourlyRateRange.max)}/hr</span>
-            </div>
+          <div>
+            <h2 className="text-lg font-semibold">Filters</h2>
+            <p className="text-sm text-muted-foreground">
+              {totalFreelancers} freelancer{totalFreelancers !== 1 ? "s" : ""}
+            </p>
           </div>
         </div>
-
-        {/* Minimum Rating */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-base font-semibold">
-            <Star className="h-4 w-4" />
-            Minimum Rating
-          </Label>
-          <div className="grid grid-cols-5 gap-2">
-            {[0, 3, 3.5, 4, 4.5].map((rating) => (
-              <button
-                key={rating}
-                onClick={() => onFilterChange({ minRating: rating })}
-                className={`px-3 py-2 rounded-md text-xs font-medium transition-colors ${
-                  filters.minRating === rating
-                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-                }`}
-              >
-                {rating === 0 ? "Any" : `${rating}+`}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Availability */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-base font-semibold">
-            <Clock className="h-4 w-4" />
-            Availability
-          </Label>
-          <div className="space-y-2">
-            <button
-              onClick={() => onFilterChange({ availability: "all" })}
-              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                filters.availability === "all"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              All Availability
-            </button>
-            <button
-              onClick={() => onFilterChange({ availability: "available" })}
-              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                filters.availability === "available"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              Available Now
-            </button>
-            <button
-              onClick={() => onFilterChange({ availability: "busy" })}
-              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                filters.availability === "busy"
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              Busy
-            </button>
-          </div>
-        </div>
-
-        {/* Experience Level */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-base font-semibold">
-            <Award className="h-4 w-4" />
-            Experience Level
-          </Label>
-          <Select
-            value={filters.experienceLevel}
-            onValueChange={(value) =>
-              onFilterChange({
-                experienceLevel: value as FreelancerExperienceLevel | "all",
-              })
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="entry">Entry Level</SelectItem>
-              <SelectItem value="intermediate">Intermediate</SelectItem>
-              <SelectItem value="expert">Expert</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Languages */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-base font-semibold">
-            <Globe className="h-4 w-4" />
-            Languages ({filters.languages.length} selected)
-          </Label>
-          <div className="max-h-48 overflow-y-auto space-y-2 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-            {availableLanguages.map((language) => (
-              <div key={language} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`language-${language}`}
-                  checked={filters.languages.includes(language)}
-                  onCheckedChange={() => handleLanguageToggle(language)}
-                />
-                <label
-                  htmlFor={`language-${language}`}
-                  className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-                >
-                  {language}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Skills */}
-        <div className="space-y-3">
-          <Label className="text-base font-semibold">
-            Skills ({filters.skills.length} selected)
-          </Label>
-          <div className="max-h-64 overflow-y-auto space-y-2 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-            {availableSkills.map((skill) => (
-              <div key={skill} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`skill-${skill}`}
-                  checked={filters.skills.includes(skill)}
-                  onCheckedChange={() => handleSkillToggle(skill)}
-                />
-                <label
-                  htmlFor={`skill-${skill}`}
-                  className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-                >
-                  {skill}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Selected Skills */}
-        {filters.skills.length > 0 && (
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-600 dark:text-gray-400">
-              Selected Skills:
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {filters.skills.map((skill) => (
-                <Badge
-                  key={skill}
-                  variant="secondary"
-                  className="gap-1 pr-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                  onClick={() => handleSkillToggle(skill)}
-                >
-                  {skill}
-                  <X className="h-3 w-3" />
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Selected Languages */}
-        {filters.languages.length > 0 && (
-          <div className="space-y-2">
-            <Label className="text-sm text-gray-600 dark:text-gray-400">
-              Selected Languages:
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {filters.languages.map((language) => (
-                <Badge
-                  key={language}
-                  variant="secondary"
-                  className="gap-1 pr-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                  onClick={() => handleLanguageToggle(language)}
-                >
-                  {language}
-                  <X className="h-3 w-3" />
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onClearFilters}
+          disabled={isLoading}
+          className="w-full"
+        >
+          <X className="h-4 w-4 mr-2" />
+          Clear All Filters
+        </Button>
       </div>
-    </aside>
+
+      <Separator />
+
+      {/* Filters */}
+      <ScrollArea className="flex-1 px-4">
+        <div className="space-y-6 py-4">
+          {/* Category Filter */}
+          <div>
+            <CategoryFilter
+              value={filters.category}
+              categories={categories}
+              onChange={onCategoryChange}
+              disabled={isLoading}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Skills Filter */}
+          <div>
+            <SkillsFilter
+              value={filters.skills}
+              availableSkills={availableSkills}
+              isLoading={isLoadingSkills}
+              onChange={(skills) => onFilterChange({ skills })}
+              disabled={isLoading}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Hourly Rate Filter */}
+          <div>
+            <HourlyRateFilter
+              value={filters.hourlyRateRange}
+              onChange={(hourlyRateRange) => onFilterChange({ hourlyRateRange })}
+              disabled={isLoading}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Experience Level Filter */}
+          <div>
+            <ExperienceLevelFilter
+              value={filters.experienceLevel}
+              onChange={(experienceLevel) => onFilterChange({ experienceLevel })}
+              disabled={isLoading}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Availability Filter */}
+          <div>
+            <AvailabilityFilter
+              value={filters.availability}
+              onChange={(availability) => onFilterChange({ availability })}
+              disabled={isLoading}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Languages Filter */}
+          <div>
+            <LanguagesFilter
+              value={filters.languages}
+              onChange={(languages) => onFilterChange({ languages })}
+              disabled={isLoading}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Min Rating Filter */}
+          <div>
+            <MinRatingFilter
+              value={filters.minRating}
+              onChange={(minRating) => onFilterChange({ minRating })}
+              disabled={isLoading}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Location Filter */}
+          <div>
+            <LocationFilter
+              value={filters.location}
+              onChange={(location) => onFilterChange({ location })}
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+      </ScrollArea>
+    </div>
   );
-}
+};
+
+export const FreelancerFilterSidebar = ({
+  isMobileOpen = false,
+  onMobileClose,
+  ...props
+}: FreelancerFilterSidebarProps) => {
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:block w-80 border-r bg-background">
+        <FilterSidebarContent {...props} />
+      </aside>
+
+      {/* Mobile Sheet */}
+      <Sheet open={isMobileOpen} onOpenChange={onMobileClose}>
+        <SheetContent side="left" className="w-full sm:w-80 p-0">
+          <SheetHeader className="p-4 pb-0">
+            <SheetTitle>Filters</SheetTitle>
+          </SheetHeader>
+          <FilterSidebarContent {...props} />
+        </SheetContent>
+      </Sheet>
+    </>
+  );
+};

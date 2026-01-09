@@ -1,18 +1,37 @@
+/**
+ * Users Schema Exports
+ * 
+ * This file exports all TypeScript interfaces, types, and helper functions
+ * for the users/freelancers features. All exports are from discover-freelancers-data.ts
+ * which contains API-aligned types and utilities.
+ */
+
+// Export types from discover-freelancers-data
 export type {
-  FreelancerProfile,
-  FreelancerExperienceLevel,
-  AvailabilityStatus,
+  Freelancer,
+  Category,
+  Skill,
   DiscoverFreelancersFilters,
   DiscoverFreelancersState,
-} from "./users-data";
+  FreelancerExperienceLevel,
+  FreelancerAvailability,
+  SortOption,
+  FreelancerQueryParams,
+  PaginationMeta,
+  FreelancersResponse,
+  CategoriesResponse,
+  SkillsResponse,
+  APIFreelancer,
+  APICategory,
+  APISkill,
+  APIError,
+} from "./discover-freelancers-data";
 
+// Export constants and helper functions from discover-freelancers-data
 export {
-  mockDiscoverFreelancersData,
-  formatCurrency,
-  getExperienceLevelLabel,
-  getAvailabilityLabel,
-  getAvailabilityColor,
-  availableSkills,
-  categories,
-  availableLanguages,
-} from "./users-data";
+  DEFAULT_FILTERS,
+  formatFreelancerCurrency,
+  getFreelancerExperienceLevelLabel,
+  getFreelancerAvailabilityLabel,
+  getFreelancerAvailabilityColor,
+} from "./discover-freelancers-data";

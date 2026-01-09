@@ -108,7 +108,7 @@ export default function DiscoverServicesPage() {
     if (categories.length > 0) {
       fetchFilteredServices();
     }
-  }, [filters.category]); // Only re-fetch when category changes
+  }, [filters.category, categories.length]); // Re-fetch when category changes or categories are loaded
 
   // Client-side filtering - memoized to avoid re-computation
   const filteredServices = useMemo(() => {

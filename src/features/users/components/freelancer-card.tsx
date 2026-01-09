@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign,
-  Clock,
   MapPin,
   Star,
   CheckCircle,
@@ -17,25 +16,49 @@ import {
   Briefcase,
   Globe,
   Target,
+  Tag,
 } from "lucide-react";
 import {
-  FreelancerProfile,
-  formatCurrency,
-  getExperienceLevelLabel,
-  getAvailabilityLabel,
-  getAvailabilityColor,
-} from "../schema";
+  Freelancer,
+  formatFreelancerCurrency,
+  getFreelancerExperienceLevelLabel,
+  getFreelancerAvailabilityLabel,
+  getFreelancerAvailabilityColor,
+} from "../schema/discover-freelancers-data";
 
 interface FreelancerCardProps {
-  freelancer: FreelancerProfile;
+  freelancer: Freelancer;
+  onClick?: () => void;
 }
 
-export function FreelancerCard({ freelancer }: FreelancerCardProps) {
+export function FreelancerCard({ freelancer, onClick }: FreelancerCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const rateDisplay = `${formatCurrency(
+  const rateDisplay = `${formatFreelancerCurrency(
     freelancer.hourlyRate.min
-  )} - ${formatCurrency(freelancer.hourlyRate.max)}/hr`;
+  )} - ${formatFreelancerCurrency(freelancer.hourlyRate.max)}/hr`;
+
+  // Limit bio to 150 characters with ellipsis
+  const bioPreview =
+    freelancer.bio.length > 150
+      ? `${freelancer.bio.substring(0, 150)}...`
+      : freelancer.bio;
+
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  // Get initials for fallback avatar
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 dark:border-gray-700 p-0">
@@ -49,17 +72,17 @@ export function FreelancerCard({ freelancer }: FreelancerCardProps) {
                 Top Rated
               </Badge>
             )}
-            {freelancer.isFeatured && (
-              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
-                <Star className="h-3 w-3 mr-1 fill-white" />
-                Featured
+            {freelancer.isVerified && (
+              <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0">
+                <CheckCircle className="h-3 w-3 mr-1 fill-white" />
+                Verified
               </Badge>
             )}
             <Badge
               variant="secondary"
-              className={getAvailabilityColor(freelancer.availability)}
+              className={getFreelancerAvailabilityColor(freelancer.availability)}
             >
-              {getAvailabilityLabel(freelancer.availability)}
+              {getFreelancerAvailabilityLabel(freelancer.availability)}
             </Badge>
           </div>
           <button
@@ -69,6 +92,7 @@ export function FreelancerCard({ freelancer }: FreelancerCardProps) {
                 ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
                 : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"
             }`}
+            aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
           >
             <Bookmark
               className={`h-5 w-5 ${isBookmarked ? "fill-current" : ""}`}
@@ -78,27 +102,27 @@ export function FreelancerCard({ freelancer }: FreelancerCardProps) {
 
         {/* Freelancer Avatar and Info */}
         <div className="flex items-start gap-4 mb-4">
-          <Link href={freelancer.profileUrl}>
+          <Link href={freelancer.profileUrl} onClick={handleCardClick}>
             <div className="relative">
-              <Image
-                src={
-                  freelancer.avatar ||
-                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-                }
-                alt={freelancer.name}
-                width={80}
-                height={80}
-                className="rounded-full border-4 border-white dark:border-gray-700 shadow-md hover:scale-105 transition-transform"
-              />
-              {freelancer.verified && (
-                <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
-                  <CheckCircle className="h-4 w-4 text-white" />
+              {!imageError && freelancer.avatar ? (
+                <Image
+                  src={freelancer.avatar}
+                  alt={freelancer.name}
+                  width={80}
+                  height={80}
+                  loading="lazy"
+                  className="rounded-full border-4 border-white dark:border-gray-700 shadow-md hover:scale-105 transition-transform"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full border-4 border-white dark:border-gray-700 shadow-md hover:scale-105 transition-transform bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                  {getInitials(freelancer.name)}
                 </div>
               )}
             </div>
           </Link>
           <div className="flex-1 min-w-0">
-            <Link href={freelancer.profileUrl}>
+            <Link href={freelancer.profileUrl} onClick={handleCardClick}>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                 {freelancer.name}
               </h3>
@@ -112,23 +136,34 @@ export function FreelancerCard({ freelancer }: FreelancerCardProps) {
                 <span className="font-medium text-gray-900 dark:text-white">
                   {freelancer.rating.toFixed(1)}
                 </span>
-                <span>({freelancer.reviewsCount})</span>
+                <span>({freelancer.reviewCount})</span>
               </div>
               <span>•</span>
               <div className="flex items-center gap-1">
                 <MapPin className="h-3.5 w-3.5" />
-                <span>{freelancer.country}</span>
+                <span>{freelancer.location}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bio */}
+        {/* Category Badge */}
+        <div className="mb-3">
+          <Badge
+            variant="outline"
+            className="bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+          >
+            <Tag className="h-3 w-3 mr-1" />
+            {freelancer.category.name}
+          </Badge>
+        </div>
+
+        {/* Bio Preview (150 chars max) */}
         <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3 leading-relaxed">
-          {freelancer.bio}
+          {bioPreview}
         </p>
 
-        {/* Skills */}
+        {/* Skills (max 5) */}
         <div className="flex flex-wrap gap-2 mb-4">
           {freelancer.skills.slice(0, 5).map((skill) => (
             <span
@@ -169,25 +204,14 @@ export function FreelancerCard({ freelancer }: FreelancerCardProps) {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 col-span-2">
             <DollarSign className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Hourly Rate
               </p>
-              <p className="font-semibold text-gray-900 dark:text-white text-xs">
+              <p className="font-semibold text-gray-900 dark:text-white text-sm">
                 {rateDisplay}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Response Time
-              </p>
-              <p className="font-semibold text-gray-900 dark:text-white text-xs">
-                {freelancer.responseTime}
               </p>
             </div>
           </div>
@@ -197,12 +221,17 @@ export function FreelancerCard({ freelancer }: FreelancerCardProps) {
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1">
             <TrendingUp className="h-3 w-3" />
-            <span>{getExperienceLevelLabel(freelancer.experienceLevel)}</span>
+            <span>{getFreelancerExperienceLevelLabel(freelancer.experienceLevel)}</span>
           </div>
           {freelancer.languages.length > 0 && (
             <div className="flex items-center gap-1">
               <Globe className="h-3 w-3" />
-              <span>{freelancer.languages.join(", ")}</span>
+              <span>{freelancer.languages.slice(0, 2).join(", ")}</span>
+              {freelancer.languages.length > 2 && (
+                <span className="text-gray-400">
+                  +{freelancer.languages.length - 2}
+                </span>
+              )}
             </div>
           )}
         </div>

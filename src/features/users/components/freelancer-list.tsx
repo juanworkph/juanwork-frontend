@@ -1,114 +1,163 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Loader2 } from "lucide-react";
-import { FreelancerProfile } from "../schema";
+import React, { useEffect, useRef } from "react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Users, Loader2, AlertCircle } from "lucide-react";
+import { Freelancer } from "../schema/discover-freelancers-data";
 import { FreelancerCard } from "./freelancer-card";
+import { FreelancerListSkeleton } from "./freelancer-list-skeleton";
 
 interface FreelancerListProps {
-  freelancers: FreelancerProfile[];
+  freelancers: Freelancer[];
   isLoading: boolean;
-  onLoadMore?: () => void;
-  hasMore?: boolean;
-  loadingMore?: boolean;
+  isLoadingMore: boolean;
+  hasMore: boolean;
+  error: string | null;
+  onLoadMore: () => void;
+  onRetry: () => void;
 }
 
+/**
+ * FreelancerList Component
+ * 
+ * Displays a responsive grid of freelancer cards with support for:
+ * - Initial loading state with skeleton loaders
+ * - Empty state when no freelancers found
+ * - Error states with retry functionality
+ * - Infinite scroll pagination
+ * - Loading more indicator
+ * 
+ * Requirements: 2.4, 2.5, 2.6, 13.2, 13.3, 13.4, 15.1, 15.2, 15.3, 15.4, 16.1-16.6
+ */
 export function FreelancerList({
   freelancers,
   isLoading,
-  onLoadMore,
+  isLoadingMore,
   hasMore,
-  loadingMore,
+  error,
+  onLoadMore,
+  onRetry,
 }: FreelancerListProps) {
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  // Infinite scroll implementation using Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // When the trigger element is visible and we have more data to load
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isLoading) {
+          onLoadMore();
+        }
+      },
+      { threshold: 0.1 } // Trigger when 10% of the element is visible
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, isLoadingMore, isLoading, onLoadMore]);
+
+  // Initial loading state - show skeleton loaders
+  // Requirement 15.1: Display skeleton loaders for initial load
   if (isLoading) {
+    return <FreelancerListSkeleton count={6} />;
+  }
+
+  // Error state - show error message with retry button
+  // Requirements 16.1-16.6: Handle various error types with retry functionality
+  if (error) {
+    const getErrorDetails = (errorMessage: string) => {
+      // Network error
+      if (errorMessage.toLowerCase().includes("network")) {
+        return {
+          title: "Network Error",
+          description: "Network error, please check your connection",
+        };
+      }
+      // Server error (500)
+      if (errorMessage.toLowerCase().includes("server") || errorMessage.includes("500")) {
+        return {
+          title: "Server Error",
+          description: "Server error, please try again later",
+        };
+      }
+      // Not found (404)
+      if (errorMessage.includes("404") || errorMessage.toLowerCase().includes("not found")) {
+        return {
+          title: "No Freelancers Found",
+          description: "No freelancers found",
+        };
+      }
+      // Generic error
+      return {
+        title: "Error",
+        description: errorMessage,
+      };
+    };
+
+    const errorDetails = getErrorDetails(error);
+
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="border rounded-lg p-6 space-y-4">
-            <div className="flex justify-between">
-              <Skeleton className="h-6 w-24" />
-              <Skeleton className="h-8 w-8 rounded-full" />
-            </div>
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-20 w-20 rounded-full" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-4 w-48" />
-              </div>
-            </div>
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
-            <div className="flex gap-2">
-              <Skeleton className="h-6 w-16" />
-              <Skeleton className="h-6 w-16" />
-              <Skeleton className="h-6 w-16" />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
-            <div className="flex gap-2">
-              <Skeleton className="h-10 flex-1" />
-              <Skeleton className="h-10 flex-1" />
-            </div>
-          </div>
-        ))}
-      </div>
+      <EmptyState
+        icon={AlertCircle}
+        title={errorDetails.title}
+        description={errorDetails.description}
+        action={{
+          label: "Retry",
+          onClick: onRetry,
+        }}
+        className="py-20"
+      />
     );
   }
 
+  // Empty state - no freelancers found
+  // Requirements 2.5: Display "No freelancers found" message
   if (freelancers.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Users className="h-8 w-8 text-gray-400" />
-        </div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          No freelancers found
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400 max-w-md mb-6">
-          No freelancers match your current filters. Try adjusting your search
-          criteria or check back later for more talent.
-        </p>
-        <Button variant="outline" className="gap-2">
-          <Users className="h-4 w-4" />
-          Browse All Freelancers
-        </Button>
-      </div>
+      <EmptyState
+        icon={Users}
+        title="No freelancers found"
+        description="Try adjusting your filters or search criteria"
+        className="py-20"
+      />
     );
   }
 
+  // Main content - display freelancer cards in responsive grid
+  // Requirement 2.4: Display freelancers in grid layout
+  // Responsive: 1 column mobile, 2 columns tablet, 3 columns desktop
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* Freelancer Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {freelancers.map((freelancer) => (
           <FreelancerCard key={freelancer.id} freelancer={freelancer} />
         ))}
       </div>
 
-      {hasMore && onLoadMore && (
-        <div className="flex justify-center pt-8">
-          <Button
-            variant="outline"
-            onClick={onLoadMore}
-            disabled={loadingMore}
-            className="gap-2 px-8 py-6 text-base"
-          >
-            {loadingMore ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Loading More...
-              </>
-            ) : (
-              <>
-                <Users className="h-5 w-5" />
-                Load More Freelancers
-              </>
-            )}
-          </Button>
-        </div>
-      )}
+      {/* Infinite Scroll Trigger Element */}
+      {/* Requirement 13.2: Automatically fetch next page when scrolling to bottom */}
+      <div ref={observerTarget} className="flex justify-center pt-8">
+        {isLoadingMore && (
+          // Requirement 15.3: Display loading spinner for pagination
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span className="text-sm font-medium">Loading more freelancers...</span>
+          </div>
+        )}
+        {!hasMore && !isLoadingMore && (
+          // Requirement 13.4: Display "No more freelancers" when all loaded
+          <div className="text-center text-gray-500 dark:text-gray-400 text-sm">
+            No more freelancers to load
+          </div>
+        )}
+      </div>
     </div>
   );
 }
