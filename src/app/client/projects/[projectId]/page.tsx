@@ -69,12 +69,6 @@ export default function ProjectDetailPage({
     // navigator.clipboard.writeText(shareUrl);
   };
 
-  const handleCloseProject = () => {
-    toast.info("Close project functionality not implemented yet");
-    // In a real app, show confirmation dialog and close the project
-    // Update project status to "closed"
-  };
-
   const handleBack = () => {
     router.push("/client/projects/my-projects");
   };
@@ -99,7 +93,6 @@ export default function ProjectDetailPage({
           onDelete={handleDelete}
           onDuplicate={handleDuplicate}
           onShare={handleShare}
-          onCloseProject={handleCloseProject}
         />
       </div>
     </div>

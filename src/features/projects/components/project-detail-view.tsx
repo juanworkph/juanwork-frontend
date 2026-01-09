@@ -30,8 +30,9 @@ import {
   projectStatusConfig,
   formatDate,
   formatCurrency,
-  getDurationLabel,
+  getDeliveryDaysLabel,
   getExperienceLevelLabel,
+  getBudgetDisplay,
 } from "../schema/my-projects-data";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -41,7 +42,6 @@ interface ProjectDetailViewProps {
   onDelete?: () => void;
   onDuplicate?: () => void;
   onShare?: () => void;
-  onCloseProject?: () => void;
 }
 
 export function ProjectDetailView({
@@ -50,16 +50,10 @@ export function ProjectDetailView({
   onDelete,
   onDuplicate,
   onShare,
-  onCloseProject,
 }: ProjectDetailViewProps) {
   const statusInfo = projectStatusConfig[project.status];
 
-  const budgetDisplay =
-    project.budgetType === "fixed"
-      ? `${formatCurrency(project.budget.min)} - ${formatCurrency(
-          project.budget.max
-        )}`
-      : `${formatCurrency(project.budget.hourlyRate || 0)}/hr`;
+  const budgetDisplay = getBudgetDisplay(project);
 
   return (
     <div className="space-y-6">
@@ -73,24 +67,24 @@ export function ProjectDetailView({
             </Badge>
             <Badge variant="secondary" className="text-xs">
               <Layers className="h-3 w-3 mr-1" />
-              {project.category}
+              {project.category.name}
             </Badge>
             {project.upgrades.length > 0 && (
               <div className="flex gap-1">
                 {project.upgrades.map((upgrade) => (
                   <Badge
-                    key={upgrade}
+                    key={upgrade.id}
                     variant="secondary"
                     className="text-xs bg-[#F45A0B]/10 text-[#F45A0B] border-[#F45A0B]/20"
                   >
-                    {upgrade.toUpperCase()}
+                    {upgrade.name.toUpperCase()}
                   </Badge>
                 ))}
               </div>
             )}
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {project.projectTitle}
+            {project.name}
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1">
@@ -114,17 +108,6 @@ export function ProjectDetailView({
             <Copy className="h-4 w-4 mr-2" />
             Duplicate
           </Button>
-          {project.status === "open" && onCloseProject && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onCloseProject}
-              className="border-gray-400 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <XCircle className="h-4 w-4 mr-2" />
-              Close Project
-            </Button>
-          )}
           <Button
             variant="outline"
             size="sm"
@@ -147,22 +130,12 @@ export function ProjectDetailView({
       </div>
 
       {/* Status Alerts */}
-      {project.status === "open" && (
+      {project.status === "active" && (
         <Alert className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10">
           <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
           <AlertDescription className="text-green-800 dark:text-green-200">
-            Your project is active and receiving proposals from freelancers.
-            Review proposals and hire the best talent for your project.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {project.status === "in-progress" && (
-        <Alert className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/10">
-          <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <AlertDescription className="text-blue-800 dark:text-blue-200">
-            This project is currently in progress. Stay in touch with your hired
-            freelancer(s) and track the project milestones.
+            Your project is active and receiving bids from freelancers.
+            Review bids and hire the best talent for your project.
           </AlertDescription>
         </Alert>
       )}
@@ -177,11 +150,11 @@ export function ProjectDetailView({
         </Alert>
       )}
 
-      {project.status === "closed" && (
+      {project.status === "cancelled" && (
         <Alert className="border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/10">
           <XCircle className="h-4 w-4 text-gray-600 dark:text-gray-400" />
           <AlertDescription className="text-gray-800 dark:text-gray-200">
-            This project has been closed. It is no longer accepting proposals
+            This project has been cancelled. It is no longer accepting bids
             from freelancers.
           </AlertDescription>
         </Alert>
@@ -192,21 +165,20 @@ export function ProjectDetailView({
           <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
           <AlertDescription className="text-yellow-800 dark:text-yellow-200">
             This project is saved as a draft. Complete and publish it to start
-            receiving proposals from freelancers.
+            receiving bids from freelancers.
           </AlertDescription>
         </Alert>
       )}
 
-      {project.hiredCount > 0 && (
+      {project.biddersCount > 0 && (
         <Alert className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10">
           <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
           <AlertDescription className="text-green-800 dark:text-green-200">
             <span className="font-semibold">
-              {project.hiredCount} freelancer
-              {project.hiredCount > 1 ? "s" : ""}
+              {project.biddersCount} freelancer
+              {project.biddersCount > 1 ? "s" : ""}
             </span>{" "}
-            hired for this project. Manage your team and track progress in the
-            workstation.
+            have bid on this project. Review bids and hire the best talent.
           </AlertDescription>
         </Alert>
       )}
@@ -214,8 +186,8 @@ export function ProjectDetailView({
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-flex">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="proposals">
-            Proposals ({project.proposalsCount})
+          <TabsTrigger value="bids">
+            Bids ({project.biddersCount})
           </TabsTrigger>
         </TabsList>
 
@@ -249,11 +221,11 @@ export function ProjectDetailView({
                   <div className="flex flex-wrap gap-2">
                     {project.skills.map((skill) => (
                       <Badge
-                        key={skill}
+                        key={skill.id}
                         variant="secondary"
                         className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
                       >
-                        {skill}
+                        {skill.name}
                       </Badge>
                     ))}
                   </div>
@@ -272,10 +244,10 @@ export function ProjectDetailView({
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Duration
+                        Delivery Days
                       </p>
                       <p className="font-semibold text-gray-900 dark:text-white">
-                        {getDurationLabel(project.duration)}
+                        {getDeliveryDaysLabel(project.deliveryDays)}
                       </p>
                     </div>
                     <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
@@ -288,10 +260,10 @@ export function ProjectDetailView({
                     </div>
                     <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Budget Type
+                        Payment Type
                       </p>
                       <p className="font-semibold text-gray-900 dark:text-white capitalize">
-                        {project.budgetType === "fixed"
+                        {project.paymentType === "fixed"
                           ? "Fixed Price"
                           : "Hourly Rate"}
                       </p>
@@ -301,7 +273,7 @@ export function ProjectDetailView({
                         Category
                       </p>
                       <p className="font-semibold text-gray-900 dark:text-white">
-                        {project.category}
+                        {project.category.name}
                       </p>
                     </div>
                   </div>
@@ -321,7 +293,7 @@ export function ProjectDetailView({
                     <div className="space-y-3">
                       {project.upgrades.map((upgrade) => (
                         <div
-                          key={upgrade}
+                          key={upgrade.id}
                           className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
                         >
                           <div className="w-10 h-10 rounded-full bg-[#F45A0B]/10 flex items-center justify-center flex-shrink-0">
@@ -329,10 +301,10 @@ export function ProjectDetailView({
                           </div>
                           <div className="flex-1">
                             <p className="font-semibold text-gray-900 dark:text-white uppercase">
-                              {upgrade}
+                              {upgrade.name}
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {getUpgradeDescription(upgrade)}
+                              {getUpgradeDescription(upgrade.slug)}
                             </p>
                           </div>
                         </div>
@@ -357,27 +329,13 @@ export function ProjectDetailView({
                     <div className="flex items-center gap-2">
                       <MessageCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Proposals
+                        Bids
                       </span>
                     </div>
                     <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {project.proposalsCount}
+                      {project.biddersCount}
                     </span>
                   </div>
-
-                  {project.hiredCount > 0 && (
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/10">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          Hired
-                        </span>
-                      </div>
-                      <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        {project.hiredCount}
-                      </span>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
 
@@ -392,10 +350,10 @@ export function ProjectDetailView({
                 <CardContent className="space-y-4">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      Budget Type
+                      Payment Type
                     </p>
                     <Badge variant="outline" className="text-sm capitalize">
-                      {project.budgetType === "fixed"
+                      {project.paymentType === "fixed"
                         ? "Fixed Price"
                         : "Hourly Rate"}
                     </Badge>
@@ -403,7 +361,7 @@ export function ProjectDetailView({
 
                   <Separator />
 
-                  {project.budgetType === "fixed" ? (
+                  {project.paymentType === "fixed" ? (
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                         Budget Range
@@ -414,7 +372,7 @@ export function ProjectDetailView({
                             Minimum
                           </span>
                           <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                            {formatCurrency(project.budget.min)}
+                            {formatCurrency(project.budgetMin, project.currency)}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
@@ -422,7 +380,7 @@ export function ProjectDetailView({
                             Maximum
                           </span>
                           <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                            {formatCurrency(project.budget.max)}
+                            {formatCurrency(project.budgetMax, project.currency)}
                           </span>
                         </div>
                       </div>
@@ -430,14 +388,26 @@ export function ProjectDetailView({
                   ) : (
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        Hourly Rate
+                        Budget Range
                       </p>
-                      <p className="text-3xl font-bold text-[#F45A0B]">
-                        {formatCurrency(project.budget.hourlyRate || 0)}
-                        <span className="text-lg text-gray-600 dark:text-gray-400">
-                          /hr
-                        </span>
-                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            Minimum
+                          </span>
+                          <span className="font-semibold text-lg text-gray-900 dark:text-white">
+                            {formatCurrency(project.budgetMin, project.currency)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            Maximum
+                          </span>
+                          <span className="font-semibold text-lg text-gray-900 dark:text-white">
+                            {formatCurrency(project.budgetMax, project.currency)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -456,10 +426,10 @@ export function ProjectDetailView({
                     <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     <div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Duration
+                        Delivery Days
                       </p>
                       <p className="font-semibold text-gray-900 dark:text-white">
-                        {getDurationLabel(project.duration)}
+                        {getDeliveryDaysLabel(project.deliveryDays)}
                       </p>
                     </div>
                   </div>
@@ -507,25 +477,25 @@ export function ProjectDetailView({
           </div>
         </TabsContent>
 
-        <TabsContent value="proposals" className="mt-6">
+        <TabsContent value="bids" className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-[#F45A0B]">
-                Proposals Received ({project.proposalsCount})
+                Bids Received ({project.biddersCount})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {project.proposalsCount === 0 ? (
+              {project.biddersCount === 0 ? (
                 <div className="text-center py-12">
                   <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4 w-fit mx-auto">
                     <MessageCircle className="h-12 w-12 text-gray-400" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    No proposals yet
+                    No bids yet
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                    Freelancers will start submitting proposals soon. You'll be
-                    notified when you receive new proposals.
+                    Freelancers will start submitting bids soon. You'll be
+                    notified when you receive new bids.
                   </p>
                 </div>
               ) : (
@@ -533,12 +503,12 @@ export function ProjectDetailView({
                   <Alert className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/10">
                     <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <AlertDescription className="text-blue-800 dark:text-blue-200">
-                      You have {project.proposalsCount} proposal
-                      {project.proposalsCount > 1 ? "s" : ""} for this project.
-                      Review each proposal carefully and hire the best
+                      You have {project.biddersCount} bid
+                      {project.biddersCount > 1 ? "s" : ""} for this project.
+                      Review each bid carefully and hire the best
                       freelancer(s) for your needs. You can view detailed
-                      proposals in the{" "}
-                      <span className="font-semibold">Proposals</span> section.
+                      bids in the{" "}
+                      <span className="font-semibold">Bids</span> section.
                     </AlertDescription>
                   </Alert>
                   <div className="flex justify-center pt-4">
@@ -547,7 +517,7 @@ export function ProjectDetailView({
                       size="lg"
                     >
                       <MessageCircle className="h-5 w-5 mr-2" />
-                      View All Proposals
+                      View All Bids
                     </Button>
                   </div>
                 </div>
