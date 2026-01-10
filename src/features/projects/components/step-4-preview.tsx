@@ -2,21 +2,39 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Tag, DollarSign, Layers, Sparkles } from "lucide-react";
-import type { ProjectFormData } from "../schema";
-import { projectUpgrades, calculateTotalUpgradeCost } from "../schema";
-import { formatCurrency, formatFileSize } from "../schema/post-project-data";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { FileText, Tag, DollarSign, Layers, Sparkles, Calendar, AlertCircle, RefreshCw } from "lucide-react";
+import type { ProjectFormData } from "../schema/project-form.schema";
+import { useProjectFormData } from "../hooks/use-project-form-data";
+import { calculateTotalUpgradeCost, findUpgradesByIds } from "../utils/project-form-mapper";
+import { formatCurrency, formatFileSize } from "../utils/format-helpers";
 
 interface Step4Props {
   formData: ProjectFormData;
 }
 
 export function Step4Preview({ formData }: Step4Props) {
-  const selectedUpgradesList = projectUpgrades.filter((upgrade) =>
-    formData.selectedUpgrades.includes(upgrade.id)
+  // Fetch upgrade types from API
+  const {
+    upgradeTypes,
+    isLoadingUpgrades,
+    errorUpgrades,
+    refetchUpgrades,
+  } = useProjectFormData();
+
+  // Find selected upgrades from API data
+  const selectedUpgradesList = findUpgradesByIds(
+    formData.selectedUpgrades,
+    upgradeTypes
   );
 
-  const totalUpgradeCost = calculateTotalUpgradeCost(formData.selectedUpgrades);
+  // Calculate total upgrade cost using API data
+  const totalUpgradeCost = calculateTotalUpgradeCost(
+    formData.selectedUpgrades,
+    upgradeTypes
+  );
 
   return (
     <div className="space-y-6">
@@ -62,6 +80,12 @@ export function Step4Preview({ formData }: Step4Props) {
                 </Badge>
               </div>
               <div>
+                <p className="text-sm text-gray-500 mb-1">Experience Level</p>
+                <Badge variant="secondary" className="text-sm capitalize">
+                  {formData.experienceLevel}
+                </Badge>
+              </div>
+              <div>
                 <p className="text-sm text-gray-500 mb-1">Budget</p>
                 <p className="font-semibold text-gray-900 dark:text-white">
                   {formData.projectType === "fixed"
@@ -70,6 +94,15 @@ export function Step4Preview({ formData }: Step4Props) {
                       )} - ${formatCurrency(formData.budget.max)}`
                     : `${formatCurrency(formData.budget.hourlyRate || 0)}/hour`}
                 </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Delivery Time</p>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-[#F45A0B]" />
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {formData.deliveryDays} {formData.deliveryDays === 1 ? 'day' : 'days'}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -140,7 +173,40 @@ export function Step4Preview({ formData }: Step4Props) {
         </Card>
 
         {/* Upgrades */}
-        {selectedUpgradesList.length > 0 && (
+        {isLoadingUpgrades ? (
+          <Card className="border-[#F45A0B]/20 bg-[#F45A0B]/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="h-5 w-5 text-[#F45A0B]" />
+                Selected Upgrades
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </CardContent>
+          </Card>
+        ) : errorUpgrades ? (
+          <Card className="border-red-200 dark:border-red-800">
+            <CardContent className="p-6">
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span>Failed to load upgrade details: {errorUpgrades}</span>
+                  <Button
+                    onClick={refetchUpgrades}
+                    variant="outline"
+                    size="sm"
+                    className="ml-4"
+                  >
+                    <RefreshCw className="h-3 w-3 mr-2" />
+                    Retry
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        ) : selectedUpgradesList.length > 0 ? (
           <Card className="border-[#F45A0B]/20 bg-[#F45A0B]/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -155,17 +221,19 @@ export function Step4Preview({ formData }: Step4Props) {
                   className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className={`${upgrade.badgeColor} text-white px-2 py-1 rounded text-xs font-bold`}
-                    >
+                    <Badge className="bg-[#F45A0B] text-white">
                       {upgrade.name}
-                    </div>
+                    </Badge>
                     <p className="text-sm text-gray-700 dark:text-gray-300">
-                      {upgrade.description.slice(0, 80)}...
+                      {upgrade.description.length > 80
+                        ? `${upgrade.description.slice(0, 80)}...`
+                        : upgrade.description}
                     </p>
                   </div>
                   <div className="font-semibold text-gray-900 dark:text-white ml-4 flex-shrink-0">
-                    {formatCurrency(upgrade.price)}
+                    {formatCurrency(typeof upgrade.basePrice === 'string' 
+                      ? parseFloat(upgrade.basePrice) 
+                      : upgrade.basePrice)}
                   </div>
                 </div>
               ))}
@@ -182,7 +250,7 @@ export function Step4Preview({ formData }: Step4Props) {
               </div>
             </CardContent>
           </Card>
-        )}
+        ) : null}
 
         {/* Total Cost Summary */}
         <Card className="border-2 border-[#F45A0B] bg-gradient-to-r from-[#F45A0B]/10 to-[#F45A0B]/5">

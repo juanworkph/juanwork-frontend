@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,18 +11,71 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Upload, X, FileText } from "lucide-react";
-import type { ProjectFormData } from "../schema";
-import { formatFileSize } from "../schema/post-project-data";
+import type { ProjectFormData } from "../schema/project-form.schema";
+import { formatFileSize } from "../utils/format-helpers";
+import {
+  validateProjectName,
+  validateDescription,
+  validateBudget,
+  validateDeliveryDays,
+} from "../utils/project-form-validator";
+import {
+  projectNameSchema,
+  descriptionSchema,
+  budgetSchema,
+  deliveryDaysSchema,
+} from "../schema/project-form.schema";
 
 interface Step1Props {
   formData: ProjectFormData;
   onUpdate: (data: Partial<ProjectFormData>) => void;
+  validationErrors?: Record<string, string>;
 }
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
-export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
+export function Step1BasicDetails({ formData, onUpdate, validationErrors = {} }: Step1Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // State for validation errors (local errors from blur events)
+  const [errors, setErrors] = useState<{
+    projectName?: string;
+    description?: string;
+    budget?: string;
+    budgetMin?: string;
+    budgetMax?: string;
+    deliveryDays?: string;
+  }>({});
+
+  // Merge validation errors from parent with local errors
+  const allErrors = { ...validationErrors, ...errors };
+
+  // Validation handlers
+  const handleProjectNameBlur = () => {
+    const result = validateProjectName(formData.projectName);
+    setErrors((prev) => ({ ...prev, projectName: result.error }));
+  };
+
+  const handleDescriptionBlur = () => {
+    const result = validateDescription(formData.description);
+    setErrors((prev) => ({ ...prev, description: result.error }));
+  };
+
+  const handleBudgetBlur = () => {
+    const result = validateBudget(formData.budget.min, formData.budget.max);
+    setErrors((prev) => ({ ...prev, budget: result.error }));
+  };
+
+  const handleDeliveryDaysBlur = () => {
+    // Only validate delivery days for fixed price projects
+    if (formData.projectType === 'fixed') {
+      const result = validateDeliveryDays(formData.deliveryDays);
+      setErrors((prev) => ({ ...prev, deliveryDays: result.error }));
+    } else {
+      // Clear error for hourly projects
+      setErrors((prev) => ({ ...prev, deliveryDays: undefined }));
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -78,10 +131,27 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
         <Input
           id="projectName"
           value={formData.projectName}
-          onChange={(e) => onUpdate({ projectName: e.target.value })}
+          onChange={(e) => {
+            onUpdate({ projectName: e.target.value });
+            // Clear error when user starts typing
+            if (allErrors.projectName) {
+              setErrors((prev) => ({ ...prev, projectName: undefined }));
+            }
+          }}
+          onBlur={handleProjectNameBlur}
           placeholder="e.g. Build a modern e-commerce website with React"
-          className="focus-visible:ring-[#F45A0B]"
+          className={`focus-visible:ring-[#F45A0B] ${
+            allErrors.projectName ? "border-red-500 focus-visible:ring-red-500" : ""
+          }`}
         />
+        {allErrors.projectName && (
+          <p className="text-sm text-red-500">{allErrors.projectName}</p>
+        )}
+        {!allErrors.projectName && (
+          <p className="text-sm text-gray-500">
+            {formData.projectName.length}/200 characters (minimum 10)
+          </p>
+        )}
       </div>
 
       {/* Description */}
@@ -92,100 +162,212 @@ export function Step1BasicDetails({ formData, onUpdate }: Step1Props) {
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => onUpdate({ description: e.target.value })}
+          onChange={(e) => {
+            onUpdate({ description: e.target.value });
+            // Clear error when user starts typing
+            if (allErrors.description) {
+              setErrors((prev) => ({ ...prev, description: undefined }));
+            }
+          }}
+          onBlur={handleDescriptionBlur}
           placeholder="Describe your project in detail. What do you need? What are the requirements? What are your expectations?..."
           rows={6}
-          className="focus-visible:ring-[#F45A0B]"
+          className={`focus-visible:ring-[#F45A0B] ${
+            allErrors.description ? "border-red-500 focus-visible:ring-red-500" : ""
+          }`}
         />
-        <p className="text-sm text-gray-500">
-          {formData.description.length} characters
-        </p>
+        {allErrors.description && (
+          <p className="text-sm text-red-500">{allErrors.description}</p>
+        )}
+        {!allErrors.description && (
+          <p className="text-sm text-gray-500">
+            {formData.description.length}/5000 characters (minimum 50)
+          </p>
+        )}
       </div>
 
-      {/* Project Type */}
+      {/* Project Type and Experience Level */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Project Type */}
+        <div className="space-y-2">
+          <Label htmlFor="projectType">
+            Project Type <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            value={formData.projectType}
+            onValueChange={(value: "fixed" | "hourly") =>
+              onUpdate({ projectType: value })
+            }
+          >
+            <SelectTrigger className="focus:ring-[#F45A0B] w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fixed">Fixed Price</SelectItem>
+              <SelectItem value="hourly">Hourly Rate</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Experience Level */}
+        <div className="space-y-2">
+          <Label htmlFor="experienceLevel">
+            Experience Level <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            value={formData.experienceLevel}
+            onValueChange={(value: "beginner" | "intermediate" | "expert") =>
+              onUpdate({ experienceLevel: value })
+            }
+          >
+            <SelectTrigger className="focus:ring-[#F45A0B] w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="beginner">
+                <div className="flex flex-col">
+                  <span className="font-medium">Beginner</span>
+                  <span className="text-xs text-gray-500">Entry-level freelancers</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="intermediate">
+                <div className="flex flex-col">
+                  <span className="font-medium">Intermediate</span>
+                  <span className="text-xs text-gray-500">Mid-level freelancers</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="expert">
+                <div className="flex flex-col">
+                  <span className="font-medium">Expert</span>
+                  <span className="text-xs text-gray-500">Senior-level freelancers</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Delivery Days - Only for Fixed Price projects */}
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          formData.projectType === "fixed" 
+            ? "max-h-40 opacity-100" 
+            : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="space-y-2">
+          <Label htmlFor="deliveryDays">
+            Delivery Days {formData.projectType === "fixed" && <span className="text-red-500">*</span>}
+          </Label>
+          <Input
+            id="deliveryDays"
+            type="number"
+            min="1"
+            max="365"
+            value={formData.deliveryDays || ""}
+            onChange={(e) => {
+              onUpdate({ deliveryDays: Number(e.target.value) });
+              // Clear error when user starts typing
+              if (allErrors.deliveryDays) {
+                setErrors((prev) => ({ ...prev, deliveryDays: undefined }));
+              }
+            }}
+            onBlur={handleDeliveryDaysBlur}
+            placeholder="7"
+            className={`focus-visible:ring-[#F45A0B] ${
+              allErrors.deliveryDays && formData.projectType === "fixed" 
+                ? "border-red-500 focus-visible:ring-red-500" 
+                : ""
+            }`}
+            disabled={formData.projectType !== "fixed"}
+            required={formData.projectType === "fixed"}
+          />
+          {allErrors.deliveryDays && formData.projectType === "fixed" && (
+            <p className="text-sm text-red-500">{allErrors.deliveryDays}</p>
+          )}
+          {!allErrors.deliveryDays && formData.projectType === "fixed" && (
+            <p className="text-sm text-gray-500">
+              How many days do you need to complete this project? (1-365 days)
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Budget - Same for both Fixed and Hourly */}
       <div className="space-y-2">
-        <Label htmlFor="projectType">
-          Project Type <span className="text-red-500">*</span>
-        </Label>
-        <Select
-          value={formData.projectType}
-          onValueChange={(value: "fixed" | "hourly") =>
-            onUpdate({ projectType: value })
-          }
-        >
-          <SelectTrigger className="focus:ring-[#F45A0B]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="fixed">Fixed Price</SelectItem>
-            <SelectItem value="hourly">Hourly Rate</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Budget */}
-      {formData.projectType === "fixed" ? (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="budgetMin">
-              Minimum Budget (USD) <span className="text-red-500">*</span>
+              Minimum Budget (PHP) <span className="text-red-500">*</span>
             </Label>
             <Input
               id="budgetMin"
               type="number"
               min="0"
               value={formData.budget.min || ""}
-              onChange={(e) =>
+              onChange={(e) => {
                 onUpdate({
                   budget: { ...formData.budget, min: Number(e.target.value) },
-                })
-              }
+                });
+                // Clear error when user starts typing
+                if (allErrors.budget || allErrors.budgetMin) {
+                  setErrors((prev) => ({ ...prev, budget: undefined }));
+                }
+              }}
+              onBlur={handleBudgetBlur}
               placeholder="500"
-              className="focus-visible:ring-[#F45A0B]"
+              className={`focus-visible:ring-[#F45A0B] ${
+                allErrors.budgetMin || allErrors.budget 
+                  ? "border-red-500 focus-visible:ring-red-500" 
+                  : ""
+              }`}
             />
+            {allErrors.budgetMin && (
+              <p className="text-sm text-red-500">{allErrors.budgetMin}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="budgetMax">
-              Maximum Budget (USD) <span className="text-red-500">*</span>
+              Maximum Budget (PHP) <span className="text-red-500">*</span>
             </Label>
             <Input
               id="budgetMax"
               type="number"
               min="0"
               value={formData.budget.max || ""}
-              onChange={(e) =>
+              onChange={(e) => {
                 onUpdate({
                   budget: { ...formData.budget, max: Number(e.target.value) },
-                })
-              }
+                });
+                // Clear error when user starts typing
+                if (allErrors.budget || allErrors.budgetMax) {
+                  setErrors((prev) => ({ ...prev, budget: undefined }));
+                }
+              }}
+              onBlur={handleBudgetBlur}
               placeholder="1000"
-              className="focus-visible:ring-[#F45A0B]"
+              className={`focus-visible:ring-[#F45A0B] ${
+                allErrors.budgetMax || allErrors.budget 
+                  ? "border-red-500 focus-visible:ring-red-500" 
+                  : ""
+              }`}
             />
+            {allErrors.budgetMax && (
+              <p className="text-sm text-red-500">{allErrors.budgetMax}</p>
+            )}
           </div>
         </div>
-      ) : (
-        <div className="space-y-2">
-          <Label htmlFor="hourlyRate">
-            Hourly Rate (USD) <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="hourlyRate"
-            type="number"
-            min="0"
-            value={formData.budget.hourlyRate || ""}
-            onChange={(e) =>
-              onUpdate({
-                budget: {
-                  ...formData.budget,
-                  hourlyRate: Number(e.target.value),
-                },
-              })
-            }
-            placeholder="50"
-            className="focus-visible:ring-[#F45A0B]"
-          />
-        </div>
-      )}
+        {allErrors.budget && (
+          <p className="text-sm text-red-500">{allErrors.budget}</p>
+        )}
+        {!allErrors.budget && !allErrors.budgetMin && !allErrors.budgetMax && (
+          <p className="text-sm text-gray-500">
+            {formData.projectType === "fixed" 
+              ? "Set your project budget range" 
+              : "Set your hourly rate range"}
+          </p>
+        )}
+      </div>
 
       {/* File Attachments */}
       <div className="space-y-2">

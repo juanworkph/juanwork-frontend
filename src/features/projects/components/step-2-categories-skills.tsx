@@ -1,8 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -10,12 +7,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, Sparkles } from "lucide-react";
-import type { ProjectFormData } from "../schema";
-import {
-  categories,
-  getSkillRecommendations,
-} from "../schema/post-project-data";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Sparkles, AlertCircle, Loader2, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
+import type { ProjectFormData } from "../schema/project-form.schema";
+import { useProjectFormData } from "../hooks/use-project-form-data";
+import { validateCustomSkill } from "../utils/skill-filter";
 
 interface Step2Props {
   formData: ProjectFormData;
@@ -23,39 +22,106 @@ interface Step2Props {
 }
 
 export function Step2CategoriesSkills({ formData, onUpdate }: Step2Props) {
-  const [skillInput, setSkillInput] = useState("");
-  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [maxSelectedError, setMaxSelectedError] = useState<string>("");
 
-  const handleSkillInputChange = (value: string) => {
-    setSkillInput(value);
-    const recs = getSkillRecommendations(value, formData.skills);
-    setRecommendations(recs);
-  };
+  // Integrate useProjectFormData hook
+  const {
+    categories,
+    skills,
+    isLoadingCategories,
+    isLoadingSkills,
+    errorCategories,
+    errorSkills,
+    refetchCategories,
+    refetchSkills,
+  } = useProjectFormData(formData.categoryId);
 
-  const handleAddSkill = (skill: string) => {
-    if (!skill.trim()) return;
-    if (formData.skills.includes(skill.trim())) return;
-    if (formData.skills.length >= 10) {
-      alert("You can add up to 10 skills only");
-      return;
+  const handleCategoryChange = (categoryName: string) => {
+    const selectedCategory = categories.find(cat => cat.name === categoryName);
+    if (selectedCategory) {
+      onUpdate({
+        category: selectedCategory.name,
+        categoryId: selectedCategory.id,
+        categorySlug: selectedCategory.slug,
+        skills: [], // Clear skills when category changes
+        skillIds: [], // Clear skill IDs
+        customSkillNames: [], // Clear custom skills
+      });
     }
-
-    onUpdate({ skills: [...formData.skills, skill.trim()] });
-    setSkillInput("");
-    setRecommendations([]);
   };
 
-  const handleRemoveSkill = (skillToRemove: string) => {
-    onUpdate({
-      skills: formData.skills.filter((skill) => skill !== skillToRemove),
+  // Convert skills to MultipleSelector options
+  const skillOptions: Option[] = useMemo(() => {
+    return skills.map(skill => ({
+      value: skill.id,
+      label: skill.name,
+    }));
+  }, [skills]);
+
+  // Create a map of skill names to IDs for lookup
+  const skillNameToIdMap = useMemo(() => {
+    const map = new Map<string, string>();
+    skills.forEach(skill => {
+      map.set(skill.name.toLowerCase(), skill.id);
     });
+    return map;
+  }, [skills]);
+
+  // Convert selected skills to MultipleSelector format
+  const selectedSkillOptions: Option[] = useMemo(() => {
+    return formData.skills.map((skillName) => {
+      // Try to find the skill ID from the available skills
+      const skillId = skillNameToIdMap.get(skillName.toLowerCase());
+      
+      return {
+        // Use the actual skill ID if found, otherwise use the skill name (for custom skills)
+        value: skillId || skillName,
+        label: skillName,
+      };
+    });
+  }, [formData.skills, skillNameToIdMap]);
+
+  // Handle skill selection change
+  const handleSkillsChange = (options: Option[]) => {
+    const skillNames: string[] = [];
+    const skillIds: string[] = [];
+    const customSkillNames: string[] = [];
+    
+    options.forEach(opt => {
+      skillNames.push(opt.label);
+      
+      // Check if this is an existing skill (has UUID in our skills list) or custom
+      const isExistingSkill = skills.some(s => s.id === opt.value);
+      
+      if (isExistingSkill) {
+        skillIds.push(opt.value);
+      } else {
+        customSkillNames.push(opt.label);
+      }
+    });
+    
+    onUpdate({ 
+      skills: skillNames,
+      skillIds,
+      customSkillNames
+    });
+    setMaxSelectedError("");
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddSkill(skillInput);
-    }
+  // Handle max selected limit
+  const handleMaxSelected = (maxLimit: number) => {
+    setMaxSelectedError(`You can only select up to ${maxLimit} skills`);
+    setTimeout(() => setMaxSelectedError(""), 3000);
+  };
+
+  // Sync search function for filtering skills
+  const handleSearchSync = (value: string): Option[] => {
+    if (!value.trim()) return skillOptions;
+    
+    const lowerQuery = value.toLowerCase();
+    return skillOptions.filter(option =>
+      option.label.toLowerCase().includes(lowerQuery)
+    );
   };
 
   return (
@@ -75,21 +141,52 @@ export function Step2CategoriesSkills({ formData, onUpdate }: Step2Props) {
         <Label htmlFor="category">
           Category <span className="text-red-500">*</span>
         </Label>
-        <Select
-          value={formData.category}
-          onValueChange={(value) => onUpdate({ category: value })}
-        >
-          <SelectTrigger className="focus:ring-[#F45A0B]">
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        
+        {/* Loading State */}
+        {isLoadingCategories && (
+          <Skeleton className="h-10 w-full" />
+        )}
+
+        {/* Error State */}
+        {errorCategories && !isLoadingCategories && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>{errorCategories}</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={refetchCategories}
+                className="ml-2"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Category Select */}
+        {!isLoadingCategories && !errorCategories && (
+          <Select
+            value={formData.category}
+            onValueChange={handleCategoryChange}
+          >
+            <SelectTrigger className="focus:ring-[#F45A0B]">
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories
+                .filter(cat => cat.isActive)
+                .map((category) => (
+                  <SelectItem key={category.id} value={category.name}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Skills */}
@@ -98,78 +195,79 @@ export function Step2CategoriesSkills({ formData, onUpdate }: Step2Props) {
           Required Skills <span className="text-red-500">*</span>
         </Label>
         <p className="text-sm text-gray-500 mb-2">
-          Add up to 10 skills required for this project
+          Add up to 10 skills required for this project. Type to search or create custom skills.
         </p>
 
-        {/* Skill Input */}
-        <div className="relative">
-          <div className="flex gap-2">
-            <Input
-              id="skills"
-              value={skillInput}
-              onChange={(e) => handleSkillInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type a skill (e.g. React, Node.js)"
-              className="focus-visible:ring-[#F45A0B]"
-              disabled={formData.skills.length >= 10}
-            />
-            <Button
-              type="button"
-              onClick={() => handleAddSkill(skillInput)}
-              disabled={!skillInput.trim() || formData.skills.length >= 10}
-              className="bg-[#F45A0B] hover:bg-[#F45A0B]/90"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
+        {/* Category-First Message */}
+        {!formData.category && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Please select a category first to add skills
+            </AlertDescription>
+          </Alert>
+        )}
 
-          {/* Skill Recommendations */}
-          {recommendations.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto">
-              <div className="p-2 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <Sparkles className="h-4 w-4 text-[#F45A0B]" />
-                  <span className="font-medium">Recommended Skills</span>
-                </div>
-              </div>
-              <div className="p-2 space-y-1">
-                {recommendations.map((skill) => (
-                  <button
-                    key={skill}
-                    type="button"
-                    onClick={() => handleAddSkill(skill)}
-                    className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-900 dark:text-white transition-colors"
-                  >
-                    {skill}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Selected Skills */}
-        <div className="flex flex-wrap gap-2 mt-3">
-          {formData.skills.map((skill) => (
-            <Badge
-              key={skill}
-              variant="secondary"
-              className="px-3 py-1.5 text-sm bg-[#F45A0B]/10 text-[#F45A0B] border border-[#F45A0B]/20 hover:bg-[#F45A0B]/20"
-            >
-              {skill}
-              <button
+        {/* Skills Error State */}
+        {errorSkills && formData.category && !isLoadingSkills && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>{errorSkills}</span>
+              <Button
                 type="button"
-                onClick={() => handleRemoveSkill(skill)}
-                className="ml-2 hover:text-red-600"
+                variant="outline"
+                size="sm"
+                onClick={() => formData.categoryId && refetchSkills(formData.categoryId)}
+                className="ml-2"
               >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* MultipleSelector Component */}
+        {formData.category && (
+          <MultipleSelector
+            value={selectedSkillOptions}
+            onChange={handleSkillsChange}
+            options={skillOptions}
+            onSearchSync={handleSearchSync}
+            placeholder={
+              isLoadingSkills
+                ? "Loading skills..."
+                : "Type to search skills or create custom ones..."
+            }
+            disabled={!formData.category || isLoadingSkills}
+            maxSelected={10}
+            onMaxSelected={handleMaxSelected}
+            creatable={true}
+            emptyIndicator={
+              <p className="text-center text-sm text-gray-500 py-2">
+                No skills found. Type to create a custom skill.
+              </p>
+            }
+            loadingIndicator={
+              <div className="flex items-center justify-center gap-2 py-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm text-gray-500">Loading skills...</span>
+              </div>
+            }
+            className="focus-visible:ring-[#F45A0B]"
+            badgeClassName="bg-[#F45A0B]/10 text-[#F45A0B] border-[#F45A0B]/20 hover:bg-[#F45A0B]/20"
+            hidePlaceholderWhenSelected={false}
+          />
+        )}
+
+        {/* Max Selected Error */}
+        {maxSelectedError && (
+          <p className="text-sm text-red-500 mt-1">{maxSelectedError}</p>
+        )}
 
         {/* Skills Counter */}
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-sm mt-2">
           <span className="text-gray-500">
             {formData.skills.length} / 10 skills added
           </span>

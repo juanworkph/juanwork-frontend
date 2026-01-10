@@ -1,17 +1,37 @@
 // Export all from projects-data
 export * from "./projects-data";
 
-// Export post-project types and unique exports only (avoid conflicts)
+// Export post-project types from project-form.schema (new location)
 export type {
   PostProjectStatus,
-  ProjectUpgrade,
   ProjectFormData,
-} from "./post-project-data";
+  ProjectType,
+} from "./project-form.schema";
 export {
-  projectUpgrades,
   initialFormData,
-  calculateTotalUpgradeCost,
-} from "./post-project-data";
+  projectNameSchema,
+  descriptionSchema,
+  budgetSchema,
+  deliveryDaysSchema,
+  projectTypeSchema,
+  categorySchema,
+  skillsSchema,
+  attachmentsSchema,
+} from "./project-form.schema";
+
+// Export API types from project-post.schema
+export type {
+  CreateProjectRequest,
+  CreateProjectResponse,
+  Category,
+  Skill,
+  UpgradeType,
+  ApiSuccessResponse,
+  ApiErrorResponse,
+} from "./project-post.schema";
+export {
+  createProjectSchema,
+} from "./project-post.schema";
 
 // Export my-projects types and functions
 export type {
