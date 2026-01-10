@@ -29,7 +29,7 @@ import {
   formatTimeAgo,
   getExperienceLevelLabel,
   getDurationLabel,
-} from "../context/findwork";
+} from "../utils/findwork";
 
 interface ProjectCardProps {
   project: Project;

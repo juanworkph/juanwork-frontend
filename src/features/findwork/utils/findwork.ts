@@ -66,5 +66,3 @@ export const getDurationLabel = (duration: ProjectDuration): string => {
       return duration;
   }
 };
-
-// SKILLS_BY_CATEGORY removed as we now fetch skills from API

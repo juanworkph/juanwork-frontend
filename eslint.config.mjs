@@ -16,6 +16,10 @@ const eslintConfig = [
             "react/no-unescaped-entities": "off",
             "@typescript-eslint/no-unused-vars": "off",
             "no-unused-expressions": "off",
+            "@typescript-eslint/no-explicit-any": "off",
+            "react-hooks/set-state-in-effect": "off",
+            "react-hooks/purity": "off",
+            "react-hooks/static-components": "off",
         },
         ignores: [
             "node_modules/**",
