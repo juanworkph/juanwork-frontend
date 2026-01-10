@@ -564,7 +564,7 @@ export const searchProjects = (
       return true;
 
     // Search in skills
-    if (project.skills.some((skill) => skill.toLowerCase().includes(lowerQuery)))
+    if (project.skills.some((skill) => skill.name.toLowerCase().includes(lowerQuery)))
       return true;
 
     // Search in tags

@@ -317,7 +317,7 @@ export const PortfolioProjectDetail: React.FC<
                   <div className="flex flex-wrap gap-2">
                     {project.skills.map((skill, index) => (
                       <Badge key={index} variant="outline">
-                        {skill}
+                        {skill.name}
                       </Badge>
                     ))}
                   </div>
