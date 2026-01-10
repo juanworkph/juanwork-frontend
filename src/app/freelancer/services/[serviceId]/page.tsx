@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { ServiceDetailView } from "@/features/services/components";
-import { mockMyServices } from "@/features/services/schema";
+import { getFreelancerServices } from "@/features/services/actions/my-services.actions";
+import { MyService } from "@/features/services/schema/my-services-data";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ServiceDetailPage({
   params,
@@ -15,12 +17,50 @@ export default function ServiceDetailPage({
 }) {
   const router = useRouter();
   const resolvedParams = React.use(params);
+  const [service, setService] = useState<MyService | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Find the service by ID
-  const service = mockMyServices.find((s) => s.id === resolvedParams.serviceId);
+  // Fetch service data
+  useEffect(() => {
+    const fetchService = async () => {
+      try {
+        setIsLoading(true);
+        const services = await getFreelancerServices();
+        const foundService = services.find((s) => s.id === resolvedParams.serviceId);
+        
+        if (foundService) {
+          setService(foundService);
+        } else {
+          setError("Service not found");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load service");
+        toast.error("Failed to load service details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Handle not found
-  if (!service) {
+    fetchService();
+  }, [resolvedParams.serviceId]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6 lg:p-8">
+        <Skeleton className="h-10 w-48 mb-6" />
+        <div className="space-y-4">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  // Handle not found or error
+  if (error || !service) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6">
         <div className="text-center">
@@ -44,9 +84,7 @@ export default function ServiceDetailPage({
 
   // Handlers
   const handleEdit = () => {
-    toast.info(`Edit functionality for service ${resolvedParams.serviceId}`);
-    // In a real app, navigate to edit page
-    // router.push(`/freelancer/services/edit/${resolvedParams.serviceId}`);
+    router.push(`/freelancer/services/edit/${resolvedParams.serviceId}`);
   };
 
   const handleDelete = () => {
@@ -55,14 +93,14 @@ export default function ServiceDetailPage({
   };
 
   const handleDuplicate = () => {
-    toast.success(`Service duplicated successfully`);
-    // In a real app, duplicate the service and redirect
-    // router.push("/freelancer/services/my-services");
+    router.push(`/freelancer/services/post-service?duplicate=${resolvedParams.serviceId}`);
+    toast.info("Duplicating service...");
   };
 
   const handleShare = () => {
+    const shareUrl = `${window.location.origin}/freelancer/services/${resolvedParams.serviceId}`;
+    navigator.clipboard.writeText(shareUrl);
     toast.success("Share link copied to clipboard!");
-    // In a real app, copy share link to clipboard
   };
 
   const handleBack = () => {

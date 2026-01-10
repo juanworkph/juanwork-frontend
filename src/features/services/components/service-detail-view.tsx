@@ -58,18 +58,18 @@ export function ServiceDetailView({
               <div className="flex gap-1">
                 {service.upgrades.map((upgrade) => (
                   <Badge
-                    key={upgrade}
+                    key={upgrade.id}
                     variant="secondary"
                     className="text-xs bg-[#F45A0B]/10 text-[#F45A0B] border-[#F45A0B]/20"
                   >
-                    {upgrade.toUpperCase()}
+                    {upgrade.name.toUpperCase()}
                   </Badge>
                 ))}
               </div>
             )}
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {service.serviceName}
+            {service.name}
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1">
@@ -148,22 +148,6 @@ export function ServiceDetailView({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Thumbnail */}
-          {service.thumbnail && (
-            <Card className="p-0">
-              <CardContent className="p-0">
-                <div className="relative h-96 w-full overflow-hidden rounded-lg">
-                  <Image
-                    src={service.thumbnail}
-                    alt={service.serviceName}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Description */}
           <Card>
             <CardHeader>
@@ -190,11 +174,11 @@ export function ServiceDetailView({
               <div className="flex flex-wrap gap-2">
                 {service.skills.map((skill) => (
                   <Badge
-                    key={skill}
+                    key={skill.id}
                     variant="secondary"
                     className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
                   >
-                    {skill}
+                    {skill.name}
                   </Badge>
                 ))}
               </div>
@@ -214,7 +198,7 @@ export function ServiceDetailView({
                 <div className="space-y-3">
                   {service.upgrades.map((upgrade) => (
                     <div
-                      key={upgrade}
+                      key={upgrade.id}
                       className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
                     >
                       <div className="w-10 h-10 rounded-full bg-[#F45A0B]/10 flex items-center justify-center flex-shrink-0">
@@ -222,10 +206,10 @@ export function ServiceDetailView({
                       </div>
                       <div className="flex-1">
                         <p className="font-semibold text-gray-900 dark:text-white uppercase">
-                          {upgrade}
+                          {upgrade.name}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {getUpgradeDescription(upgrade)}
+                          {getUpgradeDescription(upgrade.slug)}
                         </p>
                       </div>
                     </div>
@@ -264,7 +248,7 @@ export function ServiceDetailView({
                   </span>
                 </div>
                 <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {service.inquiries}
+                  {service.proposalsCount}
                 </span>
               </div>
             </CardContent>
@@ -284,7 +268,7 @@ export function ServiceDetailView({
                   Project Type
                 </p>
                 <Badge variant="outline" className="text-sm capitalize">
-                  {service.projectType === "fixed"
+                  {service.paymentType === "fixed"
                     ? "Fixed Price"
                     : "Hourly Rate"}
                 </Badge>
@@ -292,7 +276,7 @@ export function ServiceDetailView({
 
               <Separator />
 
-              {service.projectType === "fixed" ? (
+              {service.paymentType === "fixed" ? (
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                     Budget Range
@@ -303,7 +287,7 @@ export function ServiceDetailView({
                         Minimum
                       </span>
                       <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                        {formatCurrency(service.budget.min)}
+                        {formatCurrency(service.budgetMin, service.currency)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -311,7 +295,7 @@ export function ServiceDetailView({
                         Maximum
                       </span>
                       <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                        {formatCurrency(service.budget.max)}
+                        {formatCurrency(service.budgetMax, service.currency)}
                       </span>
                     </div>
                   </div>
@@ -322,7 +306,7 @@ export function ServiceDetailView({
                     Hourly Rate
                   </p>
                   <p className="text-3xl font-bold text-[#F45A0B]">
-                    {formatCurrency(service.budget.hourlyRate || 0)}
+                    {formatCurrency(service.budgetMin, service.currency)}
                     <span className="text-lg text-gray-600 dark:text-gray-400">
                       /hr
                     </span>
@@ -342,7 +326,7 @@ export function ServiceDetailView({
                 variant="outline"
                 className="text-sm px-3 py-1.5 border-[#F45A0B]/20 text-[#F45A0B]"
               >
-                {service.category}
+                {service.category.name}
               </Badge>
             </CardContent>
           </Card>

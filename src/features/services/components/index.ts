@@ -1,10 +1,12 @@
-export { MyServicesCard } from "./my-services-card";
+export { MyServiceCard } from "./my-services-card";
 export { MyServicesGrid } from "./my-services-grid";
 export {
   MyServicesGridSkeleton,
   MyServicesHeaderSkeleton,
 } from "./my-services-skeleton";
 export { MyServicesHeader } from "./my-services-header";
+export { ServiceCardSkeleton } from "./service-card-skeleton";
+export { ConfirmDialog } from "./confirm-dialog";
 export { ServiceDetailView } from "./service-detail-view";
 export { ProgressIndicator } from "./progress-indicator";
 export { Step1BasicDetails } from "./step-1-basic-details";

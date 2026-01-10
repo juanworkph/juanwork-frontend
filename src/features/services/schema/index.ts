@@ -8,8 +8,44 @@ export * from "./discover-services-api";
 // Frontend Types and Utilities
 export * from "./discover-services-data";
 
-// My Services (Freelancer)
-export * from "./my-services-data";
+// My Services (Freelancer) - Export specific types to avoid conflicts
+export type {
+  ServiceStatus,
+  ServiceFilterStatus,
+  PaymentType,
+  ServiceSortOption,
+  MyService,
+  IServiceResponse,
+  ServiceStatistics,
+} from "./my-services-data";
+
+export {
+  statusConfig,
+  experienceLevelConfig,
+  filterOptions,
+  sortOptions,
+  transformServiceResponse,
+  transformServicesResponse,
+  formatBudget,
+  formatCurrency,
+  formatNumber,
+  formatDate,
+  formatRelativeTime,
+  isServiceStatus,
+  isServiceFilterStatus,
+  isPaymentType,
+  isExperienceLevel,
+  isMyService,
+  filterServicesByStatus,
+  searchServices,
+  sortServices,
+  calculateStatistics,
+  validateServiceData,
+  canEditService,
+  canDeleteService,
+  canPauseService,
+  canActivateService,
+} from "./my-services-data";
 
 // Single Service View
 export * from "./single-view-data";
