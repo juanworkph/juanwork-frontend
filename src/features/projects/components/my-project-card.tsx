@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Eye,
-  MessageCircle,
   MoreVertical,
   Edit,
   Trash2,
@@ -27,8 +26,10 @@ import {
   projectStatusConfig,
   formatDate,
   formatCurrency,
-  getDurationLabel,
+  getDeliveryDaysLabel,
   getExperienceLevelLabel,
+  getUpgradeDisplayName,
+  getBudgetDisplay,
 } from "../schema/my-projects-data";
 
 interface MyProjectCardProps {
@@ -54,12 +55,7 @@ export function MyProjectCard({
     }
   };
 
-  const budgetDisplay =
-    project.budgetType === "fixed"
-      ? `${formatCurrency(project.budget.min)} - ${formatCurrency(
-          project.budget.max
-        )}`
-      : `${formatCurrency(project.budget.hourlyRate || 0)}/hr`;
+  const budgetDisplay = getBudgetDisplay(project);
 
   return (
     <Card
@@ -76,13 +72,13 @@ export function MyProjectCard({
             </Badge>
             <Badge variant="secondary" className="text-xs">
               <Layers className="h-3 w-3 mr-1" />
-              {project.category}
+              {project.category.name}
             </Badge>
             {project.upgrades.length > 0 && (
               <>
                 {project.upgrades.slice(0, 2).map((upgrade) => (
-                  <Badge key={upgrade} variant="outline" className="text-xs">
-                    {upgrade.toUpperCase()}
+                  <Badge key={upgrade.id} variant="outline" className="text-xs">
+                    {getUpgradeDisplayName(upgrade.slug)}
                   </Badge>
                 ))}
                 {project.upgrades.length > 2 && (
@@ -144,7 +140,7 @@ export function MyProjectCard({
 
         {/* Project Title */}
         <h3 className="font-semibold text-xl text-gray-900 dark:text-white line-clamp-2 mb-3">
-          {project.projectTitle}
+          {project.name}
         </h3>
 
         {/* Description */}
@@ -156,10 +152,10 @@ export function MyProjectCard({
         <div className="flex flex-wrap gap-2 mb-4">
           {project.skills.slice(0, 5).map((skill) => (
             <span
-              key={skill}
+              key={skill.id}
               className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
             >
-              {skill}
+              {skill.name}
             </span>
           ))}
           {project.skills.length > 5 && (
@@ -175,7 +171,7 @@ export function MyProjectCard({
             <DollarSign className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {project.budgetType === "fixed" ? "Budget" : "Hourly Rate"}
+                Budget Fee
               </p>
               <p className="font-semibold text-gray-900 dark:text-white text-xs">
                 {budgetDisplay}
@@ -183,13 +179,13 @@ export function MyProjectCard({
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <MessageCircle className="h-4 w-4 text-blue-500 dark:text-blue-400 flex-shrink-0" />
+            <Users className="h-4 w-4 text-blue-500 dark:text-blue-400 flex-shrink-0" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Proposals
+                Bidders
               </p>
               <p className="font-semibold text-gray-900 dark:text-white">
-                {project.proposalsCount}
+                {project.biddersCount}
               </p>
             </div>
           </div>
@@ -197,34 +193,28 @@ export function MyProjectCard({
             <Clock className="h-4 w-4 text-purple-500 dark:text-purple-400 flex-shrink-0" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Duration
+                Delivery
               </p>
               <p className="font-semibold text-gray-900 dark:text-white text-xs">
-                {getDurationLabel(project.duration)}
+                {getDeliveryDaysLabel(project.deliveryDays)}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <TrendingUp className="h-4 w-4 text-orange-500 dark:text-orange-400 flex-shrink-0" />
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Level</p>
-              <p className="font-semibold text-gray-900 dark:text-white text-xs">
-                {getExperienceLevelLabel(project.experienceLevel)}
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Payment Type
               </p>
+              <Badge
+                variant="secondary"
+                className="text-xs font-semibold mt-1"
+              >
+                {project.paymentType === "fixed" ? "Fixed" : "Hourly"}
+              </Badge>
             </div>
           </div>
         </div>
-
-        {/* Hired Count */}
-        {project.hiredCount > 0 && (
-          <div className="flex items-center gap-2 mb-4 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-            <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <span className="text-sm text-green-700 dark:text-green-300 font-medium">
-              {project.hiredCount} freelancer{project.hiredCount > 1 ? "s" : ""}{" "}
-              hired
-            </span>
-          </div>
-        )}
 
         {/* Footer: Dates */}
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-gray-800">

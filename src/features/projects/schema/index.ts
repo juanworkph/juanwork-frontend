@@ -36,16 +36,38 @@ export {
 // Export my-projects types and functions
 export type {
   MyProject,
-  MyProjectStatus,
+  ProjectStatus,
   ProjectFilterStatus,
+  PaymentType,
+  ExperienceLevel,
+  ProjectCategory,
+  ProjectSkill,
+  ProjectUpgrade,
+  IProjectResponse,
 } from "./my-projects-data";
 export {
   mockMyProjects,
   projectStatusConfig,
   projectFilterOptions,
+  upgradeDisplayNames,
   getProjectsByStatus,
-  getDurationLabel as getProjectDurationLabel,
-  getExperienceLevelLabel as getProjectExperienceLevelLabel,
+  getDeliveryDaysLabel,
+  getExperienceLevelLabel,
+  getBudgetDisplay,
+  getUpgradeDisplayName,
+  sortProjects,
+  searchProjects,
+  calculateProjectStatistics,
+  formatDate,
+  formatCurrency,
+  transformProjectResponse,
+  transformProjectsResponse,
+  safeTransformProjectResponse,
+  validateProjectData,
+  isProjectStatus,
+  isPaymentType,
+  isExperienceLevel,
+  isMyProject,
 } from "./my-projects-data";
 
 // Export bidding-data types and functions
