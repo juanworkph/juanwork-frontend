@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import {
@@ -8,25 +8,122 @@ import {
   FindWorkHeader,
   ProjectList,
 } from "@/features/findwork/components";
+import { FindWorkFilters, Project, Category } from "@/features/findwork/schema";
 import {
-  mockFindWorkData,
-  FindWorkState,
-  FindWorkFilters,
-} from "@/features/findwork/schema";
+  getProjects,
+  getCategories,
+} from "@/features/findwork/actions/findwork";
+
+const DEFAULT_FILTERS: FindWorkFilters = {
+  search: "",
+  category: "All Categories",
+  budgetRange: { min: 0, max: 10000 },
+  projectType: "all",
+  skills: [],
+  experienceLevel: "all",
+  deliveryDays: 180,
+  location: "",
+  sortBy: "newest",
+};
 
 export default function FindWorkPage() {
-  const [findWorkData, setFindWorkData] =
-    useState<FindWorkState>(mockFindWorkData);
-  const [isLoading] = useState(false);
+  // State
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filters, setFilters] = useState<FindWorkFilters>(DEFAULT_FILTERS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Filter and sort projects
-  const filteredProjects = useMemo(() => {
-    let result = [...findWorkData.projects];
+  // Debounced search value
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    // Filter by search
-    if (findWorkData.filters.search.trim()) {
-      const query = findWorkData.filters.search.toLowerCase();
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.search);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [filters.search]);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategoriesData = async () => {
+      try {
+        const categoriesData = await getCategories();
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        // Categories are optional, so we don't block the page
+      }
+    };
+
+    fetchCategoriesData();
+  }, []);
+
+  // Fetch projects
+  const fetchProjectsData = useCallback(
+    async (pageNum: number, isLoadMore = false) => {
+      try {
+        if (isLoadMore) {
+          setIsLoadingMore(true);
+        } else {
+          setIsLoading(true);
+          setError(null);
+        }
+
+        // Prepare query parameters
+        const categoryId =
+          filters.category !== "All Categories"
+            ? categories.find((c) => c.name === filters.category)?.id
+            : undefined;
+
+        const response = await getProjects({
+          status: "draft",
+          categoryId,
+          page: pageNum,
+          limit: 20,
+        });
+
+        if (isLoadMore) {
+          setProjects((prev) => [...prev, ...response.projects]);
+        } else {
+          setProjects(response.projects);
+        }
+
+        setHasMore(response.pagination.page < response.pagination.totalPages);
+        setPage(pageNum);
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to fetch projects";
+        setError(errorMessage);
+        console.error("Error fetching projects:", err);
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [filters.category, categories]
+  );
+
+  // Fetch projects on mount and when category filter changes
+  useEffect(() => {
+    if (categories.length > 0 || filters.category === "All Categories") {
+      fetchProjectsData(1, false);
+    }
+  }, [filters.category, categories.length, fetchProjectsData]);
+
+  // Filter and sort projects client-side
+  const filteredProjects = useMemo(() => {
+    let result = [...projects];
+
+    // Filter by search (debounced)
+    if (debouncedSearch.trim()) {
+      const query = debouncedSearch.toLowerCase();
       result = result.filter(
         (project) =>
           project.title.toLowerCase().includes(query) ||
@@ -36,64 +133,55 @@ export default function FindWorkPage() {
       );
     }
 
-    // Filter by category
-    if (findWorkData.filters.category !== "All Categories") {
-      result = result.filter(
-        (project) => project.category === findWorkData.filters.category
-      );
-    }
-
     // Filter by budget range
     result = result.filter((project) => {
       if (project.budget.type === "fixed") {
         const budgetMax = project.budget.max || 0;
         return (
-          budgetMax >= findWorkData.filters.budgetRange.min &&
-          budgetMax <= findWorkData.filters.budgetRange.max
+          budgetMax >= filters.budgetRange.min &&
+          budgetMax <= filters.budgetRange.max
         );
       } else {
         const hourlyRate = project.budget.hourlyRate || 0;
         return (
-          hourlyRate >= findWorkData.filters.budgetRange.min / 100 &&
-          hourlyRate <= findWorkData.filters.budgetRange.max / 100
+          hourlyRate >= filters.budgetRange.min / 100 &&
+          hourlyRate <= filters.budgetRange.max / 100
         );
       }
     });
 
     // Filter by project type
-    if (findWorkData.filters.projectType !== "all") {
+    if (filters.projectType !== "all") {
       result = result.filter(
-        (project) => project.budget.type === findWorkData.filters.projectType
+        (project) => project.budget.type === filters.projectType
       );
     }
 
-    // Filter by skills
-    if (findWorkData.filters.skills.length > 0) {
+    // Filter by skills (OR logic)
+    if (filters.skills.length > 0) {
       result = result.filter((project) =>
-        findWorkData.filters.skills.some((skill) =>
-          project.skills.includes(skill)
-        )
+        filters.skills.some((skill) => project.skills.includes(skill))
       );
     }
 
     // Filter by experience level
-    if (findWorkData.filters.experienceLevel !== "all") {
+    if (filters.experienceLevel !== "all") {
       result = result.filter(
-        (project) =>
-          project.experienceLevel === findWorkData.filters.experienceLevel
+        (project) => project.experienceLevel === filters.experienceLevel
       );
     }
 
-    // Filter by duration
-    if (findWorkData.filters.duration !== "all") {
+    // Filter by delivery days
+    if (filters.deliveryDays < 180) {
+      // Only filter if not at max (assuming 180 is max/any)
       result = result.filter(
-        (project) => project.duration === findWorkData.filters.duration
+        (project) => project.deliveryDays <= filters.deliveryDays
       );
     }
 
     // Sort projects
     result.sort((a, b) => {
-      switch (findWorkData.filters.sortBy) {
+      switch (filters.sortBy) {
         case "newest":
           return (
             new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime()
@@ -128,31 +216,35 @@ export default function FindWorkPage() {
     });
 
     return result;
-  }, [findWorkData.projects, findWorkData.filters]);
+  }, [projects, debouncedSearch, filters]);
 
-  const handleFilterChange = (filters: Partial<FindWorkFilters>) => {
-    setFindWorkData({
-      ...findWorkData,
-      filters: {
-        ...findWorkData.filters,
-        ...filters,
-      },
-    });
+  const handleFilterChange = (newFilters: Partial<FindWorkFilters>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+    }));
+
+    // Reset pagination when category changes (triggers new API call)
+    if (newFilters.category !== undefined) {
+      setPage(1);
+      setHasMore(true);
+    }
   };
 
   const handleClearFilters = () => {
-    setFindWorkData({
-      ...findWorkData,
-      filters: {
-        ...findWorkData.filters,
-        budgetRange: { min: 0, max: 10000 },
-        projectType: "all",
-        skills: [],
-        experienceLevel: "all",
-        duration: "all",
-        location: "",
-      },
-    });
+    setFilters(DEFAULT_FILTERS);
+    setPage(1);
+    setHasMore(true);
+  };
+
+  const handleLoadMore = () => {
+    if (hasMore && !isLoadingMore) {
+      fetchProjectsData(page + 1, true);
+    }
+  };
+
+  const handleRetry = () => {
+    fetchProjectsData(1, false);
   };
 
   return (
@@ -172,10 +264,11 @@ export default function FindWorkPage() {
         }`}
       >
         <FilterSidebar
-          filters={findWorkData.filters}
+          filters={filters}
           onFilterChange={handleFilterChange}
           onClearFilters={handleClearFilters}
           totalProjects={filteredProjects.length}
+          categories={categories}
         />
       </div>
 
@@ -184,7 +277,7 @@ export default function FindWorkPage() {
         {/* Header - Fixed */}
         <div className="flex-shrink-0">
           <FindWorkHeader
-            filters={findWorkData.filters}
+            filters={filters}
             onFilterChange={handleFilterChange}
           />
         </div>
@@ -216,8 +309,11 @@ export default function FindWorkPage() {
             <ProjectList
               projects={filteredProjects}
               isLoading={isLoading}
-              hasMore={false}
-              loadingMore={false}
+              hasMore={hasMore}
+              loadingMore={isLoadingMore}
+              error={error}
+              onLoadMore={handleLoadMore}
+              onRetry={handleRetry}
             />
           </div>
         </main>
