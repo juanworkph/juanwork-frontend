@@ -32,9 +32,10 @@ export interface CreateServiceResponse {
 }
 
 /**
- * Category entity from the backend
+/**
+ * Category entity from the backend (API response)
  */
-export interface Category {
+export interface CategoryEntity {
   id: string;
   name: string;
   slug: string;
@@ -97,7 +98,7 @@ export interface ServiceResponse {
   status: string;
   createdAt: string;
   updatedAt: string;
-  category: Category;
+  category: CategoryEntity;
   skills: Skill[];
   upgrades: UpgradeType[];
   attachments: Attachment[];

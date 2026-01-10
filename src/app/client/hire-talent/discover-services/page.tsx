@@ -1,100 +1,206 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import {
   ServiceFilterSidebar,
   DiscoverServicesHeader,
   ServiceDiscoveryList,
+  LoadingOverlay,
 } from "@/features/services/components";
 import {
-  mockDiscoverServicesData,
-  DiscoverServicesState,
+  Service,
+  Category,
   DiscoverServicesFilters,
+  defaultFilters,
 } from "@/features/services/schema";
+import {
+  fetchServices,
+  fetchCategories,
+  DiscoverServicesError,
+} from "@/features/services/actions/discover-services";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 export default function DiscoverServicesPage() {
-  const [servicesData, setServicesData] = useState<DiscoverServicesState>(
-    mockDiscoverServicesData
-  );
-  const [isLoading] = useState(false);
+  // State management
+  const [services, setServices] = useState<Service[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filters, setFilters] = useState<DiscoverServicesFilters>(defaultFilters);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Filter and sort services
-  const filteredServices = useMemo(() => {
-    let result = [...servicesData.services];
+  // Debounce search input by 300ms to avoid excessive filtering
+  const debouncedSearch = useDebouncedValue(filters.search, 300);
 
-    // Filter by search
-    if (servicesData.filters.search.trim()) {
-      const query = servicesData.filters.search.toLowerCase();
+  // Fetch initial data on mount
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Fetch categories and initial services in parallel
+        const [categoriesData, servicesData] = await Promise.all([
+          fetchCategories(),
+          fetchServices({ page: 1, limit: 20 }),
+        ]);
+
+        setCategories(categoriesData);
+        setServices(servicesData.services);
+        setPage(1);
+        setHasMore(servicesData.pagination.page < servicesData.pagination.totalPages);
+      } catch (err) {
+        const errorMessage =
+          err instanceof DiscoverServicesError
+            ? err.message
+            : "Failed to load services. Please try again.";
+        setError(errorMessage);
+        console.error("Error fetching initial data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  // Fetch services when filters change (except search and sortBy which are client-side)
+  useEffect(() => {
+    const fetchFilteredServices = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Build query params from filters
+        const queryParams: any = {
+          page: 1,
+          limit: 20,
+        };
+
+        // Add category filter if not "all"
+        if (filters.category !== "all") {
+          queryParams.categoryId = filters.category;
+        }
+
+        const servicesData = await fetchServices(queryParams);
+
+        setServices(servicesData.services);
+        setPage(1);
+        setHasMore(servicesData.pagination.page < servicesData.pagination.totalPages);
+      } catch (err) {
+        const errorMessage =
+          err instanceof DiscoverServicesError
+            ? err.message
+            : "Failed to load services. Please try again.";
+        setError(errorMessage);
+        console.error("Error fetching filtered services:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Only fetch if not initial load (initial load is handled by first useEffect)
+    if (categories.length > 0) {
+      fetchFilteredServices();
+    }
+  }, [filters.category, categories.length]); // Re-fetch when category changes or categories are loaded
+
+  // Client-side filtering - memoized to avoid re-computation
+  const filteredServices = useMemo(() => {
+    let result = [...services];
+
+    // Filter by search (client-side) - using debounced search value
+    if (debouncedSearch.trim()) {
+      const query = debouncedSearch.toLowerCase();
       result = result.filter(
         (service) =>
           service.serviceName.toLowerCase().includes(query) ||
           service.description.toLowerCase().includes(query) ||
-          service.skills.some((skill) => skill.toLowerCase().includes(query)) ||
-          service.category.toLowerCase().includes(query) ||
-          service.provider.name.toLowerCase().includes(query)
+          service.skills.some((skill) => skill.toLowerCase().includes(query))
       );
     }
 
-    // Filter by category
-    if (servicesData.filters.category !== "All Categories") {
-      result = result.filter(
-        (service) => service.category === servicesData.filters.category
-      );
-    }
-
-    // Filter by price range
+    // Filter by price range (client-side)
     result = result.filter((service) => {
       const price = service.pricing.starting;
       return (
-        price >= servicesData.filters.priceRange.min &&
-        price <= servicesData.filters.priceRange.max
+        price >= filters.priceRange.min &&
+        price <= filters.priceRange.max
       );
     });
 
-    // Filter by skills
-    if (servicesData.filters.skills.length > 0) {
+    // Filter by pricing type (client-side)
+    if (filters.pricingType !== "all") {
+      result = result.filter(
+        (service) => service.pricing.type === filters.pricingType
+      );
+    }
+
+    // Filter by skills (client-side, OR logic)
+    if (filters.skills.length > 0) {
       result = result.filter((service) =>
-        servicesData.filters.skills.some((skill) =>
+        filters.skills.some((skill) =>
           service.skills.includes(skill)
         )
       );
     }
 
-    // Filter by pricing type
-    if (servicesData.filters.pricingType !== "all") {
+    // Filter by experience level (client-side)
+    if (filters.experienceLevel !== "all") {
       result = result.filter(
-        (service) => service.pricing.type === servicesData.filters.pricingType
+        (service) => service.experienceLevel === filters.experienceLevel
       );
     }
 
-    // Filter by delivery time
-    if (servicesData.filters.deliveryTime !== "all") {
+    // Filter by delivery time (client-side)
+    if (filters.deliveryTime !== "all") {
+      result = result.filter((service) => {
+        switch (filters.deliveryTime) {
+          case "24-hours":
+            return service.deliveryDays <= 1;
+          case "3-days":
+            return service.deliveryDays <= 3;
+          case "7-days":
+            return service.deliveryDays <= 7;
+          case "anytime":
+            return true;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Filter by provider level (client-side)
+    if (filters.providerLevel !== "all") {
       result = result.filter(
-        (service) => service.deliveryTime === servicesData.filters.deliveryTime
+        (service) => service.provider.level === filters.providerLevel
       );
     }
 
-    // Filter by provider level
-    if (servicesData.filters.providerLevel !== "all") {
-      result = result.filter(
-        (service) =>
-          service.provider.level === servicesData.filters.providerLevel
-      );
-    }
+    return result;
+  }, [
+    services,
+    debouncedSearch,
+    filters.priceRange,
+    filters.pricingType,
+    filters.skills,
+    filters.experienceLevel,
+    filters.deliveryTime,
+    filters.providerLevel,
+  ]);
 
-    // Filter by minimum rating
-    if (servicesData.filters.minRating > 0) {
-      result = result.filter(
-        (service) => service.rating >= servicesData.filters.minRating
-      );
-    }
+  // Client-side sorting - memoized separately to avoid re-filtering when only sort changes
+  const sortedServices = useMemo(() => {
+    const result = [...filteredServices];
 
-    // Sort services
+    // Sort services (client-side)
     result.sort((a, b) => {
-      switch (servicesData.filters.sortBy) {
+      switch (filters.sortBy) {
         case "relevance":
           // Sort by rating, total orders, and featured status
           const scoreA =
@@ -107,6 +213,7 @@ export default function DiscoverServicesPage() {
             (b.isFeatured ? 1 : 0) * 0.3;
           return scoreB - scoreA;
         case "rating-high":
+          // Sort by rating in descending order
           return b.rating - a.rating;
         case "price-low":
           return a.pricing.starting - b.pricing.starting;
@@ -120,32 +227,91 @@ export default function DiscoverServicesPage() {
     });
 
     return result;
-  }, [servicesData.services, servicesData.filters]);
+  }, [filteredServices, filters.sortBy]);
 
-  const handleFilterChange = (filters: Partial<DiscoverServicesFilters>) => {
-    setServicesData({
-      ...servicesData,
-      filters: {
-        ...servicesData.filters,
-        ...filters,
-      },
-    });
+  const handleFilterChange = (newFilters: Partial<DiscoverServicesFilters>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+    }));
   };
 
   const handleClearFilters = () => {
-    setServicesData({
-      ...servicesData,
-      filters: {
-        ...servicesData.filters,
-        priceRange: { min: 0, max: 10000 },
-        pricingType: "all",
-        skills: [],
-        deliveryTime: "all",
-        providerLevel: "all",
-        minRating: 0,
-      },
-    });
+    setFilters(defaultFilters);
   };
+
+  const handleRetry = () => {
+    setError(null);
+    setIsLoading(true);
+    // Trigger re-fetch by updating a dependency
+    setPage(1);
+    window.location.reload();
+  };
+
+  // Handle loading more services (pagination)
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+
+    try {
+      setIsLoadingMore(true);
+      setError(null);
+
+      const nextPage = page + 1;
+
+      // Build query params from filters
+      const queryParams: any = {
+        page: nextPage,
+        limit: 20,
+      };
+
+      // Add category filter if not "all"
+      if (filters.category !== "all") {
+        queryParams.categoryId = filters.category;
+      }
+
+      const servicesData = await fetchServices(queryParams);
+
+      // Append new services to existing array with deduplication
+      setServices((prev) => {
+        const existingIds = new Set(prev.map(s => s.id));
+        const newServices = servicesData.services.filter(s => !existingIds.has(s.id));
+        return [...prev, ...newServices];
+      });
+      setPage(nextPage);
+      setHasMore(servicesData.pagination.page < servicesData.pagination.totalPages);
+    } catch (err) {
+      const errorMessage =
+        err instanceof DiscoverServicesError
+          ? err.message
+          : "Failed to load more services. Please try again.";
+      setError(errorMessage);
+      console.error("Error loading more services:", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, page, filters.category]);
+
+  // Scroll detection for infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollableElement = document.querySelector('main');
+      if (!scrollableElement) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollableElement;
+      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+
+      // Trigger load more when user scrolls to 80% of the page
+      if (scrollPercentage > 0.8 && hasMore && !isLoadingMore && !isLoading) {
+        handleLoadMore();
+      }
+    };
+
+    const scrollableElement = document.querySelector('main');
+    if (scrollableElement) {
+      scrollableElement.addEventListener('scroll', handleScroll);
+      return () => scrollableElement.removeEventListener('scroll', handleScroll);
+    }
+  }, [hasMore, isLoadingMore, isLoading, handleLoadMore]);
 
   return (
     <div className="flex h-full">
@@ -164,10 +330,12 @@ export default function DiscoverServicesPage() {
         }`}
       >
         <ServiceFilterSidebar
-          filters={servicesData.filters}
+          filters={filters}
+          categories={categories}
           onFilterChange={handleFilterChange}
           onClearFilters={handleClearFilters}
-          totalServices={filteredServices.length}
+          totalServices={sortedServices.length}
+          isLoading={isLoading}
         />
       </div>
 
@@ -176,8 +344,10 @@ export default function DiscoverServicesPage() {
         {/* Header - Fixed */}
         <div className="flex-shrink-0">
           <DiscoverServicesHeader
-            filters={servicesData.filters}
+            filters={filters}
             onFilterChange={handleFilterChange}
+            totalResults={sortedServices.length}
+            isLoading={isLoading}
           />
         </div>
 
@@ -196,20 +366,25 @@ export default function DiscoverServicesPage() {
             ) : (
               <>
                 <Menu className="h-4 w-4" />
-                Show Filters ({filteredServices.length} services)
+                Show Filters ({sortedServices.length} services)
               </>
             )}
           </Button>
         </div>
 
         {/* Services List - Scrollable */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto relative">
           <div className="p-6">
+            {/* Loading Overlay for Filter Changes */}
+            <LoadingOverlay isVisible={isLoading && services.length > 0} message="Applying filters..." />
+            
             <ServiceDiscoveryList
-              services={filteredServices}
+              services={sortedServices}
               isLoading={isLoading}
-              hasMore={false}
-              loadingMore={false}
+              hasMore={hasMore}
+              loadingMore={isLoadingMore}
+              error={error}
+              onRetry={handleRetry}
             />
           </div>
         </main>

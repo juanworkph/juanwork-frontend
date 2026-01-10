@@ -24,7 +24,7 @@ import {
   statusConfig,
   formatDate,
 } from "../schema/my-services-data";
-import { formatCurrency } from "../schema/post-service-data";
+import { formatCurrency } from "../schema/discover-services-data";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ServiceDetailViewProps {

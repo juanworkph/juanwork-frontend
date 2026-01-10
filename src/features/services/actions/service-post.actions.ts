@@ -1,6 +1,6 @@
 import apiClient from '@/lib/api-client';
 import { 
-  Category, 
+  CategoryEntity, 
   Skill, 
   UpgradeType, 
   CreateServiceRequest, 
@@ -12,12 +12,12 @@ import {
 
 /**
  * Fetch all active categories from the backend
- * @returns Promise<Category[]> - Array of category objects
+ * @returns Promise<CategoryEntity[]> - Array of category objects
  * @throws Error if the API request fails
  */
-export const getAllCategories = async (): Promise<Category[]> => {
+export const getAllCategories = async (): Promise<CategoryEntity[]> => {
   try {
-    const response = await apiClient.get<ApiSuccessResponse<{ categories: Category[] }>>(
+    const response = await apiClient.get<ApiSuccessResponse<{ categories: CategoryEntity[] }>>(
       '/categories'
     );
     return response.data.data.categories;

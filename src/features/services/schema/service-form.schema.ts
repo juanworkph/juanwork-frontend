@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { ExperienceLevel } from './discover-services-data';
 
 // ============================================
 // Form Types
@@ -8,11 +9,6 @@ import { z } from 'zod';
  * Payment type for services
  */
 export type PaymentType = 'fixed' | 'hourly';
-
-/**
- * Experience level for services
- */
-export type ExperienceLevel = 'beginner' | 'intermediate' | 'expert';
 
 /**
  * Status of a service post

@@ -1,7 +1,7 @@
 export type ProjectType = "fixed" | "hourly";
-export type ServiceStatus = "draft" | "pending" | "active" | "rejected";
+type ServiceStatus = "draft" | "pending" | "active" | "rejected";
 
-export interface ServiceUpgrade {
+export interface ServiceUpgradeOption {
   id: string;
   name: string;
   description: string;
@@ -11,7 +11,9 @@ export interface ServiceUpgrade {
   available: boolean;
 }
 
-export interface ServiceFormData {
+// Legacy interface - kept for backward compatibility
+// Note: New code should use ServiceFormData from service-form.schema.ts
+interface LegacyServiceFormData {
   // Step 1: Basic Details
   serviceName: string;
   description: string;
@@ -100,7 +102,7 @@ export const allSkills = [
 ];
 
 // Service upgrades based on Freelancer.com model
-export const serviceUpgrades: ServiceUpgrade[] = [
+export const serviceUpgrades: ServiceUpgradeOption[] = [
   {
     id: "recruiter",
     name: "RECRUITER",
@@ -189,8 +191,8 @@ export const getSkillRecommendations = (
   return filtered.slice(0, 5); // Return top 5 matches
 };
 
-// Initial form data
-export const initialFormData: ServiceFormData = {
+// Initial form data (legacy)
+const initialFormData: LegacyServiceFormData = {
   serviceName: "",
   description: "",
   projectType: "fixed",
@@ -206,7 +208,7 @@ export const initialFormData: ServiceFormData = {
 };
 
 // Helper functions
-export const formatCurrency = (amount: number): string => {
+const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

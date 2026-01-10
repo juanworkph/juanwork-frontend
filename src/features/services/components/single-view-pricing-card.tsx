@@ -1,8 +1,7 @@
 "use client";
 
 import React, { memo } from "react";
-import type { ServicePricing, PackageDetails } from "@/features/services/schema";
-import { getDeliveryTimeLabel } from "@/features/services/schema";
+import type { ServicePricing, PackageDetails, DeliveryTime } from "@/features/services/schema";
 
 interface SingleViewPricingCardProps {
   pricing: ServicePricing;
@@ -19,6 +18,24 @@ export const SingleViewPricingCard = memo(({
   onSubmitProposal,
   onContactProvider,
 }: SingleViewPricingCardProps) => {
+  // Helper to format delivery time
+  const formatDeliveryTime = (time: DeliveryTime): string => {
+    switch (time) {
+      case "1-week":
+        return "1 Week";
+      case "2-weeks":
+        return "2 Weeks";
+      case "1-month":
+        return "1 Month";
+      case "2-months":
+        return "2 Months";
+      case "3-months":
+        return "3 Months";
+      default:
+        return time;
+    }
+  };
+
   // Determine price to display
   const getDisplayPrice = () => {
     if (pricing.type === "package" && selectedPackage && packageDetails) {
@@ -93,7 +110,7 @@ export const SingleViewPricingCard = memo(({
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span>{getDeliveryTimeLabel(deliveryTime)} Delivery</span>
+                <span>{formatDeliveryTime(deliveryTime)} Delivery</span>
               </div>
             </div>
           )}
@@ -185,7 +202,7 @@ export const SingleViewPricingCard = memo(({
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span>{getDeliveryTimeLabel(deliveryTime)} Delivery</span>
+              <span>{formatDeliveryTime(deliveryTime)} Delivery</span>
             </div>
           )}
         </div>

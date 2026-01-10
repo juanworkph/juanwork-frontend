@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Search,
-  SortAsc,
-  SortDesc,
   Bell,
   User,
   Settings,
@@ -29,45 +27,48 @@ import {
   Package,
 } from "lucide-react";
 import { DiscoverServicesFilters } from "../schema";
-import { categories } from "../schema/discover-services-data";
+import { useDebounce } from "@/components/ui/multiple-selector";
 
 interface DiscoverServicesHeaderProps {
   filters: DiscoverServicesFilters;
   onFilterChange: (filters: Partial<DiscoverServicesFilters>) => void;
+  totalResults: number;
+  isLoading: boolean;
 }
 
 export function DiscoverServicesHeader({
   filters,
   onFilterChange,
+  totalResults,
+  isLoading,
 }: DiscoverServicesHeaderProps) {
-  const handleSortChange = () => {
-    const sortOptions: Array<DiscoverServicesFilters["sortBy"]> = [
-      "relevance",
-      "rating-high",
-      "price-low",
-      "price-high",
-      "popular",
-    ];
-    const currentIndex = sortOptions.indexOf(filters.sortBy);
-    const nextIndex = (currentIndex + 1) % sortOptions.length;
-    onFilterChange({ sortBy: sortOptions[nextIndex] });
+  // Local state for immediate search input (before debouncing)
+  const [searchInput, setSearchInput] = useState(filters.search);
+
+  // Debounce the search input with 300ms delay
+  const debouncedSearch = useDebounce(searchInput, 300);
+
+  // Sync local state with parent filters when filters.search changes externally
+  // (e.g., when clear filters is clicked)
+  useEffect(() => {
+    if (filters.search !== searchInput) {
+      setSearchInput(filters.search);
+    }
+  }, [filters.search, searchInput]);
+
+  // Update parent filter when debounced value changes
+  useEffect(() => {
+    if (debouncedSearch !== filters.search) {
+      onFilterChange({ search: debouncedSearch });
+    }
+  }, [debouncedSearch, filters.search, onFilterChange]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
   };
 
-  const getSortLabel = () => {
-    switch (filters.sortBy) {
-      case "relevance":
-        return "Most Relevant";
-      case "rating-high":
-        return "Rating: High to Low";
-      case "price-low":
-        return "Price: Low to High";
-      case "price-high":
-        return "Price: High to Low";
-      case "popular":
-        return "Most Popular";
-      default:
-        return "Sort";
-    }
+  const handleSortChange = (value: string) => {
+    onFilterChange({ sortBy: value as DiscoverServicesFilters["sortBy"] });
   };
 
   return (
@@ -81,45 +82,44 @@ export function DiscoverServicesHeader({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search services by name, skill, or category..."
-              value={filters.search}
-              onChange={(e) => onFilterChange({ search: e.target.value })}
+              value={searchInput}
+              onChange={handleSearchChange}
               className="pl-10 h-11"
             />
           </div>
 
-          {/* Category */}
+          {/* Sort Dropdown */}
           <Select
-            value={filters.category}
-            onValueChange={(value) => onFilterChange({ category: value })}
+            value={filters.sortBy}
+            onValueChange={handleSortChange}
           >
-            <SelectTrigger className="w-full sm:w-[200px] h-11">
-              <SelectValue />
+            <SelectTrigger className="w-full sm:w-[220px] h-11">
+              <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
+              <SelectItem value="relevance">Relevance</SelectItem>
+              <SelectItem value="rating-high">Rating: High to Low</SelectItem>
+              <SelectItem value="price-low">Price: Low to High</SelectItem>
+              <SelectItem value="price-high">Price: High to Low</SelectItem>
+              <SelectItem value="popular">Most Popular</SelectItem>
             </SelectContent>
           </Select>
+        </div>
 
-          {/* Sort */}
-          <Button
-            variant="outline"
-            onClick={handleSortChange}
-            className="gap-2 h-11 w-full sm:w-auto"
-          >
-            {filters.sortBy === "rating-high" ||
-            filters.sortBy === "price-high" ||
-            filters.sortBy === "popular" ? (
-              <SortDesc className="h-4 w-4" />
-            ) : (
-              <SortAsc className="h-4 w-4" />
-            )}
-            <span className="hidden sm:inline">{getSortLabel()}</span>
-            <span className="sm:hidden">Sort</span>
-          </Button>
+        {/* Result Count Display */}
+        <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+          {isLoading ? (
+            <span>Loading services...</span>
+          ) : (
+            <span>
+              Showing <span className="font-semibold text-gray-900 dark:text-gray-100">{totalResults}</span> service{totalResults !== 1 ? 's' : ''}
+              {filters.search && (
+                <span>
+                  {' '}for <span className="font-semibold text-gray-900 dark:text-gray-100">&quot;{filters.search}&quot;</span>
+                </span>
+              )}
+            </span>
+          )}
         </div>
       </div>
     </header>
