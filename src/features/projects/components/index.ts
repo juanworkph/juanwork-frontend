@@ -15,8 +15,19 @@ export { MyProjectsHeader } from "./my-projects-header";
 export { MyProjectCard } from "./my-project-card";
 export { MyProjectsGrid } from "./my-projects-grid";
 export { ProjectDetailView } from "./project-detail-view";
+export { ProjectDetailLayout } from "./project-detail-layout";
+export { ProjectHeader } from "./project-header";
 export { ConfirmDialog } from "./confirm-dialog";
 export { ProjectCardSkeleton } from "./project-card-skeleton";
+export { AccessDenied } from "./access-denied";
+
+// Project Detail Page components
+export { ClientInfo } from "./client-info";
+export { BidCard } from "./bid-card";
+export { FreelancerBidsSection } from "./freelancer-bids-section";
+export { TimeRemainingCard } from "./time-remaining-card";
+export { NetworkStatusIndicator } from "./network-status-indicator";
+export { ErrorRetryCard } from "./error-retry-card";
 
 // Single View (Project Details) components
 export { SingleViewHeader } from "./single-view-header";
