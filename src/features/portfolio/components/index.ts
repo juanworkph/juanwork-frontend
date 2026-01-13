@@ -1,4 +1,9 @@
 export { PortfolioHeader } from './portfolio-header';
-export { ProjectFilters } from './project-filters';
-export { ProjectCard } from './project-card';
-export { ProjectGrid } from './project-grid'; 
+export { PortfolioFilters } from './portfolio-filters';
+export { PortfolioCard } from './portfolio-card';
+export { PortfolioCardSkeleton } from './portfolio-card-skeleton';
+export { PortfolioGrid } from './portfolio-grid';
+export { ImageUpload } from './image-upload';
+export { PortfolioProjectFormModal } from './portfolio-project-form-modal';
+export { PortfolioProjectDetail } from './portfolio-project-detail';
+export { ConfirmDeleteDialog } from './confirm-delete-dialog'; 
