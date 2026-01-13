@@ -462,13 +462,27 @@ export const upgradeDisplayNames: Record<string, string> = {
 
 /**
  * Format date to readable string
+ * Handles both Date objects and date strings
  */
-export const formatDate = (date: Date): string => {
+export const formatDate = (date: Date | string): string => {
+  // Handle invalid dates
+  if (!date) {
+    return 'N/A';
+  }
+  
+  // Convert string to Date if needed
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid Date';
+  }
+  
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
-  }).format(date);
+  }).format(dateObj);
 };
 
 /**

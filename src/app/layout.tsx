@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ConditionalLayout } from "@/components/layout/conditional-layout";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,6 +27,12 @@ export default function RootLayout({
           <AuthProvider>
             <ConditionalLayout>{children}</ConditionalLayout>
           </AuthProvider>
+          <Toaster 
+            position="bottom-right" 
+            expand={false}
+            richColors
+            closeButton
+          />
         </ThemeProvider>
       </body>
     </html>

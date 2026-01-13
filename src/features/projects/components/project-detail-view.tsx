@@ -1,59 +1,115 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Edit,
   Trash2,
   Copy,
-  Eye,
-  MessageCircle,
   Calendar,
-  DollarSign,
   Clock,
-  Tag,
   Sparkles,
   Share2,
-  Download,
-  AlertCircle,
-  TrendingUp,
   Users,
   FileCheck,
   XCircle,
   CheckCircle2,
   Layers,
+  AlertCircle,
 } from "lucide-react";
 import {
   MyProject,
   projectStatusConfig,
   formatDate,
-  formatCurrency,
   getDeliveryDaysLabel,
   getExperienceLevelLabel,
-  getBudgetDisplay,
 } from "../schema/my-projects-data";
+import {
+  FreelancerBid,
+  ProjectInsights,
+  TimeRemaining,
+} from "../schema/project-detail-data";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RequiredSkills } from "./required-skills";
+import { ProjectDetailLayout } from "./project-detail-layout";
+import { FreelancerBidsSection } from "./freelancer-bids-section";
+import { ProjectDetailSidebar } from "./project-detail-sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ProjectDetailViewProps {
   project: MyProject;
+  bids: FreelancerBid[];
+  insights: ProjectInsights | null;
+  timeRemaining: TimeRemaining | null;
+  isLoadingBids?: boolean;
+  isLoadingInsights?: boolean;
+  bidsError?: string | null;
+  insightsError?: string | null;
+  isOwner: boolean; // NEW: Indicates if current user owns the project
   onEdit?: () => void;
   onDelete?: () => void;
   onDuplicate?: () => void;
   onShare?: () => void;
+  onCloseBids?: () => void;
+  onMessageFreelancer?: (freelancerId: string) => void;
+  onViewProfile?: (freelancerId: string) => void;
+  onShortlist?: (bidId: string) => void;
+  onInterview?: (bidId: string) => void;
+  onReject?: (bidId: string) => void;
+  onReport?: (bidId: string) => void;
+  onRetryBids?: () => void; // NEW: Retry fetching bids
+  onRetryInsights?: () => void; // NEW: Retry fetching insights
 }
 
 export function ProjectDetailView({
   project,
+  bids,
+  insights,
+  timeRemaining,
+  isLoadingBids = false,
+  isLoadingInsights = false,
+  bidsError = null,
+  insightsError = null,
+  isOwner, // NEW
   onEdit,
   onDelete,
   onDuplicate,
   onShare,
+  onCloseBids,
+  onMessageFreelancer,
+  onViewProfile,
+  onShortlist,
+  onInterview,
+  onReject,
+  onReport,
+  onRetryBids, // NEW
+  onRetryInsights, // NEW
 }: ProjectDetailViewProps) {
   const statusInfo = projectStatusConfig[project.status];
 
-  const budgetDisplay = getBudgetDisplay(project);
+  /**
+   * Handle retry for bids loading
+   */
+  const handleRetryBids = () => {
+    if (onRetryBids) {
+      onRetryBids();
+    } else {
+      // Fallback to page reload
+      window.location.reload();
+    }
+  };
+
+  /**
+   * Handle retry for insights loading
+   */
+  const handleRetryInsights = () => {
+    if (onRetryInsights) {
+      onRetryInsights();
+    } else {
+      // Fallback to page reload
+      window.location.reload();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -98,35 +154,45 @@ export function ProjectDetailView({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={onShare}>
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
-          <Button variant="outline" size="sm" onClick={onDuplicate}>
-            <Copy className="h-4 w-4 mr-2" />
-            Duplicate
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onEdit}
-            className="border-[#F45A0B] text-[#F45A0B] hover:bg-[#F45A0B]/10"
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onDelete}
-            className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
-        </div>
+        {/* Action Buttons - Only show for owners */}
+        {isOwner && (
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={onShare}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
+            <Button variant="outline" size="sm" onClick={onDuplicate}>
+              <Copy className="h-4 w-4 mr-2" />
+              Duplicate
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onEdit}
+              className="border-[#F45A0B] text-[#F45A0B] hover:bg-[#F45A0B]/10"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onDelete}
+              className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          </div>
+        )}
+
+        {/* View-only indicator for non-owners */}
+        {!isOwner && (
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <AlertCircle className="h-4 w-4" />
+            <span>View-only mode</span>
+          </div>
+        )}
       </div>
 
       {/* Status Alerts */}
@@ -192,338 +258,170 @@ export function ProjectDetailView({
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Description */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-[#F45A0B]">
-                    Project Description
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {project.description}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Skills */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-[#F45A0B] flex items-center gap-2">
-                    <Tag className="h-5 w-5" />
-                    Required Skills
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {project.skills.map((skill) => (
-                      <Badge
-                        key={skill.id}
-                        variant="secondary"
-                        className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                      >
-                        {skill.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Project Requirements */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-[#F45A0B] flex items-center gap-2">
-                    <FileCheck className="h-5 w-5" />
-                    Project Requirements
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Delivery Days
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {getDeliveryDaysLabel(project.deliveryDays)}
-                      </p>
-                    </div>
-                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Experience Level
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {getExperienceLevelLabel(project.experienceLevel)}
-                      </p>
-                    </div>
-                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Payment Type
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white capitalize">
-                        {project.paymentType === "fixed"
-                          ? "Fixed Price"
-                          : "Hourly Rate"}
-                      </p>
-                    </div>
-                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Category
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {project.category.name}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Project Upgrades */}
-              {project.upgrades.length > 0 && (
+          <ProjectDetailLayout
+            leftColumn={
+              <>
+                {/* Description */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-[#F45A0B] flex items-center gap-2">
-                      <Sparkles className="h-5 w-5" />
-                      Project Upgrades
+                    <CardTitle className="text-[#F45A0B]">
+                      Project Description
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      {project.upgrades.map((upgrade) => (
-                        <div
-                          key={upgrade.id}
-                          className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
-                        >
-                          <div className="w-10 h-10 rounded-full bg-[#F45A0B]/10 flex items-center justify-center flex-shrink-0">
-                            <Sparkles className="h-5 w-5 text-[#F45A0B]" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-gray-900 dark:text-white uppercase">
-                              {upgrade.name}
-                            </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {getUpgradeDescription(upgrade.slug)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                      {project.description}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Skills */}
+                <RequiredSkills skills={project.skills} />
+
+                {/* Project Requirements */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-[#F45A0B] flex items-center gap-2">
+                      <FileCheck className="h-5 w-5" />
+                      Project Requirements
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          Delivery Days
+                        </p>
+                        <p className="font-semibold text-gray-900 dark:text-white">
+                          {getDeliveryDaysLabel(project.deliveryDays)}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          Experience Level
+                        </p>
+                        <p className="font-semibold text-gray-900 dark:text-white">
+                          {getExperienceLevelLabel(project.experienceLevel)}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          Payment Type
+                        </p>
+                        <p className="font-semibold text-gray-900 dark:text-white capitalize">
+                          {project.paymentType === "fixed"
+                            ? "Fixed Price"
+                            : "Hourly Rate"}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          Category
+                        </p>
+                        <p className="font-semibold text-gray-900 dark:text-white">
+                          {project.category.name}
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              )}
-            </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Stats Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-[#F45A0B]">
-                    Project Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-900/10">
-                    <div className="flex items-center gap-2">
-                      <MessageCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Bids
-                      </span>
-                    </div>
-                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {project.biddersCount}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Budget Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-[#F45A0B] flex items-center gap-2">
-                    <DollarSign className="h-5 w-5" />
-                    Budget
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      Payment Type
-                    </p>
-                    <Badge variant="outline" className="text-sm capitalize">
-                      {project.paymentType === "fixed"
-                        ? "Fixed Price"
-                        : "Hourly Rate"}
-                    </Badge>
-                  </div>
-
-                  <Separator />
-
-                  {project.paymentType === "fixed" ? (
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        Budget Range
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            Minimum
-                          </span>
-                          <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                            {formatCurrency(project.budgetMin, project.currency)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            Maximum
-                          </span>
-                          <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                            {formatCurrency(project.budgetMax, project.currency)}
-                          </span>
-                        </div>
+                {/* Project Upgrades */}
+                {project.upgrades.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-[#F45A0B] flex items-center gap-2">
+                        <Sparkles className="h-5 w-5" />
+                        Project Upgrades
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {project.upgrades.map((upgrade) => (
+                          <div
+                            key={upgrade.id}
+                            className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-[#F45A0B]/10 flex items-center justify-center flex-shrink-0">
+                              <Sparkles className="h-5 w-5 text-[#F45A0B]" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-900 dark:text-white uppercase">
+                                {upgrade.name}
+                              </p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {getUpgradeDescription(upgrade.slug)}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        Budget Range
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            Minimum
-                          </span>
-                          <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                            {formatCurrency(project.budgetMin, project.currency)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            Maximum
-                          </span>
-                          <span className="font-semibold text-lg text-gray-900 dark:text-white">
-                            {formatCurrency(project.budgetMax, project.currency)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Project Timeline */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-[#F45A0B] flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Timeline
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    <div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Delivery Days
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {getDeliveryDaysLabel(project.deliveryDays)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                    <div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Experience Required
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {getExperienceLevelLabel(project.experienceLevel)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-[#F45A0B]">
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={onShare}
-                  >
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share Project
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Report
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Eye className="h-4 w-4 mr-2" />
-                    Preview as Freelancer
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            }
+            rightColumn={
+              <ProjectDetailSidebar
+                projectId={project.id}
+                projectName={project.name}
+                projectDescription={project.description}
+                projectStatus={project.status}
+                paymentType={project.paymentType}
+                budgetMin={project.budgetMin}
+                budgetMax={project.budgetMax}
+                currency={project.currency}
+                timeRemaining={timeRemaining}
+                insights={insights}
+                isLoadingInsights={isLoadingInsights}
+                insightsError={insightsError}
+                isOwner={isOwner}
+                onCloseBids={onCloseBids}
+                onShare={onShare}
+                onRetryInsights={handleRetryInsights}
+              />
+            }
+          />
         </TabsContent>
 
         <TabsContent value="bids" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-[#F45A0B]">
-                Bids Received ({project.biddersCount})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {project.biddersCount === 0 ? (
-                <div className="text-center py-12">
-                  <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4 w-fit mx-auto">
-                    <MessageCircle className="h-12 w-12 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    No bids yet
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                    Freelancers will start submitting bids soon. You'll be
-                    notified when you receive new bids.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <Alert className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/10">
-                    <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <AlertDescription className="text-blue-800 dark:text-blue-200">
-                      You have {project.biddersCount} bid
-                      {project.biddersCount > 1 ? "s" : ""} for this project.
-                      Review each bid carefully and hire the best
-                      freelancer(s) for your needs. You can view detailed
-                      bids in the{" "}
-                      <span className="font-semibold">Bids</span> section.
-                    </AlertDescription>
-                  </Alert>
-                  <div className="flex justify-center pt-4">
-                    <Button
-                      className="bg-[#F45A0B] hover:bg-[#F45A0B]/90"
-                      size="lg"
-                    >
-                      <MessageCircle className="h-5 w-5 mr-2" />
-                      View All Bids
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <ProjectDetailLayout
+            leftColumn={
+              <FreelancerBidsSection
+                bids={bids}
+                isLoading={isLoadingBids}
+                error={bidsError}
+                isOwner={isOwner}
+                onMessageFreelancer={onMessageFreelancer}
+                onViewProfile={onViewProfile}
+                onShortlist={onShortlist}
+                onInterview={onInterview}
+                onReject={onReject}
+                onReport={onReport}
+                onRetry={handleRetryBids}
+              />
+            }
+            rightColumn={
+              <ProjectDetailSidebar
+                projectId={project.id}
+                projectName={project.name}
+                projectDescription={project.description}
+                projectStatus={project.status}
+                paymentType={project.paymentType}
+                budgetMin={project.budgetMin}
+                budgetMax={project.budgetMax}
+                currency={project.currency}
+                timeRemaining={timeRemaining}
+                insights={insights}
+                isLoadingInsights={isLoadingInsights}
+                insightsError={insightsError}
+                isOwner={isOwner}
+                onCloseBids={onCloseBids}
+                onShare={onShare}
+                onRetryInsights={handleRetryInsights}
+              />
+            }
+          />
         </TabsContent>
       </Tabs>
     </div>
