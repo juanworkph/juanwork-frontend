@@ -38,10 +38,10 @@ export function SkillsManager({ initialSkills = [] }: SkillsManagerProps) {
 
   return (
     <div className="space-y-4">
-      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 px-1 uppercase tracking-wider">
+      <label className="block text-xs font-bold text-foreground mb-2 px-1 uppercase tracking-wider opacity-70">
         Skills
       </label>
-      <div className="flex flex-wrap gap-2 mb-4 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl min-h-[60px]">
+      <div className="flex flex-wrap gap-2 mb-4 p-4 bg-muted/50 border border-border rounded-xl min-h-[60px]">
         {skills.map((skill, index) => (
           <Badge
             key={skill}
@@ -62,16 +62,16 @@ export function SkillsManager({ initialSkills = [] }: SkillsManagerProps) {
         ))}
       </div>
       <div className="relative group">
-        <PlusCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#f97316] transition-colors h-5 w-5" />
+        <PlusCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors h-5 w-5" />
         <Input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleAddSkill}
-          className="w-full pl-11 pr-4 py-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-[#f97316] focus:border-[#f97316] dark:text-white transition-all outline-none"
+          className="w-full pl-11 pr-4 py-6 bg-card dark:bg-card-accent border-border rounded-xl focus:ring-primary focus:border-primary text-foreground transition-all outline-none"
           placeholder="Add a skill and press Enter"
         />
       </div>
-      <p className="text-[10px] text-slate-400 dark:text-slate-500 text-right font-medium">
+      <p className="text-[10px] text-muted-foreground text-right font-medium">
         Max 15 skills
       </p>
     </div>

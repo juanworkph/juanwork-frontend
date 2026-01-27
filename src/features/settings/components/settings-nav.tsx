@@ -30,8 +30,8 @@ export function SettingsNav() {
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group",
               isActive
-                ? "bg-[#f97316] text-white shadow-sm font-semibold"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
+                ? "bg-primary text-white shadow-sm font-semibold"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent",
             )}
           >
             <Icon
@@ -39,7 +39,7 @@ export function SettingsNav() {
                 "h-5 w-5 transition-colors",
                 isActive
                   ? "text-white"
-                  : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300",
+                  : "text-muted-foreground group-hover:text-foreground",
               )}
             />
             {item.label}

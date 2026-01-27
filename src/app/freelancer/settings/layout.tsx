@@ -7,7 +7,7 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-[#f8fafc] dark:bg-[#09090b] min-h-screen transition-colors duration-200">
+    <div className="bg-background min-h-screen transition-colors duration-200">
       <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <SettingsHeader />
 
