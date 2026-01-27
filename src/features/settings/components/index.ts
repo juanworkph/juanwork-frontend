@@ -1,5 +1,12 @@
-export { ProfileTab } from "./profile-tab";
-export { JuanPointsTab } from "./juanpoints-tab";
-export { PasswordTab } from "./password-tab";
-export { SocialTab } from "./social-tab";
-export { DeactivationTab } from "./deactivation-tab";
+export * from "./profile-tab";
+export * from "./juanpoints-tab";
+export * from "./password-tab";
+export * from "./social-tab";
+export * from "./deactivation-tab";
+export * from "./settings-header";
+export * from "./settings-nav";
+export * from "./settings-footer";
+export * from "./profile-photo-section";
+export * from "./video-intro-section";
+export * from "./personal-info-section";
+export * from "./skills-manager";
