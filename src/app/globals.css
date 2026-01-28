@@ -31,6 +31,10 @@
   --font-display: var(--font-poppins);
 }
 
+html {
+  @apply h-full;
+}
+
 .dark {
   /* Dark Mode - Base colors from HTML Reference */
   --background: oklch(0.12 0.005 240); /* #09090b */
@@ -91,7 +95,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans h-full;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

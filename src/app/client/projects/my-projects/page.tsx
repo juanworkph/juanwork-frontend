@@ -15,7 +15,10 @@ import {
   calculateProjectStatistics,
   type MyProject,
 } from "@/features/projects/schema";
-import { getUserProjects, deleteProject } from "@/features/projects/actions/my-projects.actions";
+import {
+  getUserProjects,
+  deleteProject,
+} from "@/features/projects/actions/my-projects.actions";
 import { useAuth } from "@/contexts/auth-context";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { toast } from "sonner";
@@ -27,13 +30,14 @@ import { AlertCircle, ShieldAlert } from "lucide-react";
 export default function MyProjectsPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading, currentRole } = useAuth();
-  
+
   // State management
   const [projects, setProjects] = useState<MyProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<ProjectFilterStatus>("all");
+  const [selectedStatus, setSelectedStatus] =
+    useState<ProjectFilterStatus>("all");
   const [sortBy, setSortBy] = useState("newest");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
@@ -47,7 +51,8 @@ export default function MyProjectsPage() {
       const data = await getUserProjects();
       setProjects(data);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch projects";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch projects";
       setError(errorMessage);
       console.error("Error fetching projects:", err);
       toast.error("Failed to load projects");
@@ -69,7 +74,7 @@ export default function MyProjectsPage() {
   // Filter projects by status
   const statusFilteredProjects = useMemo(
     () => getProjectsByStatus(projects, selectedStatus),
-    [projects, selectedStatus]
+    [projects, selectedStatus],
   );
 
   // Filter by search query (using debounced value)
@@ -92,9 +97,12 @@ export default function MyProjectsPage() {
     router.push("/client/projects/post-project");
   }, [router]);
 
-  const handleEdit = useCallback((projectId: string) => {
-    router.push(`/client/projects/edit/${projectId}`);
-  }, [router]);
+  const handleEdit = useCallback(
+    (projectId: string) => {
+      router.push(`/client/projects/edit/${projectId}`);
+    },
+    [router],
+  );
 
   const handleDelete = useCallback((projectId: string) => {
     setProjectToDelete(projectId);
@@ -107,13 +115,14 @@ export default function MyProjectsPage() {
     try {
       setIsDeleting(true);
       await deleteProject(projectToDelete);
-      
+
       // Remove deleted project from local state
       setProjects((prev) => prev.filter((p) => p.id !== projectToDelete));
-      
+
       toast.success("Project deleted successfully");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to delete project";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete project";
       console.error("Error deleting project:", err);
       toast.error(errorMessage);
     } finally {
@@ -128,21 +137,27 @@ export default function MyProjectsPage() {
     setProjectToDelete(null);
   }, []);
 
-  const handleDuplicate = useCallback((projectId: string) => {
-    const project = projects.find((p) => p.id === projectId);
-    if (!project) {
-      toast.error("Project not found");
-      return;
-    }
+  const handleDuplicate = useCallback(
+    (projectId: string) => {
+      const project = projects.find((p) => p.id === projectId);
+      if (!project) {
+        toast.error("Project not found");
+        return;
+      }
 
-    // Navigate to post-project page with project ID as query parameter
-    router.push(`/client/projects/post-project?duplicate=${projectId}`);
-    toast.info("Duplicating project...");
-  }, [projects, router]);
+      // Navigate to post-project page with project ID as query parameter
+      router.push(`/client/projects/post-project?duplicate=${projectId}`);
+      toast.info("Duplicating project...");
+    },
+    [projects, router],
+  );
 
-  const handleView = useCallback((projectId: string) => {
-    router.push(`/client/projects/${projectId}`);
-  }, [router]);
+  const handleView = useCallback(
+    (projectId: string) => {
+      router.push(`/client/projects/${projectId}`);
+    },
+    [router],
+  );
 
   const handleRefresh = useCallback(async () => {
     try {
@@ -160,7 +175,12 @@ export default function MyProjectsPage() {
   // Show loading state while checking authentication
   if (authLoading) {
     return (
-      <div className="position-relative h-full" role="main" aria-busy="true" aria-label="Loading projects">
+      <div
+        className="position-relative h-full"
+        role="main"
+        aria-busy="true"
+        aria-label="Loading projects"
+      >
         <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
           <div className="space-y-4">
             <Skeleton className="h-12 w-64" />
@@ -185,7 +205,7 @@ export default function MyProjectsPage() {
   // Show access denied if not client
   if (currentRole !== "client") {
     return (
-      <div className="position-relative h-full" role="main">
+      <div className="relative" role="main">
         <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
           <Alert variant="destructive" role="alert">
             <ShieldAlert className="h-4 w-4" aria-hidden="true" />
@@ -196,7 +216,12 @@ export default function MyProjectsPage() {
             </AlertDescription>
           </Alert>
           <div className="flex justify-center">
-            <Button onClick={() => router.push("/")} aria-label="Go to home page">Go to Home</Button>
+            <Button
+              onClick={() => router.push("/")}
+              aria-label="Go to home page"
+            >
+              Go to Home
+            </Button>
           </div>
         </div>
       </div>
@@ -206,14 +231,19 @@ export default function MyProjectsPage() {
   // Show error state with retry option
   if (error && !isLoading) {
     return (
-      <div className="position-relative h-full" role="main">
+      <div className="relative" role="main">
         <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
           <Alert variant="destructive" role="alert">
             <AlertCircle className="h-4 w-4" aria-hidden="true" />
             <AlertTitle>Error Loading Projects</AlertTitle>
             <AlertDescription className="space-y-2">
               <p>{error}</p>
-              <Button onClick={handleRetry} variant="outline" size="sm" aria-label="Retry loading projects">
+              <Button
+                onClick={handleRetry}
+                variant="outline"
+                size="sm"
+                aria-label="Retry loading projects"
+              >
                 Retry
               </Button>
             </AlertDescription>
@@ -225,7 +255,7 @@ export default function MyProjectsPage() {
 
   return (
     <>
-      <div className="position-relative h-full" role="main" aria-busy={isLoading}>
+      <div className="relative" role="main" aria-busy={isLoading}>
         <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
           <MyProjectsHeader
             searchQuery={searchQuery}

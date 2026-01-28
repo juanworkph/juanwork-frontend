@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/features/home/components/footer";
@@ -23,9 +24,29 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   // For all other routes, render with navbar and footer
   return (
     <>
-      <Navbar />
-      <div className="h-[calc(100vh-65px)] overflow-y-auto">{children}</div>
-      {currentRole === "guest" && <Footer />}
+      {currentRole === "guest" ? (
+        // Natural scroll layout for landing page
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+      ) : (
+        // Fixed-height container for Dashboard/Apps
+        <div className="h-screen flex flex-col overflow-hidden">
+          <Navbar />
+          <div
+            className={cn(
+              "flex-1 custom-scrollbar",
+              pathname?.includes("/settings")
+                ? "overflow-hidden"
+                : "overflow-y-auto",
+            )}
+          >
+            {children}
+          </div>
+        </div>
+      )}
     </>
   );
 }
