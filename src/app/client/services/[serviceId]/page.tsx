@@ -1,48 +1,49 @@
 "use client";
 
 import React, { useState, useEffect, lazy, Suspense } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import {
-  SingleViewHeader,
-  SingleViewGallery,
-  SingleViewOverview,
-  SingleViewFeatures,
+  SingleViewServiceHeader,
+  SingleViewParameters,
+  SingleViewDescription,
+  SingleViewSkills,
+  SingleViewUpgrades,
+  SingleViewAttachments,
+  SingleViewInsights,
   SingleViewPricingCard,
   SingleViewProviderCard,
-  SingleViewActions,
   SingleViewSkeleton,
+  SingleViewGallery,
+  SingleViewLightbox,
   ErrorState,
 } from "@/features/services/components";
 import {
   getServiceDetailsById,
   ServiceDetailsData,
-  CURRENT_USER_ID,
   createProposal,
   ProposalFormData,
 } from "@/features/services/schema";
 import { useBookmark } from "@/hooks/use-bookmark";
 
 // Lazy load modal components for code splitting
-const SingleViewLightbox = lazy(() =>
-  import("@/features/services/components").then((mod) => ({
-    default: mod.SingleViewLightbox,
-  }))
-);
 const SingleViewProposalModal = lazy(() =>
   import("@/features/services/components").then((mod) => ({
     default: mod.SingleViewProposalModal,
-  }))
+  })),
 );
 const SingleViewShareModal = lazy(() =>
   import("@/features/services/components").then((mod) => ({
     default: mod.SingleViewShareModal,
-  }))
+  })),
 );
 
 // Main page component
 export default function ServiceDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const serviceId = params.serviceId as string;
 
   // State management
@@ -51,8 +52,14 @@ export default function ServiceDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showProposalModal, setShowProposalModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showLightbox, setShowLightbox] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Combine thumbnail and gallery for lightbox
+  const allImages = React.useMemo(() => {
+    if (!service) return [];
+    return [service.thumbnail, ...(service.gallery || [])].filter(Boolean);
+  }, [service]);
 
   // Bookmark hook
   const { isBookmarked, toggleBookmark } = useBookmark(serviceId);
@@ -104,56 +111,50 @@ export default function ServiceDetailsPage() {
     setShowShareModal(false);
   };
 
-  // Handle report
-  const handleReport = () => {
-    // TODO: Implement report modal in future task
-    toast.info("Report feature", {
-      description: "Report functionality will be implemented soon",
-    });
+  // Handle lightbox
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handleLightboxClose = () => {
+    setLightboxOpen(false);
+  };
+
+  const handleLightboxNext = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+  };
+
+  const handleLightboxPrev = () => {
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + allImages.length) % allImages.length,
+    );
   };
 
   // Handle proposal submission
-  const handleProposalSubmit = async (formData: ProposalFormData) => {
-    if (!service) return;
-
+  const handleSubmitProposal = async (data: ProposalFormData) => {
     try {
-      // Create proposal
-      createProposal(serviceId, CURRENT_USER_ID, service.provider.id, formData);
-
-      // Show success toast
-      toast.success("Proposal submitted successfully", {
-        description:
-          "The service provider will review your proposal and get back to you soon.",
-      });
-
-      // Close modal
+      await createProposal(
+        serviceId,
+        "client-123", // Mock client ID
+        service ? service.provider.id : "provider-1",
+        data,
+      );
+      toast.success("Proposal submitted successfully!");
       handleCloseProposalModal();
-    } catch (error) {
-      console.error("Error submitting proposal:", error);
-      throw error; // Re-throw to let modal handle the error
+    } catch (err) {
+      toast.error("Failed to submit proposal. Please try again.");
+      console.error("Error submitting proposal:", err);
     }
   };
 
-  // Handle lightbox
-  const handleOpenLightbox = (index: number) => {
-    setLightboxIndex(index);
-    setShowLightbox(true);
+  // Handle report
+  const handleReport = () => {
+    toast.info("Report functionality coming soon");
   };
 
-  const handleCloseLightbox = () => {
-    setShowLightbox(false);
-  };
-
-  const handleNextImage = () => {
-    if (!service) return;
-    const allImages = [service.thumbnail || "", ...(service.gallery || [])];
-    setLightboxIndex((prev) => (prev + 1) % allImages.length);
-  };
-
-  const handlePreviousImage = () => {
-    if (!service) return;
-    const allImages = [service.thumbnail || "", ...(service.gallery || [])];
-    setLightboxIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  const handleBack = () => {
+    router.push("/client/services");
   };
 
   // Loading state
@@ -161,105 +162,129 @@ export default function ServiceDetailsPage() {
     return <SingleViewSkeleton />;
   }
 
-  // Error states
-  if (error === "not_found") {
+  // Error state
+  if (error || !service) {
     return (
-      <ErrorState
-        type="not_found"
-        onAction={() =>
-          (window.location.href = "/client/hire-talent/discover-services")
-        }
-      />
+      <div className="flex flex-col items-center justify-center h-full p-6">
+        <div className="text-center">
+          <ErrorState type={error === "not_found" ? "not_found" : "network"} />
+          <Button
+            onClick={handleBack}
+            className="mt-6 bg-[#F45A0B] hover:bg-[#F45A0B]/90"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Services
+          </Button>
+        </div>
+      </div>
     );
-  }
-
-  if (error === "network" || !service) {
-    return <ErrorState type="network" onAction={() => window.location.reload()} />;
   }
 
   // Main content
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 animate-in fade-in duration-300">
-      {/* Header */}
-      <SingleViewHeader
-        serviceName={service.serviceName}
-        category={service.category}
-      />
+    <div className="position-relative h-full">
+      <div className="max-w-7xl mx-auto p-6 lg:p-8">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          onClick={handleBack}
+          className="mb-6 -ml-2 hover:bg-transparent hover:text-[#F45A0B]"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Services
+        </Button>
 
-      {/* Main Content - Responsive Layout */}
-      <main className="container mx-auto px-4 py-6 md:py-8" role="main">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Main Content Area - 2/3 width on desktop, full width on mobile/tablet */}
-          <div className="lg:col-span-2 space-y-4 md:space-y-6">
+        {/* Service Header */}
+        <SingleViewServiceHeader
+          serviceName={service.serviceName}
+          status="active"
+          category={{ id: service.category, name: service.category }}
+          upgrades={[]}
+          createdAt={new Date().toISOString()}
+          updatedAt={new Date().toISOString()}
+          userType="client"
+          isBookmarked={isBookmarked}
+          onBookmark={toggleBookmark}
+          onShare={handleOpenShareModal}
+          onReport={handleReport}
+        />
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+          {/* Main Content Column */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Service Parameters */}
+            <SingleViewParameters
+              deliveryDays={parseInt(service.deliveryTime.split("-")[0]) || 7}
+              experienceLevel="expert"
+              category={service.category}
+            />
+
             {/* Service Gallery */}
             <SingleViewGallery
-              thumbnail={service.thumbnail || ""}
+              thumbnail={service.thumbnail}
               gallery={service.gallery}
               serviceName={service.serviceName}
-              onImageClick={handleOpenLightbox}
+              onImageClick={handleImageClick}
             />
 
-            {/* Service Overview */}
-            <section
-              className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 border border-gray-200 dark:border-gray-700"
-              aria-labelledby="service-overview-heading"
-            >
-              <SingleViewOverview service={service} />
-            </section>
+            {/* Service Description */}
+            <SingleViewDescription description={service.longDescription} />
 
-            {/* Service Features */}
-            <SingleViewFeatures
-              deliveryTime={service.deliveryTime}
-              revisions={service.revisions}
-              features={service.features}
+            {/* Skills */}
+            <SingleViewSkills
+              skills={service.skills.map((skill, index) => ({
+                id: `skill-${index}`,
+                name: skill,
+              }))}
             />
+
+            {/* Promoted Features */}
+            {service.isFeatured && (
+              <SingleViewUpgrades
+                upgrades={[
+                  {
+                    id: "featured",
+                    name: "Featured",
+                    slug: "featured",
+                  },
+                ]}
+              />
+            )}
+
+            {/* Attachments */}
+            <SingleViewAttachments />
           </div>
 
-          {/* Sidebar - 1/3 width on desktop, full width on mobile/tablet, hidden on mobile (shown in fixed bottom bar) */}
-          <aside
-            className="space-y-4 md:space-y-6 lg:block"
-            aria-label="Service details sidebar"
-          >
-            {/* Service Pricing Card - Desktop sticky, Mobile fixed bottom */}
+          {/* Right Column - Sidebar */}
+          <div className="space-y-8">
+            {/* 1. Service Insights */}
+            <SingleViewInsights
+              views={service.views || 0}
+              proposalsCount={service.proposalsCount || 0}
+            />
+
+            {/* 2. Service Pricing Card */}
             <SingleViewPricingCard
-              pricing={service.pricing}
-              packageDetails={service.packageDetails}
-              selectedPackage={null}
+              budgetMin={service.pricing.starting}
+              budgetMax={
+                service.pricing.packages?.premium ||
+                service.pricing.starting * 2
+              }
+              currency={service.pricing.currency}
+              paymentType={service.pricing.type}
+              userType="client"
               onSubmitProposal={handleOpenProposalModal}
               onContactProvider={() => {
-                // TODO: Implement contact provider functionality
-                console.log("Contact provider clicked");
+                toast.info("Contact provider functionality coming soon");
               }}
             />
 
-            {/* Service Provider Card - Hidden on mobile, shown on tablet+ */}
-            <div className="hidden md:block">
-              <SingleViewProviderCard provider={service.provider} />
-            </div>
-
-            {/* Service Actions - Hidden on mobile, shown on tablet+ */}
-            <div className="hidden md:block">
-              <SingleViewActions
-                isBookmarked={isBookmarked}
-                onBookmark={toggleBookmark}
-                onShare={handleOpenShareModal}
-                onReport={handleReport}
-              />
-            </div>
-          </aside>
-
-          {/* Mobile-only: Provider and Actions below main content */}
-          <div className="md:hidden space-y-4 lg:col-span-2">
+            {/* 3. Service Provider Card */}
             <SingleViewProviderCard provider={service.provider} />
-            <SingleViewActions
-              isBookmarked={isBookmarked}
-              onBookmark={toggleBookmark}
-              onShare={handleOpenShareModal}
-              onReport={handleReport}
-            />
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Proposal Modal - Lazy loaded */}
       {showProposalModal && (
@@ -269,7 +294,7 @@ export default function ServiceDetailsPage() {
             onClose={handleCloseProposalModal}
             service={service}
             selectedPackage={null}
-            onSubmit={handleProposalSubmit}
+            onSubmit={handleSubmitProposal}
           />
         </Suspense>
       )}
@@ -280,26 +305,23 @@ export default function ServiceDetailsPage() {
           <SingleViewShareModal
             isOpen={showShareModal}
             onClose={handleCloseShareModal}
-            serviceUrl={typeof window !== "undefined" ? window.location.href : ""}
+            serviceUrl={`${window.location.origin}/client/services/${serviceId}`}
             serviceName={service.serviceName}
           />
         </Suspense>
       )}
 
-      {/* Image Lightbox - Lazy loaded */}
-      {showLightbox && (
-        <Suspense fallback={null}>
-          <SingleViewLightbox
-            images={[service.thumbnail || "", ...(service.gallery || [])]}
-            currentIndex={lightboxIndex}
-            isOpen={showLightbox}
-            onClose={handleCloseLightbox}
-            onNext={handleNextImage}
-            onPrevious={handlePreviousImage}
-            serviceName={service.serviceName}
-          />
-        </Suspense>
-      )}
+      {/* Lightbox */}
+      <SingleViewLightbox
+        images={allImages}
+        currentIndex={currentImageIndex}
+        isOpen={lightboxOpen}
+        onClose={handleLightboxClose}
+        onNext={handleLightboxNext}
+        onPrevious={handleLightboxPrev}
+        onSelectIndex={setCurrentImageIndex}
+        serviceName={service.serviceName}
+      />
     </div>
   );
 }

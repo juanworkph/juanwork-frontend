@@ -1,217 +1,109 @@
 "use client";
 
-import React, { memo } from "react";
-import type { ServicePricing, PackageDetails, DeliveryTime } from "@/features/services/schema";
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, MessageCircle } from "lucide-react";
+import { formatCurrency } from "../schema/discover-services-data";
 
 interface SingleViewPricingCardProps {
-  pricing: ServicePricing;
-  packageDetails?: PackageDetails;
-  selectedPackage: "basic" | "standard" | "premium" | null;
-  onSubmitProposal: () => void;
-  onContactProvider: () => void;
+  budgetMin: number;
+  budgetMax: number;
+  currency: string;
+  paymentType: "fixed" | "hourly" | "package";
+  userType: "freelancer" | "client";
+  onManagePrice?: () => void;
+  onSubmitProposal?: () => void;
+  onContactProvider?: () => void;
 }
 
-export const SingleViewPricingCard = memo(({
-  pricing,
-  packageDetails,
-  selectedPackage,
+export const SingleViewPricingCard = ({
+  budgetMin,
+  budgetMax,
+  currency,
+  paymentType,
+  userType,
+  onManagePrice,
   onSubmitProposal,
   onContactProvider,
 }: SingleViewPricingCardProps) => {
-  // Helper to format delivery time
-  const formatDeliveryTime = (time: DeliveryTime): string => {
-    switch (time) {
-      case "1-week":
-        return "1 Week";
-      case "2-weeks":
-        return "2 Weeks";
-      case "1-month":
-        return "1 Month";
-      case "2-months":
-        return "2 Months";
-      case "3-months":
-        return "3 Months";
+  const getPaymentTypeLabel = () => {
+    switch (paymentType) {
+      case "fixed":
+        return "FIXED RATE";
+      case "hourly":
+        return "HOURLY RATE";
+      case "package":
+        return "PACKAGE RATE";
       default:
-        return time;
+        return "FIXED RATE";
     }
   };
-
-  // Determine price to display
-  const getDisplayPrice = () => {
-    if (pricing.type === "package" && selectedPackage && packageDetails) {
-      return {
-        price: packageDetails[selectedPackage].price,
-        label: `${selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1)} Package`,
-      };
-    }
-
-    if (pricing.type === "hourly" && pricing.hourlyRate) {
-      return {
-        price: pricing.hourlyRate,
-        label: "per hour",
-      };
-    }
-
-    return {
-      price: pricing.starting,
-      label: "starting at",
-    };
-  };
-
-  // Get delivery time for selected package
-  const getDeliveryTime = () => {
-    if (pricing.type === "package" && selectedPackage && packageDetails) {
-      return packageDetails[selectedPackage].deliveryTime;
-    }
-    return null;
-  };
-
-  const { price, label } = getDisplayPrice();
-  const deliveryTime = getDeliveryTime();
 
   return (
-    <>
-      {/* Desktop: Sticky Card */}
-      <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 sticky top-4" role="complementary" aria-label="Service pricing">
-        <div className="p-6">
-          {/* Price Display */}
-          <div className="mb-6" aria-label={`Price: ${label} ${pricing.currency === "USD" ? "$" : pricing.currency}${price.toLocaleString()}`}>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-              {label}
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-bold text-gray-900 dark:text-white">
-                {pricing.currency === "USD" ? "$" : pricing.currency}
-                {price.toLocaleString()}
-              </span>
-              {pricing.type === "hourly" && (
-                <span className="text-lg text-gray-600 dark:text-gray-400">
-                  /hr
-                </span>
-              )}
-            </div>
+    <div>
+      <div className="flex items-center gap-2 mb-4">
+        <h2 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+          <span className="w-1 h-3 bg-[#F45A0B] rounded-full"></span>
+          PRICING
+        </h2>
+      </div>
+
+      <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-xl p-6">
+        <div className="bg-background-light dark:bg-background-dark border-b border-zinc-200 dark:border-zinc-800 pb-4 mb-6 flex items-center justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+            TYPE
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-900 dark:text-white">
+            {getPaymentTypeLabel()}
+          </span>
+        </div>
+
+        <div className="bg-primary/5 border border-primary/10 rounded-lg p-6 mb-6 text-center">
+          <p className="text-[10px] text-primary font-bold uppercase tracking-widest mb-2">
+            EST. INVESTMENT
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-2xl font-bold text-emerald-500 dark:text-emerald-400 tracking-tight">
+              {formatCurrency(budgetMin, currency)}
+            </span>
+            <span className="text-xs text-zinc-400 uppercase font-medium">
+              TO
+            </span>
+            <span className="text-2xl font-bold text-emerald-500 dark:text-emerald-400 tracking-tight">
+              {formatCurrency(budgetMax, currency)}
+            </span>
           </div>
+        </div>
 
-          {/* Delivery Time */}
-          {deliveryTime && (
-            <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <svg
-                  className="w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>{formatDeliveryTime(deliveryTime)} Delivery</span>
-              </div>
-            </div>
-          )}
-
-          {/* CTA Buttons */}
+        {/* Action Buttons - Different for freelancer vs client */}
+        {userType === "freelancer" ? (
+          <Button
+            onClick={onManagePrice}
+            className="w-full bg-primary hover:bg-orange-600 text-white font-bold py-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-widest text-xs group"
+          >
+            Manage Price
+            <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        ) : (
           <div className="space-y-3">
-            <button
+            <Button
               onClick={onSubmitProposal}
-              className="w-full py-3 px-4 bg-[#F45A0B] hover:bg-[#F45A0B]/90 text-white rounded-lg font-medium transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F45A0B] focus-visible:ring-offset-2"
-              aria-label="Submit proposal for this service"
+              className="w-full bg-primary hover:bg-orange-600 text-white font-bold py-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-widest text-xs group"
             >
               Submit Proposal
-            </button>
-            <button
+              <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+            <Button
               onClick={onContactProvider}
-              className="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg font-medium transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F45A0B] focus-visible:ring-offset-2"
-              aria-label="Contact service provider"
+              variant="outline"
+              className="w-full border-zinc-200 dark:border-zinc-800 font-bold py-6 rounded-xl uppercase tracking-widest text-xs group hover:bg-zinc-100 dark:hover:bg-zinc-900"
             >
+              <MessageCircle className="mr-2 h-4 w-4" />
               Contact Provider
-            </button>
+            </Button>
           </div>
-
-          {/* Additional Info */}
-          {pricing.type === "package" && selectedPackage && (
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700" role="status" aria-live="polite">
-              <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-                {selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1)} package selected
-              </p>
-            </div>
-          )}
-        </div>
+        )}
       </div>
-
-      {/* Mobile: Fixed Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-40 shadow-lg" role="complementary" aria-label="Service pricing">
-        <div className="container mx-auto px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-3 sm:gap-4">
-            {/* Price */}
-            <div className="flex-shrink-0" aria-label={`Price: ${label} ${pricing.currency === "USD" ? "$" : pricing.currency}${price.toLocaleString()}`}>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                {label}
-              </div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                  {pricing.currency === "USD" ? "$" : pricing.currency}
-                  {price.toLocaleString()}
-                </span>
-                {pricing.type === "hourly" && (
-                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                    /hr
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex gap-2 flex-1 justify-end">
-              <button
-                onClick={onContactProvider}
-                className="px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg font-medium transition-all duration-200 hover:scale-105 text-xs sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F45A0B] focus-visible:ring-offset-2"
-                aria-label="Contact service provider"
-              >
-                Contact
-              </button>
-              <button
-                onClick={onSubmitProposal}
-                className="px-4 sm:px-6 py-2 bg-[#F45A0B] hover:bg-[#F45A0B]/90 text-white rounded-lg font-medium transition-all duration-200 hover:scale-105 text-xs sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F45A0B] focus-visible:ring-offset-2"
-                aria-label="Submit proposal for this service"
-              >
-                Submit Proposal
-              </button>
-            </div>
-          </div>
-
-          {/* Delivery Time on Mobile */}
-          {deliveryTime && (
-            <div className="mt-2 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-              <svg
-                className="w-3 h-3 sm:w-4 sm:h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span>{formatDeliveryTime(deliveryTime)} Delivery</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Spacer for mobile fixed bottom bar */}
-      <div className="lg:hidden h-20 sm:h-24" aria-hidden="true"></div>
-    </>
+    </div>
   );
-});
-
-SingleViewPricingCard.displayName = "SingleViewPricingCard";
+};

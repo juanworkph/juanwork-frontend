@@ -12,7 +12,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { mockServiceProposals } from "../schema/service-proposals-data";
 
-export function ServiceProposalsTab() {
+export function SingleViewProposalsTab() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

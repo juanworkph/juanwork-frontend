@@ -1,7 +1,12 @@
 import type { ProviderLevel } from "./discover-services-data";
 
 // Delivery time type
-export type DeliveryTime = "1-week" | "2-weeks" | "1-month" | "2-months" | "3-months";
+export type DeliveryTime =
+  | "1-week"
+  | "2-weeks"
+  | "1-month"
+  | "2-months"
+  | "3-months";
 
 // Extended service details with additional information
 export interface ServiceDetailsData {
@@ -49,6 +54,8 @@ export interface ServiceDetailsData {
   requirements?: string[];
   faqs?: FAQ[];
   packageDetails?: PackageDetails;
+  views?: number;
+  proposalsCount?: number;
 }
 
 // Package details for each tier
@@ -76,7 +83,7 @@ export interface FAQ {
 
 // Helper function to get service details by ID
 export const getServiceDetailsById = (
-  serviceId: string
+  serviceId: string,
 ): ServiceDetailsData | null => {
   const service = mockServiceDetailsData.find((s) => s.id === serviceId);
   return service || null;
