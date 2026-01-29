@@ -61,8 +61,8 @@ export const ProjectDetailSidebar: React.FC<ProjectDetailSidebarProps> = ({
       {/* Performance/Insights Card */}
       <div className="">
         <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-4 flex items-center gap-2">
-          <span className="w-1 h-3 bg-[#F45A0B] rounded-full"></span>{" "}
-          PERFORMANCE
+          <span className="w-1 h-3 bg-[#F45A0B] rounded-full"></span>
+          INSIGHTS
         </h3>
 
         <div className="grid grid-cols-2 gap-3">
