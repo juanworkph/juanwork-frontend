@@ -11,18 +11,21 @@ import {
   Sparkles,
   Share2,
   Users,
-  FileCheck,
-  XCircle,
-  CheckCircle2,
-  Layers,
   AlertCircle,
+  Wallet,
+  Layers,
+  CheckCircle2,
+  XCircle,
+  FileCheck,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   MyProject,
   projectStatusConfig,
   formatDate,
   getDeliveryDaysLabel,
   getExperienceLevelLabel,
+  getBudgetDisplay,
 } from "../schema/my-projects-data";
 import {
   FreelancerBid,
@@ -114,78 +117,81 @@ export function ProjectDetailView({
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <Badge className={statusInfo.color}>
-              <span className="mr-1">{statusInfo.icon}</span>
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-6 mb-8">
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-3">
+            <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>{" "}
               {statusInfo.label}
-            </Badge>
-            <Badge variant="secondary" className="text-xs">
-              <Layers className="h-3 w-3 mr-1" />
+            </span>
+            <span className="px-3 py-1 rounded-md text-[10px] font-bold bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 uppercase tracking-wider shadow-sm">
               {project.category.name}
-            </Badge>
-            {project.upgrades.length > 0 && (
-              <div className="flex gap-1">
-                {project.upgrades.map((upgrade) => (
-                  <Badge
-                    key={upgrade.id}
-                    variant="secondary"
-                    className="text-xs bg-[#F45A0B]/10 text-[#F45A0B] border-[#F45A0B]/20"
-                  >
-                    {upgrade.name.toUpperCase()}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            </span>
+            {project.upgrades.map((upgrade) => (
+              <span
+                key={upgrade.id}
+                className={cn(
+                  "px-2.5 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wider",
+                  upgrade.slug === "featured"
+                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                    : upgrade.slug === "urgent"
+                      ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                      : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+                )}
+              >
+                {upgrade.name}
+              </span>
+            ))}
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
             {project.name}
           </h1>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center gap-6 text-xs text-zinc-400">
+            <div className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4" />
-              <span>Created: {formatDate(project.createdAt)}</span>
+              Created: {formatDate(project.createdAt)}
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
-              <span>Updated: {formatDate(project.updatedAt)}</span>
+              Updated: {formatDate(project.updatedAt)}
             </div>
           </div>
         </div>
 
         {/* Action Buttons - Only show for owners */}
         {isOwner && (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={onShare}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-            <Button variant="outline" size="sm" onClick={onDuplicate}>
-              <Copy className="h-4 w-4 mr-2" />
-              Duplicate
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onShare}
+              className="border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            >
+              <Share2 className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
-              size="sm"
-              onClick={onEdit}
-              className="border-[#F45A0B] text-[#F45A0B] hover:bg-[#F45A0B]/10"
+              size="icon"
+              onClick={onDuplicate}
+              className="border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900"
             >
-              <Edit className="h-4 w-4 mr-2" />
+              <Copy className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={onEdit}
+              className="px-6 py-2 border-zinc-200 dark:border-zinc-800 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            >
               Edit
             </Button>
             <Button
-              variant="outline"
-              size="sm"
               onClick={onDelete}
-              className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
+              className="px-6 py-2 bg-rose-500 text-white text-sm font-bold hover:bg-rose-600 border-none"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </Button>
           </div>
         )}
-
         {/* View-only indicator for non-owners */}
         {!isOwner && (
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
@@ -200,8 +206,8 @@ export function ProjectDetailView({
         <Alert className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10">
           <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
           <AlertDescription className="text-green-800 dark:text-green-200">
-            Your project is active and receiving bids from freelancers.
-            Review bids and hire the best talent for your project.
+            Your project is active and receiving bids from freelancers. Review
+            bids and hire the best talent for your project.
           </AlertDescription>
         </Alert>
       )}
@@ -220,8 +226,8 @@ export function ProjectDetailView({
         <Alert className="border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/10">
           <XCircle className="h-4 w-4 text-gray-600 dark:text-gray-400" />
           <AlertDescription className="text-gray-800 dark:text-gray-200">
-            This project has been cancelled. It is no longer accepting bids
-            from freelancers.
+            This project has been cancelled. It is no longer accepting bids from
+            freelancers.
           </AlertDescription>
         </Alert>
       )}
@@ -236,130 +242,153 @@ export function ProjectDetailView({
         </Alert>
       )}
 
-      {project.biddersCount > 0 && (
-        <Alert className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10">
-          <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
-          <AlertDescription className="text-green-800 dark:text-green-200">
-            <span className="font-semibold">
-              {project.biddersCount} freelancer
-              {project.biddersCount > 1 ? "s" : ""}
-            </span>{" "}
-            have bid on this project. Review bids and hire the best talent.
-          </AlertDescription>
-        </Alert>
-      )}
-
+      {/* Navigation Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-flex">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="bids">
-            Bids ({project.biddersCount})
+        <TabsList variant="line" className="w-full">
+          <TabsTrigger value="overview" variant="line">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="bids" variant="line" className="gap-2">
+            Bids{" "}
+            <span className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded text-[10px] border border-zinc-200 dark:border-zinc-800">
+              {project.biddersCount}
+            </span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
           <ProjectDetailLayout
             leftColumn={
-              <>
-                {/* Description */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-[#F45A0B]">
-                      Project Description
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                      {project.description}
-                    </p>
-                  </CardContent>
-                </Card>
+              <div className="space-y-8">
+                {/* Project Parameters */}
+                <div>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-4 flex items-center gap-2">
+                    <span className="w-1 h-3 bg-primary rounded-full"></span>{" "}
+                    Project Parameters
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 p-4 rounded-xl">
+                      <Clock className="h-5 w-5 text-primary mb-3" />
+                      <p className="text-[10px] uppercase text-zinc-400 font-bold mb-1">
+                        Duration
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {getDeliveryDaysLabel(project.deliveryDays)}
+                      </p>
+                    </div>
+                    <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 p-4 rounded-xl">
+                      <Sparkles className="h-5 w-5 text-primary mb-3" />
+                      <p className="text-[10px] uppercase text-zinc-400 font-bold mb-1">
+                        Expertise
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {getExperienceLevelLabel(project.experienceLevel)}
+                      </p>
+                    </div>
+                    <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 p-4 rounded-xl">
+                      <Wallet className="h-5 w-5 text-primary mb-3" />
+                      <p className="text-[10px] uppercase text-zinc-400 font-bold mb-1">
+                        Budget Type
+                      </p>
+                      <p className="text-sm font-semibold capitalize">
+                        {project.paymentType} Price
+                      </p>
+                    </div>
+                    <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 p-4 rounded-xl">
+                      <Layers className="h-5 w-5 text-primary mb-3" />
+                      <p className="text-[10px] uppercase text-zinc-400 font-bold mb-1">
+                        Category
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {project.category.name}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Project Description */}
+                <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-xl p-6">
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-4 flex items-center gap-2">
+                    <span className="w-1 h-3 bg-primary rounded-full"></span>{" "}
+                    Project Description
+                  </h3>
+                  <div className="space-y-4 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300 whitespace-pre-wrap">
+                    {project.description}
+                  </div>
+                </div>
 
                 {/* Skills */}
-                <RequiredSkills skills={project.skills} />
+                <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-xl p-6">
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-4 flex items-center gap-2">
+                    <span className="w-1 h-3 bg-primary rounded-full"></span>{" "}
+                    Skills
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {project.skills.map((skill) => (
+                      <span
+                        key={skill.id}
+                        className="px-4 py-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md text-xs font-medium"
+                      >
+                        {skill.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-                {/* Project Requirements */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-[#F45A0B] flex items-center gap-2">
-                      <FileCheck className="h-5 w-5" />
-                      Project Requirements
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                          Delivery Days
-                        </p>
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {getDeliveryDaysLabel(project.deliveryDays)}
-                        </p>
-                      </div>
-                      <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                          Experience Level
-                        </p>
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {getExperienceLevelLabel(project.experienceLevel)}
-                        </p>
-                      </div>
-                      <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                          Payment Type
-                        </p>
-                        <p className="font-semibold text-gray-900 dark:text-white capitalize">
-                          {project.paymentType === "fixed"
-                            ? "Fixed Price"
-                            : "Hourly Rate"}
-                        </p>
-                      </div>
-                      <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                          Category
-                        </p>
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {project.category.name}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Project Upgrades */}
+                {/* Project Features */}
                 {project.upgrades.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-[#F45A0B] flex items-center gap-2">
-                        <Sparkles className="h-5 w-5" />
-                        Project Upgrades
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {project.upgrades.map((upgrade) => (
-                          <div
-                            key={upgrade.id}
-                            className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
-                          >
-                            <div className="w-10 h-10 rounded-full bg-[#F45A0B]/10 flex items-center justify-center flex-shrink-0">
-                              <Sparkles className="h-5 w-5 text-[#F45A0B]" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-semibold text-gray-900 dark:text-white uppercase">
-                                {upgrade.name}
-                              </p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {getUpgradeDescription(upgrade.slug)}
-                              </p>
-                            </div>
+                  <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-xl p-6">
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-6 flex items-center gap-2">
+                      <span className="w-1 h-3 bg-primary rounded-full"></span>{" "}
+                      Promoted Features
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {project.upgrades.map((upgrade) => (
+                        <div
+                          key={upgrade.id}
+                          className="flex gap-4 p-4 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm transition-all hover:shadow-md"
+                        >
+                          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
+                            {upgrade.slug === "featured" && (
+                              <Sparkles className="h-6 w-6 text-amber-500" />
+                            )}
+                            {upgrade.slug === "urgent" && (
+                              <Clock className="h-6 w-6 text-rose-500" />
+                            )}
+                            {upgrade.slug === "nda" && (
+                              <FileCheck className="h-6 w-6 text-blue-500" />
+                            )}
+                            {!["featured", "urgent", "nda"].includes(
+                              upgrade.slug,
+                            ) && <Sparkles className="h-6 w-6 text-zinc-400" />}
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1 uppercase tracking-tight">
+                              {upgrade.name}
+                            </h4>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                              {getUpgradeDescription(upgrade.slug)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
-              </>
+
+                {/* Attachments Section - Placeholder for now as data doesn't have it */}
+                <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-xl p-6">
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-4 flex items-center gap-2">
+                    <span className="w-1 h-3 bg-primary rounded-full"></span>{" "}
+                    Attachments
+                  </h3>
+                  <div className="space-y-3">
+                    <p className="text-sm text-zinc-500 italic">
+                      No attachments provided.
+                    </p>
+                  </div>
+                </div>
+              </div>
             }
             rightColumn={
               <ProjectDetailSidebar

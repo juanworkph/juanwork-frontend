@@ -34,6 +34,7 @@ import {
   Flag,
   CheckCircle,
   AlertTriangle,
+  ChevronRight,
 } from "lucide-react";
 import {
   FreelancerBid,
@@ -112,7 +113,7 @@ const BidCardComponent: React.FC<BidCardProps> = ({
         <Star
           key={`full-${i}`}
           className="h-4 w-4 fill-yellow-400 text-yellow-400"
-        />
+        />,
       );
     }
 
@@ -123,7 +124,7 @@ const BidCardComponent: React.FC<BidCardProps> = ({
           key="half"
           className="h-4 w-4 fill-yellow-400 text-yellow-400"
           style={{ clipPath: "inset(0 50% 0 0)" }}
-        />
+        />,
       );
     }
 
@@ -134,7 +135,7 @@ const BidCardComponent: React.FC<BidCardProps> = ({
         <Star
           key={`empty-${i}`}
           className="h-4 w-4 text-gray-300 dark:text-gray-600"
-        />
+        />,
       );
     }
 
@@ -208,201 +209,173 @@ const BidCardComponent: React.FC<BidCardProps> = ({
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {/* Freelancer Info Section */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            {/* Avatar */}
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={freelancer.avatar} alt={freelancer.name} />
-              <AvatarFallback className="bg-[#F45A0B]/10 text-[#F45A0B] text-lg font-semibold">
+    <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all group">
+      <div className="flex flex-col md:flex-row items-center justify-between p-6 gap-6">
+        {/* Freelancer Info */}
+        <div className="flex items-center gap-4 flex-1 w-full">
+          <div className="relative">
+            <Avatar className="w-16 h-16 border-2 border-background dark:border-zinc-900 shadow-lg">
+              <AvatarImage
+                src={freelancer.avatar}
+                alt={freelancer.name}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-primary/10 text-primary font-bold">
                 {getInitials(freelancer.name)}
               </AvatarFallback>
             </Avatar>
-
-            {/* Freelancer Details */}
-            <div className="flex-1 space-y-2">
-              {/* Name and Badges */}
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {freelancer.name}
-                </h3>
-                {freelancer.isVerified && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800"
-                  >
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Verified
-                  </Badge>
-                )}
-                {freelancer.isTopRated && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-[#F45A0B]/10 text-[#F45A0B] border-[#F45A0B]/20"
-                  >
-                    <Star className="h-3 w-3 mr-1 fill-[#F45A0B]" />
-                    Top Rated
-                  </Badge>
-                )}
+            {freelancer.isVerified && (
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-background dark:border-zinc-900 flex items-center justify-center">
+                <CheckCircle className="text-white h-3 w-3" />
               </div>
-
-              {/* Location */}
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <MapPin className="h-4 w-4" />
-                <span>{freelancer.location}</span>
+            )}
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <h4 className="font-bold text-zinc-900 dark:text-zinc-50">
+                {freelancer.name}
+              </h4>
+              {freelancer.isTopRated && (
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase tracking-tighter">
+                  Top Rated
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              <div className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" /> {freelancer.location}
               </div>
-
-              {/* Rating and Reviews */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  {renderRatingStars(freelancer.rating)}
-                </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                <span className="text-zinc-900 dark:text-zinc-100">
                   {freelancer.rating.toFixed(1)}
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  ({freelancer.reviewCount}{" "}
-                  {freelancer.reviewCount === 1 ? "review" : "reviews"})
+                <span className="text-zinc-400 font-normal">
+                  ({freelancer.reviewCount} Reviews)
                 </span>
               </div>
             </div>
           </div>
-
-          {/* Bid Details Section */}
-          <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            {/* Bid Amount */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Bid Amount:
-              </span>
-              <span className="text-lg font-bold text-[#F45A0B]">
-                {formatBidAmount(bid.bidAmount, bid.currency)}
-              </span>
-            </div>
-
-            {/* Delivery Time */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <Clock className="h-4 w-4" />
-              <span>
-                {bid.deliveryDays} {bid.deliveryDays === 1 ? "day" : "days"}{" "}
-                delivery
-              </span>
-            </div>
-
-            {/* Submitted Date */}
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-500">
-              <Calendar className="h-4 w-4" />
-              <span>Submitted {formatRelativeTime(bid.submittedAt)}</span>
-            </div>
-          </div>
-
-          {/* Action Buttons Section - Only show for owners */}
-          {isOwner && (
-            <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-              {/* Message Button */}
-              <Button
-                size="sm"
-                onClick={handleMessage}
-                className="bg-[#F45A0B] hover:bg-[#F45A0B]/90 text-white"
-                aria-label={`Send message to ${freelancer.name}`}
-              >
-                <MessageSquare className="h-4 w-4 mr-2" aria-hidden="true" />
-                Message
-              </Button>
-
-              {/* View Profile Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleViewProfile}
-                aria-label={`View ${freelancer.name}'s profile`}
-              >
-                <User className="h-4 w-4 mr-2" aria-hidden="true" />
-                View Profile
-              </Button>
-
-              {/* More Dropdown Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    aria-label={`More actions for ${freelancer.name}'s bid`}
-                  >
-                    <MoreVertical className="h-4 w-4" aria-hidden="true" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem 
-                    onClick={handleShortlist}
-                    aria-label={`Shortlist ${freelancer.name}'s bid`}
-                  >
-                    <Star className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Shortlist
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={handleInterview}
-                    aria-label={`Schedule interview with ${freelancer.name}`}
-                  >
-                    <Video className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Interview
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={handleReject} 
-                    variant="destructive"
-                    aria-label={`Reject ${freelancer.name}'s bid`}
-                  >
-                    <X className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Reject
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                  onClick={handleReport} 
-                  variant="destructive"
-                  aria-label={`Report ${freelancer.name}'s bid`}
-                >
-                  <Flag className="h-4 w-4 mr-2" aria-hidden="true" />
-                  Report
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          )}
         </div>
 
-        {/* Reject Bid Confirmation Dialog */}
-        <AlertDialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                Reject This Bid?
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-left">
-                Are you sure you want to reject this bid from{" "}
-                <span className="font-semibold">{freelancer.name}</span>? The
-                freelancer will be notified of your decision. This action cannot
-                be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel aria-label="Cancel rejecting bid">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleConfirmReject}
-                className="bg-red-600 hover:bg-red-700 text-white"
-                aria-label="Confirm reject bid"
+        {/* Bid Details */}
+        <div className="flex items-center gap-8 md:gap-12 text-center md:text-left w-full md:w-auto px-4 md:px-0 py-4 md:py-0 border-y md:border-y-0 border-zinc-100 dark:border-zinc-800">
+          <div>
+            <p className="text-[10px] uppercase text-zinc-400 font-bold mb-1 tracking-widest">
+              Bid Amount
+            </p>
+            <p className="text-lg font-bold text-primary">
+              {formatBidAmount(bid.bidAmount, bid.currency)}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase text-zinc-400 font-bold mb-1 tracking-widest">
+              Delivery Time
+            </p>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              {bid.deliveryDays} Days
+            </p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+          <Button
+            onClick={handleMessage}
+            className="h-10 w-10 p-0 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+            title="Message Freelancer"
+          >
+            <MessageSquare className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleViewProfile}
+            className="h-10 w-10 p-0 bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+            title="View Profile"
+          >
+            <User className="h-5 w-5" />
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="h-10 w-10 p-0 bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
               >
-                Reject Bid
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </CardContent>
-    </Card>
+                <MoreVertical className="h-5 w-5 text-zinc-500" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-56 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
+            >
+              <DropdownMenuItem
+                onClick={handleShortlist}
+                className="gap-3 py-2.5"
+              >
+                <Star className="h-4 w-4" />
+                <span className="text-sm font-medium">Shortlist Bid</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleInterview}
+                className="gap-3 py-2.5"
+              >
+                <Video className="h-4 w-4" />
+                <span className="text-sm font-medium">Schedule Interview</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+              <DropdownMenuItem
+                onClick={handleReject}
+                className="gap-3 py-2.5 text-rose-500 focus:text-rose-500"
+              >
+                <X className="h-4 w-4" />
+                <span className="text-sm font-medium">Reject Bid</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleReport}
+                className="gap-3 py-2.5 text-zinc-500"
+              >
+                <Flag className="h-4 w-4" />
+                <span className="text-sm font-medium">Report Dispute</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Reject Bid Confirmation Dialog */}
+      <AlertDialog
+        open={isRejectDialogOpen}
+        onOpenChange={setIsRejectDialogOpen}
+      >
+        <AlertDialogContent className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Reject This Bid?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-500 dark:text-zinc-400">
+              Are you sure you want to reject this bid from{" "}
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                {freelancer.name}
+              </span>
+              ? The freelancer will be notified. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmReject}
+              className="bg-rose-500 hover:bg-rose-600 text-white border-none"
+            >
+              Reject Bid
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 };
 
@@ -412,7 +385,7 @@ const BidCardComponent: React.FC<BidCardProps> = ({
  */
 const arePropsEqual = (
   prevProps: BidCardProps,
-  nextProps: BidCardProps
+  nextProps: BidCardProps,
 ): boolean => {
   // Check if bid ID or status changed (most common changes)
   if (
@@ -435,7 +408,8 @@ const arePropsEqual = (
     prevProps.bid.freelancer.id !== nextProps.bid.freelancer.id ||
     prevProps.bid.freelancer.name !== nextProps.bid.freelancer.name ||
     prevProps.bid.freelancer.rating !== nextProps.bid.freelancer.rating ||
-    prevProps.bid.freelancer.isVerified !== nextProps.bid.freelancer.isVerified ||
+    prevProps.bid.freelancer.isVerified !==
+      nextProps.bid.freelancer.isVerified ||
     prevProps.bid.freelancer.isTopRated !== nextProps.bid.freelancer.isTopRated
   ) {
     return false;

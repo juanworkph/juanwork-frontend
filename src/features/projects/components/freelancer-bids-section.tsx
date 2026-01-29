@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, FileText, AlertCircle } from "lucide-react";
+import { Users, FileText, AlertCircle, Search, Filter } from "lucide-react";
 import { BidCard, BidCardSkeleton } from "./bid-card";
 import { ErrorState } from "./error-state";
 import {
@@ -70,11 +70,11 @@ const FreelancerBidsSectionComponent: React.FC<FreelancerBidsSectionProps> = ({
   const allBidsCount = bids.length;
   const shortlistedCount = useMemo(
     () => getBidCountByStatus(bids, "shortlisted"),
-    [bids]
+    [bids],
   );
   const interviewedCount = useMemo(
     () => getBidCountByStatus(bids, "interviewed"),
-    [bids]
+    [bids],
   );
 
   /**
@@ -92,11 +92,7 @@ const FreelancerBidsSectionComponent: React.FC<FreelancerBidsSectionProps> = ({
    * Handle tab change
    */
   const handleTabChange = (value: string): void => {
-    if (
-      value === "all" ||
-      value === "shortlisted" ||
-      value === "interviewed"
-    ) {
+    if (value === "all" || value === "shortlisted" || value === "interviewed") {
       setActiveTab(value);
     }
   };
@@ -193,89 +189,86 @@ const FreelancerBidsSectionComponent: React.FC<FreelancerBidsSectionProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl font-bold">
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
             Freelancer Bids
-          </CardTitle>
-          <Badge
-            variant="secondary"
-            className="bg-[#F45A0B]/10 text-[#F45A0B] border-[#F45A0B]/20"
-          >
-            {allBidsCount} {allBidsCount === 1 ? "Bid" : "Bids"}
-          </Badge>
+          </h2>
+          <p className="text-sm text-zinc-500">
+            Track and manage received bids
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs
-          defaultValue="all"
-          value={activeTab}
-          onValueChange={handleTabChange}
-          className="w-full"
-        >
-          <TabsList className="w-full sm:w-auto mb-6">
-            <TabsTrigger
-              value="all"
-              className="flex items-center gap-2"
-              aria-label={`All bids, ${allBidsCount} total`}
-              aria-controls="all-bids-panel"
-            >
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+            <Users className="h-3.5 w-3.5 text-primary" />
+            TOTAL BIDS:{" "}
+            <span className="text-zinc-900 dark:text-zinc-100">
+              {allBidsCount}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <Tabs
+        defaultValue="all"
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <TabsList variant="line" className="gap-6">
+            <TabsTrigger value="all" variant="line">
               All Bids
-              <Badge
-                variant="secondary"
-                className="ml-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                aria-hidden="true"
-              >
-                {allBidsCount}
-              </Badge>
             </TabsTrigger>
-            <TabsTrigger
-              value="shortlisted"
-              className="flex items-center gap-2"
-              aria-label={`Shortlisted bids, ${shortlistedCount} total`}
-              aria-controls="shortlisted-bids-panel"
-            >
+            <TabsTrigger value="shortlisted" variant="line">
               Shortlisted
-              <Badge
-                variant="secondary"
-                className="ml-1 bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100"
-                aria-hidden="true"
-              >
-                {shortlistedCount}
-              </Badge>
             </TabsTrigger>
-            <TabsTrigger
-              value="interviewed"
-              className="flex items-center gap-2"
-              aria-label={`Interviewed bids, ${interviewedCount} total`}
-              aria-controls="interviewed-bids-panel"
-            >
+            <TabsTrigger value="interviewed" variant="line">
               Interviewed
-              <Badge
-                variant="secondary"
-                className="ml-1 bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-100"
-                aria-hidden="true"
-              >
-                {interviewedCount}
-              </Badge>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="mt-0" id="all-bids-panel" role="tabpanel">
-            {renderBidsList()}
-          </TabsContent>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <input
+                type="text"
+                placeholder="Search bids..."
+                className="w-full pl-9 pr-4 py-2 text-sm bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+          </div>
+        </div>
 
-          <TabsContent value="shortlisted" className="mt-0" id="shortlisted-bids-panel" role="tabpanel">
-            {renderBidsList()}
-          </TabsContent>
+        <TabsContent
+          value="all"
+          className="mt-0"
+          id="all-bids-panel"
+          role="tabpanel"
+        >
+          {renderBidsList()}
+        </TabsContent>
 
-          <TabsContent value="interviewed" className="mt-0" id="interviewed-bids-panel" role="tabpanel">
-            {renderBidsList()}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+        <TabsContent
+          value="shortlisted"
+          className="mt-0"
+          id="shortlisted-bids-panel"
+          role="tabpanel"
+        >
+          {renderBidsList()}
+        </TabsContent>
+
+        <TabsContent
+          value="interviewed"
+          className="mt-0"
+          id="interviewed-bids-panel"
+          role="tabpanel"
+        >
+          {renderBidsList()}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
