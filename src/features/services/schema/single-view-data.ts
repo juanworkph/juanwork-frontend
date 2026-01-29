@@ -56,6 +56,7 @@ export interface ServiceDetailsData {
   packageDetails?: PackageDetails;
   views?: number;
   proposalsCount?: number;
+  hasImages?: boolean;
 }
 
 // Package details for each tier

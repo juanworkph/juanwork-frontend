@@ -21,11 +21,11 @@ import {
   ErrorState,
 } from "@/features/services/components";
 import {
-  getServiceDetailsById,
   ServiceDetailsData,
   createProposal,
   ProposalFormData,
 } from "@/features/services/schema";
+import { fetchServiceById } from "@/features/services/actions/discover-services";
 import { useBookmark } from "@/hooks/use-bookmark";
 
 // Lazy load modal components for code splitting
@@ -67,24 +67,23 @@ export default function ServiceDetailsPage() {
   // Fetch service data
   useEffect(() => {
     const fetchServiceData = async () => {
+      if (!serviceId) return;
+
       try {
         setIsLoading(true);
         setError(null);
 
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        const serviceData = getServiceDetailsById(serviceId);
-
-        if (!serviceData) {
-          setError("not_found");
-          return;
-        }
+        const serviceData = await fetchServiceById(serviceId);
 
         setService(serviceData);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching service:", err);
-        setError("network");
+        // Handle specific error codes if needed
+        if (err.statusCode === 404) {
+          setError("not_found");
+        } else {
+          setError("network");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -221,12 +220,14 @@ export default function ServiceDetailsPage() {
             />
 
             {/* Service Gallery */}
-            <SingleViewGallery
-              thumbnail={service.thumbnail}
-              gallery={service.gallery}
-              serviceName={service.serviceName}
-              onImageClick={handleImageClick}
-            />
+            {service.hasImages && (
+              <SingleViewGallery
+                thumbnail={service.thumbnail}
+                gallery={service.gallery}
+                serviceName={service.serviceName}
+                onImageClick={handleImageClick}
+              />
+            )}
 
             {/* Service Description */}
             <SingleViewDescription description={service.longDescription} />

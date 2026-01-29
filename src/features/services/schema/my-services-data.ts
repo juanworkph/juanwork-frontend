@@ -90,6 +90,7 @@ export interface MyService {
   proposalsCount: number;
   thumbnail?: string;
   gallery?: string[];
+  hasImages: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -300,6 +301,7 @@ export const transformServiceResponse = (
       "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=800&h=600&fit=crop",
     ], // Mock data
+    hasImages: true,
     createdAt: new Date(apiService.createdAt),
     updatedAt: new Date(apiService.updatedAt),
   };

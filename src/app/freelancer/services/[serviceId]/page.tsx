@@ -241,12 +241,14 @@ export default function ServiceDetailPage({
                   />
 
                   {/* Service Gallery */}
-                  <SingleViewGallery
-                    thumbnail={service!.thumbnail || ""}
-                    gallery={service!.gallery}
-                    serviceName={service!.name}
-                    onImageClick={handleImageClick}
-                  />
+                  {service.hasImages && (
+                    <SingleViewGallery
+                      thumbnail={service!.thumbnail || ""}
+                      gallery={service!.gallery}
+                      serviceName={service!.name}
+                      onImageClick={handleImageClick}
+                    />
+                  )}
 
                   {/* Service Description */}
                   <SingleViewDescription description={service.description} />
