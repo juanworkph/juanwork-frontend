@@ -3,8 +3,26 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
-import { ProjectDetailView } from "@/features/projects/components";
+import {
+  ArrowLeft,
+  AlertCircle,
+  RefreshCw,
+  X,
+  ChevronRight,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  SingleViewHeader,
+  SingleViewParameters,
+  SingleViewDescription,
+  SingleViewSkills,
+  SingleViewAttachments,
+  SingleViewUpgrades,
+  SingleViewInsights,
+  SingleViewPricingCard,
+  SingleViewStatusAlert,
+} from "@/components/single-view";
+import { SingleViewBidsSection } from "@/features/projects/components";
 import { AccessDenied } from "@/features/projects/components/access-denied";
 import { NetworkStatusIndicator } from "@/features/projects/components/network-status-indicator";
 import { ErrorRetryCard } from "@/features/projects/components/error-retry-card";
@@ -49,7 +67,7 @@ export default function ProjectDetailPage({
   const [bids, setBids] = useState<FreelancerBid[]>([]);
   const [insights, setInsights] = useState<ProjectInsights | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(
-    null
+    null,
   );
   const [isLoadingBids, setIsLoadingBids] = useState(true);
   const [isLoadingInsights, setIsLoadingInsights] = useState(true);
@@ -135,7 +153,7 @@ export default function ProjectDetailPage({
       // In a real app, navigate to messages
       // router.push(`/client/messages?userId=${freelancerId}`);
     },
-    [user, isOwner]
+    [user, isOwner],
   );
 
   const handleViewProfile = useCallback(
@@ -150,7 +168,7 @@ export default function ProjectDetailPage({
       // In a real app, navigate to freelancer profile
       // router.push(`/freelancers/${freelancerId}`);
     },
-    [user, isOwner]
+    [user, isOwner],
   );
 
   const handleShortlist = useCallback(
@@ -167,15 +185,15 @@ export default function ProjectDetailPage({
         // Update local state
         setBids((prev) =>
           prev.map((bid) =>
-            bid.id === bidId ? { ...bid, status: "shortlisted" as const } : bid
-          )
+            bid.id === bidId ? { ...bid, status: "shortlisted" as const } : bid,
+          ),
         );
       } catch (error) {
         toast.error("Failed to shortlist bid");
         console.error("Error shortlisting bid:", error);
       }
     },
-    [resolvedParams.projectId, user, isOwner]
+    [resolvedParams.projectId, user, isOwner],
   );
 
   const handleInterview = useCallback(
@@ -192,15 +210,15 @@ export default function ProjectDetailPage({
         // Update local state
         setBids((prev) =>
           prev.map((bid) =>
-            bid.id === bidId ? { ...bid, status: "interviewed" as const } : bid
-          )
+            bid.id === bidId ? { ...bid, status: "interviewed" as const } : bid,
+          ),
         );
       } catch (error) {
         toast.error("Failed to mark bid for interview");
         console.error("Error marking bid for interview:", error);
       }
     },
-    [resolvedParams.projectId, user, isOwner]
+    [resolvedParams.projectId, user, isOwner],
   );
 
   // Note: Confirmation dialog is handled by BidCard component
@@ -218,15 +236,15 @@ export default function ProjectDetailPage({
         // Update local state
         setBids((prev) =>
           prev.map((bid) =>
-            bid.id === bidId ? { ...bid, status: "rejected" as const } : bid
-          )
+            bid.id === bidId ? { ...bid, status: "rejected" as const } : bid,
+          ),
         );
       } catch (error) {
         toast.error("Failed to reject bid");
         console.error("Error rejecting bid:", error);
       }
     },
-    [resolvedParams.projectId, user, isOwner]
+    [resolvedParams.projectId, user, isOwner],
   );
 
   const handleReport = useCallback(
@@ -240,7 +258,7 @@ export default function ProjectDetailPage({
       toast.info(`Report functionality for bid ${bidId} not implemented yet`);
       // In a real app, show report dialog
     },
-    [user, isOwner]
+    [user, isOwner],
   );
 
   // Retry functions for manual retry
@@ -254,7 +272,7 @@ export default function ProjectDetailPage({
 
       const projectData = await getProjectById(
         resolvedParams.projectId,
-        projectAbortController.current.signal
+        projectAbortController.current.signal,
       );
       setProject(projectData);
     } catch (error: any) {
@@ -278,7 +296,7 @@ export default function ProjectDetailPage({
 
       const bidsData = await getProjectBids(
         resolvedParams.projectId,
-        bidsAbortController.current.signal
+        bidsAbortController.current.signal,
       );
       setBids(bidsData);
     } catch (error: any) {
@@ -301,7 +319,7 @@ export default function ProjectDetailPage({
 
       const insightsData = await getProjectInsights(
         resolvedParams.projectId,
-        insightsAbortController.current.signal
+        insightsAbortController.current.signal,
       );
       setInsights(insightsData);
     } catch (error: any) {
@@ -346,7 +364,7 @@ export default function ProjectDetailPage({
 
         const projectData = await getProjectById(
           resolvedParams.projectId,
-          projectAbortController.current.signal
+          projectAbortController.current.signal,
         );
         setProject(projectData);
       } catch (error: any) {
@@ -432,7 +450,7 @@ export default function ProjectDetailPage({
 
         const bidsData = await getProjectBids(
           resolvedParams.projectId,
-          bidsAbortController.current.signal
+          bidsAbortController.current.signal,
         );
         setBids(bidsData);
       } catch (error: any) {
@@ -464,7 +482,7 @@ export default function ProjectDetailPage({
 
         const insightsData = await getProjectInsights(
           resolvedParams.projectId,
-          insightsAbortController.current.signal
+          insightsAbortController.current.signal,
         );
         setInsights(insightsData);
       } catch (error: any) {
@@ -553,7 +571,7 @@ export default function ProjectDetailPage({
         // Fetch latest bids with AbortSignal
         const latestBids = await getProjectBids(
           resolvedParams.projectId,
-          pollingAbortController.current?.signal
+          pollingAbortController.current?.signal,
         );
 
         // Success - reset retry count and update online status
@@ -574,14 +592,14 @@ export default function ProjectDetailPage({
           // Fetch updated insights
           const latestInsights = await getProjectInsights(
             resolvedParams.projectId,
-            pollingAbortController.current?.signal
+            pollingAbortController.current?.signal,
           );
           setInsights(latestInsights);
 
           // Show notification for new bids
           if (newBidsCount > 0) {
             toast.info(
-              `${newBidsCount} new bid${newBidsCount > 1 ? "s" : ""} received!`
+              `${newBidsCount} new bid${newBidsCount > 1 ? "s" : ""} received!`,
             );
           }
 
@@ -617,7 +635,7 @@ export default function ProjectDetailPage({
           if (newCount >= maxRetries) {
             toast.error(
               "Failed to reconnect after multiple attempts. Please refresh the page.",
-              { duration: 5000 }
+              { duration: 5000 },
             );
             console.log(`[Polling] Max retries (${maxRetries}) reached`);
           } else {
@@ -726,31 +744,122 @@ export default function ProjectDetailPage({
           maxRetries={maxRetries}
         />
 
-        {/* Project Detail */}
-        <ProjectDetailView
-          project={projectWithBiddersCount}
-          bids={bids}
-          insights={insights}
-          timeRemaining={timeRemaining}
-          isLoadingBids={isLoadingBids}
-          isLoadingInsights={isLoadingInsights}
-          bidsError={bidsError}
-          insightsError={insightsError}
-          isOwner={isOwner}
+        {/* Header */}
+        <SingleViewHeader
+          serviceName={projectWithBiddersCount.name}
+          status={projectWithBiddersCount.status}
+          category={projectWithBiddersCount.category}
+          upgrades={projectWithBiddersCount.upgrades}
+          createdAt={projectWithBiddersCount.createdAt.toString()}
+          updatedAt={projectWithBiddersCount.updatedAt.toString()}
+          userType="client" // Shows Edit/Delete actions for Owner
+          isOwner={true}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onDuplicate={handleDuplicate}
           onShare={handleShare}
-          onCloseBids={handleCloseBids}
-          onMessageFreelancer={handleMessageFreelancer}
-          onViewProfile={handleViewProfile}
-          onShortlist={handleShortlist}
-          onInterview={handleInterview}
-          onReject={handleReject}
-          onReport={handleReport}
-          onRetryBids={retryFetchBids}
-          onRetryInsights={retryFetchInsights}
         />
+
+        {/* Status Alert */}
+        <SingleViewStatusAlert
+          status={projectWithBiddersCount.status}
+          userType="client" // Shows Owner-specific messages
+        />
+
+        {/* Navigation Tabs */}
+        <Tabs defaultValue="overview" className="w-full mt-6">
+          <TabsList variant="line" className="w-full mb-6">
+            <TabsTrigger value="overview" variant="line">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="bids" variant="line" className="gap-2">
+              Bids{" "}
+              <span className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded text-[10px] border border-zinc-200 dark:border-zinc-800">
+                {projectWithBiddersCount.biddersCount}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Main Content Area - 2/3 width */}
+            <div className="lg:col-span-2 space-y-6">
+              <TabsContent value="overview" className="mt-0 space-y-6">
+                <SingleViewParameters
+                  deliveryDays={projectWithBiddersCount.deliveryDays}
+                  experienceLevel={projectWithBiddersCount.experienceLevel}
+                  category={projectWithBiddersCount.category.name}
+                  paymentType={projectWithBiddersCount.paymentType}
+                />
+
+                <SingleViewDescription
+                  description={projectWithBiddersCount.description}
+                />
+
+                <SingleViewSkills skills={projectWithBiddersCount.skills} />
+
+                <SingleViewUpgrades
+                  upgrades={projectWithBiddersCount.upgrades}
+                />
+
+                <SingleViewAttachments
+                  attachments={[]} // Placeholder as per logic
+                />
+              </TabsContent>
+
+              <TabsContent value="bids" className="mt-0">
+                <SingleViewBidsSection
+                  bids={bids}
+                  isLoading={isLoadingBids}
+                  error={bidsError}
+                  isOwner={isOwner}
+                  onMessageFreelancer={handleMessageFreelancer}
+                  onViewProfile={handleViewProfile}
+                  onShortlist={handleShortlist}
+                  onInterview={handleInterview}
+                  onReject={handleReject}
+                  onReport={handleReport}
+                  onRetry={retryFetchBids}
+                />
+              </TabsContent>
+            </div>
+
+            {/* Sidebar - 1/3 width - Rendered once */}
+            <aside
+              className="space-y-6 hidden lg:block"
+              aria-label="Project statistics and actions"
+            >
+              <SingleViewInsights
+                views={insights?.totalViews || 0}
+                proposalsCount={insights?.proposalsReceived || 0}
+              />
+
+              <SingleViewPricingCard
+                budgetMin={projectWithBiddersCount.budgetMin}
+                budgetMax={projectWithBiddersCount.budgetMax}
+                currency={projectWithBiddersCount.currency}
+                paymentType={projectWithBiddersCount.paymentType}
+                userType="client" // View-only budget card for client
+                isOwner={true}
+              />
+
+              {/* Close Project Action */}
+              <button
+                onClick={handleCloseBids}
+                className="w-full flex items-center justify-between p-4 border border-rose-500/20 rounded-xl hover:bg-rose-500/5 transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center">
+                    <X className="h-3 w-3 text-white stroke-[3px]" />
+                  </div>
+                  <span className="text-sm font-bold text-rose-500">
+                    Close This Project
+                  </span>
+                </div>
+                <ChevronRight className="h-3 w-3 text-rose-500/50 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </aside>
+          </div>
+        </Tabs>
       </div>
     </div>
   );

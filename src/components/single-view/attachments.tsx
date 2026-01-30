@@ -18,14 +18,42 @@ interface SingleViewAttachmentsProps {
 export const SingleViewAttachments = ({
   attachments,
 }: SingleViewAttachmentsProps) => {
-  // Default to a placeholder attachment if none provided
-  const displayAttachments = attachments || [
-    {
-      name: "Technical_Specs.pdf",
-      size: "1.2 MB",
-      type: "PDF",
-    },
-  ];
+  if (!attachments || attachments.length === 0) {
+    return null;
+  }
+
+  const displayAttachments = attachments;
+
+  const getShortType = (type: string) => {
+    if (!type) return "";
+    const upperType = type.toUpperCase();
+
+    if (
+      upperType.includes("DOCUMENT") ||
+      upperType.includes("WORDPROCESSINGML")
+    )
+      return "DOCUMENT";
+    if (upperType.includes("SPREADSHEETML") || upperType.includes("EXCEL"))
+      return "SPREADSHEET";
+    if (
+      upperType.includes("PRESENTATIONML") ||
+      upperType.includes("POWERPOINT")
+    )
+      return "PRESENTATION";
+    if (upperType.includes("PDF")) return "PDF";
+    if (upperType.includes("IMAGE")) return "IMAGE";
+    if (upperType.includes("VIDEO")) return "VIDEO";
+    if (upperType.includes("AUDIO")) return "AUDIO";
+    if (upperType.includes("ZIP") || upperType.includes("COMPRESSED"))
+      return "ARCHIVE";
+
+    // Fallback: extract last part of path/type
+    if (type.includes("/") || type.includes(".")) {
+      const parts = type.split(/[./]/);
+      return parts[parts.length - 1].toUpperCase();
+    }
+    return upperType;
+  };
 
   return (
     <div className="flex flex-col">
@@ -37,7 +65,7 @@ export const SingleViewAttachments = ({
         {displayAttachments.map((attachment, index) => (
           <div
             key={index}
-            className="flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:border-primary/50 transition-colors group"
+            className="flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 hover:border-primary/50 transition-colors group"
           >
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700">
@@ -48,7 +76,7 @@ export const SingleViewAttachments = ({
                   {attachment.name}
                 </p>
                 <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5 font-bold">
-                  {attachment.size} • {attachment.type}
+                  {attachment.size} • {getShortType(attachment.type)}
                 </p>
               </div>
             </div>

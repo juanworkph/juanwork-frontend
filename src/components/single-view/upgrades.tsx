@@ -2,10 +2,17 @@
 
 import React from "react";
 import { Sparkles, Timer, FileCheck } from "lucide-react";
-import type { ServiceUpgrade } from "@/features/services/schema/discover-services-data";
+export interface BaseUpgrade {
+  id: string;
+  name: string;
+  slug?: string;
+  pricePaid?: number;
+  startDate?: string;
+  endDate?: string;
+}
 
 interface SingleViewUpgradesProps {
-  upgrades: ServiceUpgrade[];
+  upgrades: BaseUpgrade[];
 }
 
 const getUpgradeDescription = (slug: string): string => {

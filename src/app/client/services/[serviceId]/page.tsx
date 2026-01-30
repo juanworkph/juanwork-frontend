@@ -17,6 +17,7 @@ import {
   SingleViewGallery,
   SingleViewLightbox,
   SingleViewStatusAlert,
+  SingleViewRecommendation,
 } from "@/components/single-view";
 import {
   SingleViewProviderCard,
@@ -205,6 +206,7 @@ export default function ServiceDetailsPage() {
           createdAt={service.createdAt}
           updatedAt={service.updatedAt}
           userType="client"
+          isOwner={false}
           isBookmarked={isBookmarked}
           onBookmark={toggleBookmark}
           onShare={handleOpenShareModal}
@@ -272,6 +274,7 @@ export default function ServiceDetailsPage() {
               currency={service.pricing.currency}
               paymentType={service.pricing.type}
               userType="client"
+              isOwner={false}
               onSubmitProposal={handleOpenProposalModal}
               onContactProvider={() => {
                 toast.info("Contact provider functionality coming soon");
@@ -281,6 +284,17 @@ export default function ServiceDetailsPage() {
             {/* 3. Service Provider Card */}
             <SingleViewProviderCard provider={service.provider} />
           </div>
+        </div>
+
+        {/* Similar Services - Full width at bottom */}
+        <div className="mt-8">
+          <SingleViewRecommendation
+            currentId={service.id}
+            category={service.category}
+            skills={service.skills}
+            type="service"
+            maxItems={3}
+          />
         </div>
       </div>
 

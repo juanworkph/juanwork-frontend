@@ -10,7 +10,8 @@ interface SingleViewPricingCardProps {
   budgetMax: number;
   currency: string;
   paymentType: "fixed" | "hourly" | "package";
-  userType: "freelancer" | "client";
+  userType?: "freelancer" | "client"; // Deprecated for action logic, use isOwner
+  isOwner?: boolean;
   onManagePrice?: () => void;
   onSubmitProposal?: () => void;
   onContactProvider?: () => void;
@@ -22,6 +23,7 @@ export const SingleViewPricingCard = ({
   currency,
   paymentType,
   userType,
+  isOwner = false, // Default to false (viewer/buyer mode)
   onManagePrice,
   onSubmitProposal,
   onContactProvider,
@@ -75,8 +77,8 @@ export const SingleViewPricingCard = ({
           </div>
         </div>
 
-        {/* Action Buttons - Different for freelancer vs client */}
-        {userType === "freelancer" ? (
+        {/* Action Buttons */}
+        {isOwner ? (
           <Button
             onClick={onManagePrice}
             className="w-full bg-primary hover:bg-orange-600 text-white font-bold py-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-widest text-xs group"
@@ -86,13 +88,15 @@ export const SingleViewPricingCard = ({
           </Button>
         ) : (
           <div className="space-y-3">
-            <Button
-              onClick={onSubmitProposal}
-              className="w-full bg-primary hover:bg-orange-600 text-white font-bold py-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-widest text-xs group"
-            >
-              Submit Proposal
-              <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
+            {onSubmitProposal && (
+              <Button
+                onClick={onSubmitProposal}
+                className="w-full bg-primary hover:bg-orange-600 text-white font-bold py-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-widest text-xs group"
+              >
+                Submit Proposal
+                <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            )}
             <Button
               onClick={onContactProvider}
               variant="outline"

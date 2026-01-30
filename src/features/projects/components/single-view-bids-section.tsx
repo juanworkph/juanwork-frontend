@@ -14,7 +14,7 @@ import {
   getBidCountByStatus,
 } from "../schema/project-detail-data";
 
-interface FreelancerBidsSectionProps {
+interface SingleViewBidsSectionProps {
   bids: FreelancerBid[];
   isLoading?: boolean;
   error?: string | null;
@@ -29,7 +29,7 @@ interface FreelancerBidsSectionProps {
 }
 
 /**
- * FreelancerBidsSection Component
+ * SingleViewBidsSection Component
  *
  * Displays all freelancer bids with filtering tabs and empty states.
  * Allows clients to view, filter, and manage bids on their project.
@@ -46,7 +46,7 @@ interface FreelancerBidsSectionProps {
  * - 13.3: Add retry button for failed requests
  * - Performance: Optimized with React.memo and useMemo
  */
-const FreelancerBidsSectionComponent: React.FC<FreelancerBidsSectionProps> = ({
+const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
   bids,
   isLoading = false,
   isOwner = true, // NEW: Default to true for backward compatibility
@@ -273,7 +273,7 @@ const FreelancerBidsSectionComponent: React.FC<FreelancerBidsSectionProps> = ({
 };
 
 /**
- * Memoized FreelancerBidsSection component
+ * Memoized SingleViewBidsSection component
  * Prevents unnecessary re-renders when parent updates
  */
-export const FreelancerBidsSection = React.memo(FreelancerBidsSectionComponent);
+export const SingleViewBidsSection = React.memo(SingleViewBidsSectionComponent);

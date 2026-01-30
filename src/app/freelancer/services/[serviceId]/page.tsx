@@ -183,6 +183,7 @@ export default function ServiceDetailPage({
           upgrades={service.upgrades}
           createdAt={service.createdAt.toISOString()}
           updatedAt={service.updatedAt.toISOString()}
+          isOwner={true}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onDuplicate={handleDuplicate}
@@ -276,6 +277,7 @@ export default function ServiceDetailPage({
                 currency={service.currency}
                 paymentType={service.paymentType}
                 userType="freelancer"
+                isOwner={true}
                 onManagePrice={handleManagePrice}
               />
             </div>

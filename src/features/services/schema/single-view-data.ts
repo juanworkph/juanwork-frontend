@@ -327,8 +327,10 @@ export const mockServiceDetailsData: ServiceDetailsData[] = [
     thumbnail:
       "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=400&fit=crop",
     gallery: [
-      "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=1200&h=800&fit=crop",
     ],
     revisions: 2,
     serviceUrl: "/services/s2",
@@ -411,9 +413,10 @@ export const mockServiceDetailsData: ServiceDetailsData[] = [
     thumbnail:
       "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=400&fit=crop",
     gallery: [
-      "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&h=800&fit=crop",
     ],
     revisions: 5,
     serviceUrl: "/services/s3",

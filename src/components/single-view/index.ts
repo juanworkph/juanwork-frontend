@@ -10,3 +10,4 @@ export { SingleViewInsights } from "./insights";
 export { SingleViewPricingCard } from "./pricing-card";
 export { SingleViewLightbox } from "./light-box";
 export { SingleViewSkeleton } from "./skeleton";
+export { SingleViewRecommendation } from "./recommendation";

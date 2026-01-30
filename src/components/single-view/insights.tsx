@@ -11,7 +11,8 @@ interface SingleViewInsightsProps {
 export const SingleViewInsights = ({
   views,
   proposalsCount,
-}: SingleViewInsightsProps) => {
+  proposalsLabel = "Proposals",
+}: SingleViewInsightsProps & { proposalsLabel?: string }) => {
   return (
     <div>
       <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-4 flex items-center gap-2">
@@ -41,7 +42,7 @@ export const SingleViewInsights = ({
             </div>
             <div>
               <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
-                Proposals
+                {proposalsLabel}
               </p>
               <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                 {proposalsCount.toLocaleString()}

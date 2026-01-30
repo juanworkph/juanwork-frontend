@@ -90,6 +90,15 @@ export interface ProjectAttachment {
   uploadedAt: string;
 }
 
+export interface ProjectUpgrade {
+  id: string;
+  name: string;
+  slug?: string;
+  pricePaid?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
 export interface ProposalStatistics {
   totalProposals: number;
   averageBid: number;
@@ -104,6 +113,7 @@ export interface ProjectDetails extends Project {
   clientDetails?: ExtendedClientInfo;
   experienceLevel?: "entry" | "intermediate" | "expert";
   duration?: string;
+  upgrades?: ProjectUpgrade[];
 }
 
 export interface ProjectsStats {
@@ -140,7 +150,7 @@ export interface ProjectsState {
 // Helper functions
 export const formatCurrency = (
   amount: number,
-  currency: string = "USD"
+  currency: string = "USD",
 ): string => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",

@@ -18,12 +18,20 @@ import type { ServiceUpgrade } from "@/features/services/schema/discover-service
 
 interface SingleViewHeaderProps {
   serviceName: string;
-  status: "pending" | "declined" | "draft" | "active" | "paused";
+  status:
+    | "pending"
+    | "declined"
+    | "draft"
+    | "active"
+    | "paused"
+    | "completed"
+    | "cancelled";
   category: { id: string; name: string };
   upgrades: ServiceUpgrade[];
   createdAt: string;
   updatedAt: string;
-  userType?: "freelancer" | "client";
+  userType?: "freelancer" | "client"; // Deprecated for action logic
+  isOwner?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   onDuplicate?: () => void;
@@ -40,6 +48,8 @@ const statusConfig = {
   declined: { label: "Declined", color: "red" },
   draft: { label: "Draft", color: "gray" },
   paused: { label: "Paused", color: "gray" },
+  completed: { label: "Completed", color: "blue" },
+  cancelled: { label: "Cancelled", color: "red" },
 };
 
 export const SingleViewHeader = ({
@@ -49,7 +59,8 @@ export const SingleViewHeader = ({
   upgrades,
   createdAt,
   updatedAt,
-  userType = "freelancer",
+  userType,
+  isOwner = false, // Default to false (viewer mode)
   onEdit,
   onDelete,
   onDuplicate,
@@ -103,7 +114,9 @@ export const SingleViewHeader = ({
       </div>
 
       {/* Action Buttons - Different for freelancer vs client */}
-      {userType === "freelancer" ? (
+      {/* Action Buttons - Different for freelancer vs client */}
+      {/* Action Buttons - Owner vs Viewer */}
+      {isOwner ? (
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
