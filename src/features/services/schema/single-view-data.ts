@@ -1,4 +1,8 @@
-import type { ProviderLevel } from "./discover-services-data";
+import type {
+  ProviderLevel,
+  ServiceStatus,
+  ServiceUpgrade,
+} from "./discover-services-data";
 
 // Delivery time type
 export type DeliveryTime =
@@ -15,7 +19,11 @@ export interface ServiceDetailsData {
   description: string;
   longDescription: string;
   category: string;
+  status: ServiceStatus;
   skills: string[];
+  upgrades?: ServiceUpgrade[];
+  createdAt: string;
+  updatedAt: string;
   pricing: {
     type: "package" | "hourly" | "fixed";
     starting: number;
@@ -100,6 +108,7 @@ export const mockServiceDetailsData: ServiceDetailsData[] = [
     longDescription:
       "Transform your business idea into a fully functional web application with my professional full-stack development service. I specialize in building scalable, secure, and high-performance web applications using the latest technologies including React, Next.js, Node.js, and MongoDB.\n\nWith over 5 years of experience in full-stack development, I've helped numerous startups and established businesses launch their digital products successfully. My approach focuses on clean code, best practices, and delivering solutions that not only meet but exceed expectations.\n\nWhat sets my service apart is the attention to detail, commitment to deadlines, and ongoing support even after project completion. I believe in building long-term relationships with my clients and ensuring their success in the digital space.",
     category: "Full Stack Development",
+    status: "active",
     skills: [
       "React",
       "Next.js",
@@ -108,6 +117,9 @@ export const mockServiceDetailsData: ServiceDetailsData[] = [
       "TypeScript",
       "Tailwind CSS",
     ],
+    upgrades: [],
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
     pricing: {
       type: "package",
       starting: 2000,
@@ -274,6 +286,7 @@ export const mockServiceDetailsData: ServiceDetailsData[] = [
     longDescription:
       "Bring your mobile app idea to life with professional React Native development. I create cross-platform mobile applications that work seamlessly on both iOS and Android devices, saving you time and development costs.\n\nWith extensive experience in mobile app development, I focus on creating apps that are not only functional but also provide an exceptional user experience. From concept to deployment, I handle every aspect of the development process.",
     category: "Mobile Development",
+    status: "active",
     skills: [
       "React Native",
       "JavaScript",
@@ -282,6 +295,9 @@ export const mockServiceDetailsData: ServiceDetailsData[] = [
       "iOS",
       "Android",
     ],
+    upgrades: [],
+    createdAt: "2024-01-02T00:00:00Z",
+    updatedAt: "2024-01-02T00:00:00Z",
     pricing: {
       type: "hourly",
       starting: 75,
@@ -356,6 +372,7 @@ export const mockServiceDetailsData: ServiceDetailsData[] = [
     longDescription:
       "Create stunning user experiences that delight your users and drive conversions. I specialize in UI/UX design for web and mobile applications, combining aesthetics with functionality to create interfaces that users love.\n\nMy design process is user-centered and data-driven. I conduct thorough research, create detailed wireframes and prototypes, and iterate based on feedback to ensure the final design meets both user needs and business goals.",
     category: "UI/UX Design",
+    status: "active",
     skills: [
       "Figma",
       "Adobe XD",
@@ -363,6 +380,9 @@ export const mockServiceDetailsData: ServiceDetailsData[] = [
       "Prototyping",
       "User Research",
     ],
+    upgrades: [],
+    createdAt: "2024-01-03T00:00:00Z",
+    updatedAt: "2024-01-03T00:00:00Z",
     pricing: {
       type: "fixed",
       starting: 800,

@@ -2,12 +2,7 @@
 
 import React from "react";
 import { Sparkles, Timer, FileCheck } from "lucide-react";
-
-interface ServiceUpgrade {
-  id: string;
-  name: string;
-  slug: string;
-}
+import type { ServiceUpgrade } from "@/features/services/schema/discover-services-data";
 
 interface SingleViewUpgradesProps {
   upgrades: ServiceUpgrade[];
@@ -58,14 +53,14 @@ export const SingleViewUpgrades = ({ upgrades }: SingleViewUpgradesProps) => {
             className="flex gap-4 p-4 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
-              {getUpgradeIcon(upgrade.slug)}
+              {getUpgradeIcon(upgrade.slug || "")}
             </div>
             <div className="flex-1">
               <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1 uppercase tracking-tight">
                 {upgrade.name}
               </h4>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                {getUpgradeDescription(upgrade.slug)}
+                {getUpgradeDescription(upgrade.slug || "")}
               </p>
             </div>
           </div>

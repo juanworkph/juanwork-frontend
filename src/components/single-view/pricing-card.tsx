@@ -3,7 +3,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, MessageCircle } from "lucide-react";
-import { formatCurrency } from "../schema/discover-services-data";
+import { formatCurrency } from "@/features/services/schema/discover-services-data";
 
 interface SingleViewPricingCardProps {
   budgetMin: number;

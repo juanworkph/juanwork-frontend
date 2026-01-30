@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import {
-  SingleViewServiceHeader,
+  SingleViewHeader,
   SingleViewStatusAlert,
   SingleViewParameters,
   SingleViewDescription,
@@ -14,10 +14,11 @@ import {
   SingleViewAttachments,
   SingleViewInsights,
   SingleViewPricingCard,
-  SingleViewProposalsTab,
   SingleViewGallery,
   SingleViewLightbox,
-} from "@/features/services/components";
+  SingleViewSkeleton,
+} from "@/components/single-view";
+import { SingleViewProposalsTab } from "@/features/services/components";
 import { getFreelancerServices } from "@/features/services/actions/my-services.actions";
 import { MyService } from "@/features/services/schema/my-services-data";
 import { toast } from "sonner";
@@ -73,16 +74,7 @@ export default function ServiceDetailPage({
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="max-w-7xl mx-auto p-6 lg:p-8">
-        <Skeleton className="h-10 w-48 mb-6" />
-        <div className="space-y-4">
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
-        </div>
-      </div>
-    );
+    return <SingleViewSkeleton />;
   }
 
   // Handle not found or error
@@ -173,7 +165,7 @@ export default function ServiceDetailPage({
         </Button>
 
         {/* Service Header */}
-        <SingleViewServiceHeader
+        <SingleViewHeader
           serviceName={service.name}
           status={
             (service.status === "approved"
@@ -191,7 +183,6 @@ export default function ServiceDetailPage({
           upgrades={service.upgrades}
           createdAt={service.createdAt.toISOString()}
           updatedAt={service.updatedAt.toISOString()}
-          userType="freelancer"
           onEdit={handleEdit}
           onDelete={handleDelete}
           onDuplicate={handleDuplicate}
@@ -238,6 +229,7 @@ export default function ServiceDetailPage({
                     deliveryDays={service.deliveryDays}
                     experienceLevel={service.experienceLevel}
                     category={service.category.name}
+                    paymentType={service.paymentType}
                   />
 
                   {/* Service Gallery */}

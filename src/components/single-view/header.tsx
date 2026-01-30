@@ -13,22 +13,17 @@ import {
   Flag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatDate } from "../schema/my-services-data";
+import { formatDate } from "@/features/services/schema/my-services-data";
+import type { ServiceUpgrade } from "@/features/services/schema/discover-services-data";
 
-interface ServiceUpgrade {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface SingleViewServiceHeaderProps {
+interface SingleViewHeaderProps {
   serviceName: string;
   status: "pending" | "declined" | "draft" | "active" | "paused";
   category: { id: string; name: string };
   upgrades: ServiceUpgrade[];
   createdAt: string;
   updatedAt: string;
-  userType: "freelancer" | "client";
+  userType?: "freelancer" | "client";
   onEdit?: () => void;
   onDelete?: () => void;
   onDuplicate?: () => void;
@@ -47,14 +42,14 @@ const statusConfig = {
   paused: { label: "Paused", color: "gray" },
 };
 
-export const SingleViewServiceHeader = ({
+export const SingleViewHeader = ({
   serviceName,
   status,
   category,
   upgrades,
   createdAt,
   updatedAt,
-  userType,
+  userType = "freelancer",
   onEdit,
   onDelete,
   onDuplicate,
@@ -62,7 +57,7 @@ export const SingleViewServiceHeader = ({
   isBookmarked,
   onBookmark,
   onReport,
-}: SingleViewServiceHeaderProps) => {
+}: SingleViewHeaderProps) => {
   const statusInfo = statusConfig[status];
 
   return (

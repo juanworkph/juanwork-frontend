@@ -22,6 +22,7 @@ import {
   formatDeliveryTime,
   formatRelativeTime,
   mapProviderLevel,
+  ServiceStatus,
 } from "../schema/discover-services-data";
 import { ServiceDetailsData } from "../schema/single-view-data";
 
@@ -90,10 +91,16 @@ export const transformAPIServiceToFrontend = (
       apiService.upgrades?.some((u) => u.name === "Featured") || false,
     isUrgent: apiService.upgrades?.some((u) => u.name === "Urgent") || false,
     serviceUrl: `/client/services/${apiService.id}`,
+    status: (apiService.status === "active" || apiService.status === "completed"
+      ? "active"
+      : apiService.status === "cancelled" || apiService.status === "paused"
+        ? "paused"
+        : apiService.status) as ServiceStatus,
     upgrades:
       apiService.upgrades?.map((upgrade) => ({
         id: upgrade.id,
         name: upgrade.name,
+        slug: upgrade.name.toLowerCase(),
         pricePaid: parseFloat(upgrade.pricePaid.toString()),
         startDate: upgrade.startDate,
         endDate: upgrade.endDate,
@@ -125,6 +132,9 @@ export const transformAPIServiceDetailToFrontend = (
   return {
     ...baseService,
     longDescription: apiService.longDescription || apiService.description,
+    upgrades: baseService.upgrades,
+    createdAt: baseService.postedDate,
+    updatedAt: apiService.updatedAt || baseService.postedDate,
     category: apiService.category.name,
     thumbnail,
     gallery,

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import {
-  SingleViewServiceHeader,
+  SingleViewHeader,
   SingleViewParameters,
   SingleViewDescription,
   SingleViewSkills,
@@ -14,10 +14,13 @@ import {
   SingleViewAttachments,
   SingleViewInsights,
   SingleViewPricingCard,
-  SingleViewProviderCard,
-  SingleViewSkeleton,
   SingleViewGallery,
   SingleViewLightbox,
+  SingleViewStatusAlert,
+} from "@/components/single-view";
+import {
+  SingleViewProviderCard,
+  SingleViewSkeleton,
   ErrorState,
 } from "@/features/services/components";
 import {
@@ -153,7 +156,7 @@ export default function ServiceDetailsPage() {
   };
 
   const handleBack = () => {
-    router.push("/client/services");
+    router.push("/client/hire-talent/discover-services");
   };
 
   // Loading state
@@ -190,23 +193,26 @@ export default function ServiceDetailsPage() {
           className="mb-6 -ml-2 hover:bg-transparent hover:text-[#F45A0B]"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Services
+          Back to Discover Services
         </Button>
 
         {/* Service Header */}
-        <SingleViewServiceHeader
+        <SingleViewHeader
           serviceName={service.serviceName}
-          status="active"
+          status={service.status}
           category={{ id: service.category, name: service.category }}
-          upgrades={[]}
-          createdAt={new Date().toISOString()}
-          updatedAt={new Date().toISOString()}
+          upgrades={service.upgrades || []}
+          createdAt={service.createdAt}
+          updatedAt={service.updatedAt}
           userType="client"
           isBookmarked={isBookmarked}
           onBookmark={toggleBookmark}
           onShare={handleOpenShareModal}
           onReport={handleReport}
         />
+
+        {/* Status Alert */}
+        <SingleViewStatusAlert status={service.status} userType="client" />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
@@ -217,6 +223,7 @@ export default function ServiceDetailsPage() {
               deliveryDays={parseInt(service.deliveryTime.split("-")[0]) || 7}
               experienceLevel="expert"
               category={service.category}
+              paymentType={service.pricing.type}
             />
 
             {/* Service Gallery */}
@@ -241,17 +248,7 @@ export default function ServiceDetailsPage() {
             />
 
             {/* Promoted Features */}
-            {service.isFeatured && (
-              <SingleViewUpgrades
-                upgrades={[
-                  {
-                    id: "featured",
-                    name: "Featured",
-                    slug: "featured",
-                  },
-                ]}
-              />
-            )}
+            <SingleViewUpgrades upgrades={service.upgrades || []} />
 
             {/* Attachments */}
             <SingleViewAttachments />
