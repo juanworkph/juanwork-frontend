@@ -114,6 +114,7 @@ export interface ProjectDetails extends Project {
   experienceLevel?: "entry" | "intermediate" | "expert";
   duration?: string;
   upgrades?: ProjectUpgrade[];
+  views?: number;
 }
 
 export interface ProjectsStats {

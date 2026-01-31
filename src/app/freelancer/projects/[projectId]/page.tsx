@@ -33,11 +33,8 @@ import {
 } from "@/features/projects/components";
 import { SingleViewBiddingCard } from "@/features/projects/components/single-view-bidding-card";
 
-// Data fetching functions
-import {
-  getExistingBid,
-  getProjectDetailsById,
-} from "@/features/projects/schema";
+// API actions
+import { getProjectById } from "@/features/projects/actions/project-detail.actions";
 
 // Custom hooks
 import { useBookmark } from "@/hooks/use-bookmark";
@@ -92,8 +89,8 @@ export default function ProjectDetailsPage({
       // Simulate network delay for realistic loading state
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Get comprehensive mock data using the new data fetching function
-      const projectData = getProjectDetailsById(unwrappedParams.projectId);
+      // Get comprehensive data using the API action
+      const projectData = await getProjectById(unwrappedParams.projectId);
 
       if (!projectData) {
         setError("not-found");
@@ -101,16 +98,98 @@ export default function ProjectDetailsPage({
         setExistingBid(undefined);
         setProjectImages([]);
       } else {
-        setProject(projectData);
-        // Check if user has already submitted a bid for this project
-        const bid = getExistingBid(unwrappedParams.projectId);
-        setExistingBid(bid);
+        // Transform the flat API response into the nested ProjectDetails structure
+        // that the UI components expect.
+        const transformedProject: ProjectDetails = {
+          ...projectData,
+          category: projectData.category?.name || "Uncategorized",
+          skills: Array.isArray(projectData.skills)
+            ? projectData.skills.map((s: any) => s.name || s)
+            : [],
+          budget: {
+            type: projectData.paymentType || "fixed",
+            amount: parseFloat(projectData.budgetMax || "0"),
+            currency: projectData.currency || "PHP",
+            hourlyRate:
+              projectData.paymentType === "hourly"
+                ? parseFloat(projectData.budgetMax || "0")
+                : undefined,
+          },
+          // Map min/max for the PricingCard
+          budgetMin: parseFloat(projectData.budgetMin || "0"),
+          budgetMax: parseFloat(projectData.budgetMax || "0"),
+          // Use real view count
+          views: projectData.views || 0,
+          // Upgrades mapping
+          upgrades: Array.isArray(projectData.upgrades)
+            ? projectData.upgrades
+            : [],
+          deadline: {
+            startDate: projectData.createdAt,
+            endDate: projectData.createdAt,
+            deliveryDays: projectData.deliveryDays || 0,
+            hoursLeft: 0,
+            isOverdue: false,
+          },
+          // Required mock properties for Project interface if missing in API
+          client: projectData.client
+            ? {
+                id: projectData.client.id,
+                name: projectData.client.name,
+                avatar: projectData.client.avatar || undefined,
+                country: projectData.client.country || "Philippines",
+                countryCode: "PH",
+                verified: projectData.client.verified,
+                rating: projectData.client.rating,
+                totalProjects: projectData.client.totalProjects,
+                responseTime: projectData.client.responseTime,
+                lastActive: projectData.client.lastActive,
+              }
+            : {
+                id: projectData.clientId || "unknown",
+                name: "Client",
+                country: "Philippines",
+                countryCode: "PH",
+                verified: false,
+              },
+          clientDetails: projectData.client
+            ? {
+                id: projectData.client.id,
+                name: projectData.client.name,
+                avatar: projectData.client.avatar || undefined,
+                country: projectData.client.country || "Philippines",
+                countryCode: "PH",
+                verified: projectData.client.verified,
+                rating: projectData.client.rating,
+                totalProjects: projectData.client.totalProjects,
+                totalHires: projectData.client.totalHires,
+                paymentVerified: projectData.client.paymentVerified,
+                memberSince: projectData.client.memberSince,
+                responseRate: projectData.client.responseRate,
+                reviewCount: projectData.client.totalProjects,
+                lastActive: projectData.client.lastActive,
+              }
+            : undefined,
+          progress: projectData.progress || {
+            completedTasks: 0,
+            totalTasks: 0,
+            completedMilestones: 0,
+            totalMilestones: 0,
+            progressPercentage: 0,
+            lastUpdated: projectData.updatedAt || projectData.createdAt,
+          },
+          projectUrl: `/projects/${projectData.id}`,
+        };
+
+        setProject(transformedProject);
+        setExistingBid(undefined);
 
         // Extract image attachments for the gallery
-        const images =
-          projectData.attachments
-            ?.filter((a) => a.type.toLowerCase().includes("image"))
-            .map((a) => a.url) || [];
+        const images = Array.isArray(projectData.attachments)
+          ? projectData.attachments
+              .filter((a: any) => a?.type?.toLowerCase().includes("image"))
+              .map((a: any) => a.url)
+          : [];
         setProjectImages(images);
       }
     } catch (err) {
@@ -246,7 +325,7 @@ export default function ProjectDetailsPage({
             serviceName={project.name}
             status={project.status}
             category={{ id: "cat-1", name: project.category }}
-            upgrades={[]}
+            upgrades={project.upgrades || []}
             createdAt={project.createdAt}
             updatedAt={project.updatedAt || project.createdAt}
             userType="freelancer"
@@ -309,25 +388,17 @@ export default function ProjectDetailsPage({
             >
               {/* Insights Card */}
               <SingleViewInsights
-                views={1243} // Mock data as it's not in schema
+                views={project.views || 0}
                 proposalsCount={project.proposalStats?.totalProposals || 0}
                 proposalsLabel="Bids"
               />
 
               {/* Pricing Card */}
               <SingleViewPricingCard
-                budgetMin={
-                  project.budget.type === "hourly"
-                    ? project.budget.hourlyRate || 0
-                    : project.budget.amount
-                }
-                budgetMax={
-                  project.budget.type === "hourly"
-                    ? project.budget.hourlyRate || 0
-                    : project.budget.amount
-                }
+                budgetMin={(project as any).budgetMin || 0}
+                budgetMax={(project as any).budgetMax || 0}
                 currency={project.budget.currency}
-                paymentType={project.budget.type}
+                paymentType={project.budget.type as any}
                 isOwner={false}
                 onContactProvider={handleContactProvider}
                 // onSubmitProposal removed to hide button

@@ -18,7 +18,7 @@ import {
  * @returns API response with projects array and pagination metadata
  */
 export const fetchProjects = async (
-  params: ProjectQueryParams = {}
+  params: ProjectQueryParams = {},
 ): Promise<ApiSuccessResponse<ProjectsResponse>> => {
   try {
     const queryParams = new URLSearchParams();
@@ -41,7 +41,7 @@ export const fetchProjects = async (
     console.log("[API] Fetching projects with params:", queryParams.toString());
 
     const response = await apiClient.get<ApiSuccessResponse<ProjectsResponse>>(
-      `/projects?${queryParams.toString()}`
+      `/projects?${queryParams.toString()}`,
     );
 
     console.log("[API] Projects response:", response.data);
@@ -63,9 +63,10 @@ export const fetchCategories = async (): Promise<
   try {
     console.log("[API] Fetching categories...");
 
-    const response = await apiClient.get<
-      ApiSuccessResponse<CategoriesResponse>
-    >("/categories");
+    const response =
+      await apiClient.get<ApiSuccessResponse<CategoriesResponse>>(
+        "/categories",
+      );
 
     console.log("[API] Categories response:", response.data);
 
@@ -82,17 +83,17 @@ export const fetchCategories = async (): Promise<
  * @returns Array of skills
  */
 export const getCategorySkills = async (
-  categoryId: string
+  categoryId: string,
 ): Promise<Skill[]> => {
   try {
     const response = await apiClient.get<ApiSuccessResponse<SkillsResponse>>(
-      `/categories/${categoryId}/skills`
+      `/categories/${categoryId}/skills`,
     );
     return response.data.data.skills;
   } catch (error) {
     console.error(
       `[API] Error fetching skills for category ${categoryId}:`,
-      error
+      error,
     );
     return [];
   }
@@ -119,7 +120,7 @@ const formatDuration = (deliveryDays: number): ProjectDuration => {
  * @returns Transformed project for frontend consumption
  */
 export const transformAPIProjectToFrontend = (
-  apiProject: APIProject
+  apiProject: APIProject,
 ): Project => {
   return {
     id: apiProject.id,
@@ -129,8 +130,12 @@ export const transformAPIProjectToFrontend = (
     skills: apiProject.skills?.map((s) => s.name) || [],
     budget: {
       type: apiProject.paymentType,
-      min: apiProject.budgetMin,
-      max: apiProject.budgetMax,
+      min: Number(apiProject.budgetMin),
+      max: Number(apiProject.budgetMax),
+      hourlyRate:
+        apiProject.paymentType === "hourly"
+          ? Number(apiProject.budgetMax)
+          : undefined,
       currency: "PHP",
     },
     client: {
@@ -156,7 +161,7 @@ export const transformAPIProjectToFrontend = (
  * @returns Transformed projects array and pagination metadata
  */
 export const getProjects = async (
-  params: ProjectQueryParams = {}
+  params: ProjectQueryParams = {},
 ): Promise<{
   projects: Project[];
   pagination: ProjectsResponse["pagination"];
@@ -165,7 +170,7 @@ export const getProjects = async (
 
   console.log(
     "[getProjects] Full response:",
-    JSON.stringify(response, null, 2)
+    JSON.stringify(response, null, 2),
   );
 
   if (!response.success) {
@@ -190,7 +195,7 @@ export const getProjects = async (
   // Case 2: response.data is directly an array (alternative structure)
   else if (Array.isArray(response.data)) {
     console.warn(
-      "[getProjects] API returned array directly, creating default pagination"
+      "[getProjects] API returned array directly, creating default pagination",
     );
     projectsData = response.data as unknown as APIProject[];
     paginationData = {
@@ -204,10 +209,10 @@ export const getProjects = async (
   else {
     console.error(
       "[getProjects] Unexpected response structure:",
-      response.data
+      response.data,
     );
     throw new Error(
-      `Unexpected API response structure: ${JSON.stringify(response.data)}`
+      `Unexpected API response structure: ${JSON.stringify(response.data)}`,
     );
   }
 
