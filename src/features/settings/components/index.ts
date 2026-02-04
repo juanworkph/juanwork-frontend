@@ -2,6 +2,7 @@ export * from "./profile-tab";
 export * from "./juanpoints-tab";
 export * from "./password-tab";
 export * from "./social-tab";
+export * from "./verification-tab";
 export * from "./deactivation-tab";
 export * from "./settings-header";
 export * from "./settings-nav";

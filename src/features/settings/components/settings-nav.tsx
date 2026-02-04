@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Zap, Lock, Share2, UserCircle } from "lucide-react";
+import { User, Zap, Lock, Share2, UserCircle, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -11,6 +11,11 @@ const navItems = [
   { href: "/freelancer/settings/juanpoints", label: "JuanPoints", icon: Zap },
   { href: "/freelancer/settings/password", label: "Password", icon: Lock },
   { href: "/freelancer/settings/socials", label: "Social Links", icon: Share2 },
+  {
+    href: "/freelancer/settings/verification",
+    label: "Verification",
+    icon: ShieldCheck,
+  },
   { href: "/freelancer/settings/account", label: "Account", icon: UserCircle },
 ];
 

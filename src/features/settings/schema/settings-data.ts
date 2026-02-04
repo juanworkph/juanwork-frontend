@@ -5,7 +5,36 @@ export type SettingsTab =
   | "social"
   | "notifications"
   | "privacy"
+  | "verification"
   | "deactivation";
+
+export type VerificationStatus =
+  | "pending"
+  | "documents"
+  | "processing"
+  | "verified"
+  | "rejected";
+
+export type VerificationIdType =
+  | "passport"
+  | "drivers_license"
+  | "national_id"
+  | "postal_id"
+  | "philhealth"
+  | "sss"
+  | "voters_id";
+
+export interface VerificationData {
+  status: VerificationStatus;
+  currentStep: 1 | 2 | 3;
+  idType?: VerificationIdType;
+  idNumber?: string;
+  selfiePhoto?: string;
+  idPhoto?: string;
+  submittedAt?: string;
+  verifiedAt?: string;
+  rejectionReason?: string;
+}
 
 export interface UserProfile {
   firstName: string;
@@ -93,6 +122,7 @@ export interface SettingsState {
   notifications: NotificationSettings;
   privacy: PrivacySettings;
   availableRewards: Reward[];
+  verification: VerificationData;
 }
 
 // Helper functions
@@ -292,4 +322,13 @@ export const mockSettingsData: SettingsState = {
       available: false,
     },
   ],
+  verification: {
+    status: "pending",
+    currentStep: 1,
+  },
+};
+
+export const mockVerificationData: VerificationData = {
+  status: "pending",
+  currentStep: 1,
 };
