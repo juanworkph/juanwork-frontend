@@ -10,4 +10,3 @@ export * from "./settings-footer";
 export * from "./profile-photo-section";
 export * from "./video-intro-section";
 export * from "./personal-info-section";
-export * from "./skills-manager";

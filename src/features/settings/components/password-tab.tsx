@@ -87,7 +87,7 @@ export function PasswordTab({ onChangePassword }: PasswordTabProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-12">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-12 animate-in fade-in duration-500">
       {/* Change Password Form */}
       <Card className="lg:col-span-3 bg-card rounded-xl p-8 border border-border shadow-sm">
         <div className="flex items-start gap-4 mb-8">

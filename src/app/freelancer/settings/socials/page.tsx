@@ -1,9 +1,16 @@
+"use client";
+
 import React from "react";
+import { SocialTab } from "@/features/settings/components";
+import { mockSettingsData } from "@/features/settings/schema";
 
 export default function SocialsSettingsPage() {
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-bold">Social Links Settings</h2>
+    <div className="pb-10">
+      <SocialTab
+        socialLinks={mockSettingsData.socialLinks}
+        onSave={(data) => console.log("Saving social links:", data)}
+      />
     </div>
   );
 }

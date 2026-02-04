@@ -74,7 +74,7 @@ export function JuanPointsTab({
   };
 
   return (
-    <main className="max-w-6xl mx-auto space-y-10">
+    <main className="max-w-6xl mx-auto space-y-10 animate-in fade-in duration-500">
       <div className="space-y-10">
         {/* Hero Section: Points + Daily Goal */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">

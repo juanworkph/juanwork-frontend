@@ -49,6 +49,12 @@ export interface UserProfile {
   timezone: string;
   languages: string[];
   skills: string[];
+  tagline?: string;
+  birthday?: string;
+  videoIntro?: string;
+  availability?: string;
+  experienceLevel?: string;
+  talentCategory?: string;
 }
 
 export interface JuanPoints {
@@ -82,6 +88,10 @@ export interface SocialLinks {
   portfolio?: string;
   behance?: string;
   dribbble?: string;
+  google?: string;
+  discord?: string;
+  stackoverflow?: string;
+  youtube?: string;
 }
 
 export interface NotificationSettings {
@@ -177,6 +187,12 @@ export const mockSettingsData: SettingsState = {
     timezone: "America/Los_Angeles",
     languages: ["English", "Spanish"],
     skills: ["React", "Node.js", "TypeScript", "Python", "AWS"],
+    tagline: "Turning complex problems into elegant code",
+    birthday: "1990-05-15",
+    videoIntro: "https://example.com/video-intro.mp4",
+    availability: "Full-time",
+    experienceLevel: "Senior",
+    talentCategory: "Development & IT",
   },
   juanPoints: {
     currentPoints: 2450,
@@ -229,6 +245,10 @@ export const mockSettingsData: SettingsState = {
     github: "https://github.com/johndoe",
     twitter: "https://twitter.com/johndoe",
     portfolio: "https://portfolio.johndoe.dev",
+    google: "johndoe@gmail.com",
+    discord: "johndoe#1234",
+    stackoverflow: "https://stackoverflow.com/users/12345/johndoe",
+    youtube: "https://youtube.com/@johndoe",
   },
   notifications: {
     emailNotifications: true,
