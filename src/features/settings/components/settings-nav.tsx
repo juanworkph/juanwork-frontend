@@ -4,34 +4,39 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User, Zap, Lock, Share2, UserCircle, ShieldCheck } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/freelancer/settings", label: "Profile", icon: User },
-  { href: "/freelancer/settings/juanpoints", label: "JuanPoints", icon: Zap },
-  { href: "/freelancer/settings/password", label: "Password", icon: Lock },
-  { href: "/freelancer/settings/socials", label: "Social Links", icon: Share2 },
+  { path: "", label: "Profile", icon: User },
+  { path: "/juanpoints", label: "JuanPoints", icon: Zap },
+  { path: "/password", label: "Password", icon: Lock },
+  { path: "/socials", label: "Social Links", icon: Share2 },
   {
-    href: "/freelancer/settings/verification",
+    path: "/verification",
     label: "Verification",
     icon: ShieldCheck,
   },
-  { href: "/freelancer/settings/account", label: "Account", icon: UserCircle },
+  { path: "/account", label: "Account", icon: UserCircle },
 ];
 
 export function SettingsNav() {
   const pathname = usePathname();
+  const { currentRole } = useAuth();
+  const basePath =
+    currentRole === "client" ? "/client/settings" : "/freelancer/settings";
 
   return (
     <nav className="flex flex-col space-y-1">
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = pathname === item.href;
+        const href = `${basePath}${item.path}`;
+        const isActive = pathname === href;
 
         return (
           <Link
-            key={item.href}
-            href={item.href}
+            key={href}
+            href={href}
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group",
               isActive
