@@ -4,6 +4,7 @@ export * from "./password-tab";
 export * from "./social-tab";
 export * from "./verification-tab";
 export * from "./deactivation-tab";
+export * from "./account-tab";
 export * from "./settings-header";
 export * from "./settings-nav";
 export * from "./settings-footer";

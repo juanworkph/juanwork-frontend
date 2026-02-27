@@ -13,7 +13,7 @@ export default function SettingsLayout({
           <SettingsHeader />
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8 mt-8 flex-1 overflow-hidden min-h-0">
+        <div className="flex flex-col lg:flex-row gap-8 flex-1 overflow-hidden min-h-0">
           {/* Sidebar Navigation - Fixed */}
           <aside className="lg:w-64 flex-shrink-0 overflow-y-auto custom-scrollbar lg:h-full max-h-[30vh] lg:max-h-none">
             <SettingsNav />
