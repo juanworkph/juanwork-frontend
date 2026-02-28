@@ -25,7 +25,7 @@ export default function FreelancerSignupPage() {
         <img
           alt="Work from anywhere workspace"
           className="absolute inset-0 w-full h-full object-cover"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx8z8KIEtE5kNJnKY1Fa8ibe_9ZMZoy1qCAiR4onT5Y4KcbZrTAkaKjLg95Vhz345Vra_mO1zVGgkJKbJYptYtS0KNILWpNTwMul0xY52FRl4ofNJB4OGGRoXmN90dfjCrBXK6e6SGXcCr73zmfiXzS1BifA7G-jFGuss6fkpzV_8qYFU8K8kOYNYCKpDBi2JW4Mzz2npwBcO_3akzOo8adVfXJqkd9PZj9TLnJLAXImIxKK6rG6Wezq03P0Akk4GYA_FcXQ0cRO5k"
+          src="https://plus.unsplash.com/premium_photo-1663013333799-4df1b15f605e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-primary/30 mix-blend-overlay"></div>
         <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>

@@ -24,8 +24,8 @@ export default function ClientSignupPage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt="Professional collaboration"
-          className="absolute inset-0 w-full h-full object-cover"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLNbqTrEYwBPh4LCcv9AqS_S_Rkx6RMfi9661dNIXRwPpMWl6On3evIJuUbtTZflVXUuiVFOSzNxNWXPnpcyQxpa0YxPaWK78SPqirYYhqRTj87jUIMxImvEeIbksky-3c0W8vbx8Q9Mpx7MdgI9TDgWAMiimMrYtVgQbG2q8pqyepfCeR-4EWUQbcE-tgF3oy6YH7kjgPZXUp6H5tDgpFP7XdD4KUj-p0JZgfJzzFh8qTsKvhefNNa98aYiSrfo_twbY1ejbPAKph"
+          className="absolute inset-0 w-full h-full object-cover object-bottom"
+          src="https://plus.unsplash.com/premium_photo-1661757283677-ccf94ce50dc2?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         />
         <div
           className="absolute inset-0"

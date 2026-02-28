@@ -54,7 +54,7 @@ export default function AuthPage() {
           <img
             alt="Filipino professionals collaborating"
             className="w-full h-full object-cover mix-blend-overlay"
-            src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            src="https://plus.unsplash.com/premium_photo-1661299326184-689bd091e48d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           />
         </div>
 
