@@ -49,12 +49,12 @@ export default function AuthPage() {
         </div>
 
         {/* Decorative Background Image Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center opacity-80 bg-gradient-to-b from-black/40 to-primary/30 pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             alt="Filipino professionals collaborating"
             className="w-full h-full object-cover mix-blend-overlay"
-            src="https://plus.unsplash.com/premium_photo-1661299326184-689bd091e48d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            src="https://images.unsplash.com/photo-1566918734441-45992b6888b4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           />
         </div>
 

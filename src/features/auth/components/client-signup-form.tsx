@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/auth-context";
 import {
   signupSchema,
@@ -173,21 +177,21 @@ export function ClientSignupForm() {
 
   return (
     <div className="max-w-md w-full space-y-8">
-      <div>
+      <div className="mb-2">
         <Link
           href="/auth/signup"
-          className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary transition-colors dark:text-slate-400"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors group"
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
+          <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
           Back to Role Selection
         </Link>
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
           Create your client account
         </h1>
-        <p className="text-slate-500 dark:text-slate-400">
+        <p className="text-muted-foreground">
           Start hiring amazing talent today
         </p>
       </div>
@@ -210,38 +214,32 @@ export function ClientSignupForm() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label
-              htmlFor="firstName"
-              className="text-sm font-medium dark:text-slate-300"
-            >
+            <Label htmlFor="firstName" className="text-sm font-medium">
               First Name
-            </label>
-            <input
+            </Label>
+            <Input
               id="firstName"
               type="text"
               placeholder="John"
               value={formData.firstName}
               onChange={(e) => handleInputChange("firstName", e.target.value)}
-              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${errors.firstName ? "border-destructive" : "border-slate-200 dark:border-border-dark"}`}
+              className={errors.firstName ? "border-destructive" : ""}
             />
             {errors.firstName && (
               <p className="text-sm text-destructive">{errors.firstName}</p>
             )}
           </div>
           <div className="space-y-2">
-            <label
-              htmlFor="lastName"
-              className="text-sm font-medium dark:text-slate-300"
-            >
+            <Label htmlFor="lastName" className="text-sm font-medium">
               Last Name
-            </label>
-            <input
+            </Label>
+            <Input
               id="lastName"
               type="text"
               placeholder="Doe"
               value={formData.lastName}
               onChange={(e) => handleInputChange("lastName", e.target.value)}
-              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${errors.lastName ? "border-destructive" : "border-slate-200 dark:border-border-dark"}`}
+              className={errors.lastName ? "border-destructive" : ""}
             />
             {errors.lastName && (
               <p className="text-sm text-destructive">{errors.lastName}</p>
@@ -250,19 +248,16 @@ export function ClientSignupForm() {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="text-sm font-medium dark:text-slate-300"
-          >
+          <Label htmlFor="email" className="text-sm font-medium">
             Email Address
-          </label>
-          <input
+          </Label>
+          <Input
             id="email"
             type="email"
             placeholder="john@example.com"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${errors.email ? "border-destructive" : "border-slate-200 dark:border-border-dark"}`}
+            className={errors.email ? "border-destructive" : ""}
           />
           {errors.email && (
             <p className="text-sm text-destructive">{errors.email}</p>
@@ -270,31 +265,28 @@ export function ClientSignupForm() {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="password"
-            className="text-sm font-medium dark:text-slate-300"
-          >
+          <Label htmlFor="password" className="text-sm font-medium">
             Password
-          </label>
+          </Label>
           <div className="relative">
-            <input
+            <Input
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Create a strong password"
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
-              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none pr-10 ${errors.password ? "border-destructive" : "border-slate-200 dark:border-border-dark"}`}
+              className={errors.password ? "border-destructive pr-10" : "pr-10"}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
-                <EyeOff className="h-5 w-5" />
+                <EyeOff className="h-4 w-4" />
               ) : (
-                <Eye className="h-5 w-5" />
+                <Eye className="h-4 w-4" />
               )}
             </button>
           </div>
@@ -303,30 +295,32 @@ export function ClientSignupForm() {
           )}
         </div>
 
-        <div className="space-y-3 pt-2">
-          <label className="flex items-start space-x-3 cursor-pointer">
-            <input
-              type="checkbox"
-              className="mt-1 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark"
-              checked={formData.sendHelpfulEmails || false}
-              onChange={(e) =>
-                handleInputChange("sendHelpfulEmails", e.target.checked)
-              }
-            />
-            <span className="text-sm text-slate-600 dark:text-slate-400 leading-tight">
+        <div className="space-y-4 pt-1">
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <div className="pt-0.5">
+              <Checkbox
+                id="sendHelpfulEmails"
+                checked={formData.sendHelpfulEmails || false}
+                onCheckedChange={(checked) =>
+                  handleInputChange("sendHelpfulEmails", checked as boolean)
+                }
+              />
+            </div>
+            <span className="text-sm text-muted-foreground leading-snug">
               Send me helpful emails to hire talent and platform updates.
             </span>
           </label>
-          <label className="flex items-start space-x-3 cursor-pointer">
-            <input
-              type="checkbox"
-              className="mt-1 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark"
-              checked={formData.agreeToTerms}
-              onChange={(e) =>
-                handleInputChange("agreeToTerms", e.target.checked)
-              }
-            />
-            <span className="text-sm text-slate-600 dark:text-slate-400 leading-tight">
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <div className="pt-0.5">
+              <Checkbox
+                id="agreeToTerms"
+                checked={formData.agreeToTerms}
+                onCheckedChange={(checked) =>
+                  handleInputChange("agreeToTerms", checked as boolean)
+                }
+              />
+            </div>
+            <span className="text-sm text-muted-foreground leading-snug">
               Yes I understand and agree to the{" "}
               <Link
                 href="/legal/terms"
@@ -351,13 +345,13 @@ export function ClientSignupForm() {
           )}
         </div>
 
-        <button
+        <Button
           type="submit"
-          className="w-full bg-primary hover:bg-orange-600 text-white font-semibold py-3 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full py-3.5 px-4 h-auto font-semibold rounded-md shadow-lg shadow-orange-950/20 transition-all active:scale-[0.99] mt-2 group relative overflow-hidden"
           disabled={isLoading}
         >
           {isLoading ? "Creating account..." : "Create Client Account"}
-        </button>
+        </Button>
       </form>
 
       <div className="relative py-4">
@@ -375,12 +369,12 @@ export function ClientSignupForm() {
         <SocialLoginButton
           provider="Google"
           icon={<GmailIcon />}
-          className="flex items-center justify-center space-x-2 py-2.5 px-4 border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-surface-dark transition-colors"
+          className="transition-all duration-200 hover:bg-accent border border-slate-200 dark:border-border-dark rounded-lg"
         />
         <SocialLoginButton
           provider="Facebook"
           icon={<FacebookIcon />}
-          className="flex items-center justify-center space-x-2 py-2.5 px-4 border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-surface-dark transition-colors"
+          className="transition-all duration-200 hover:bg-accent border border-slate-200 dark:border-border-dark rounded-lg"
         />
       </div>
 
