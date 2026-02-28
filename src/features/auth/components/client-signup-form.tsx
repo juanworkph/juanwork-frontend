@@ -105,11 +105,21 @@ export function ClientSignupForm() {
           "Registration successful! Please check your email to verify your account.",
       );
 
+      const firstName =
+        authResponse.user.firstName ||
+        (authResponse.user as any).first_name ||
+        "";
+      const lastName =
+        authResponse.user.lastName ||
+        (authResponse.user as any).last_name ||
+        "";
+      const name = `${firstName} ${lastName}`.trim() || "User";
+
       const user: User = {
         id: authResponse.user.id,
         email: authResponse.user.email,
-        name: `${authResponse.user.firstName} ${authResponse.user.lastName}`,
-        role: authResponse.user.role,
+        name,
+        role: authResponse.user.role || "client",
         avatar: null,
         balance: 0,
         createdAt: authResponse.user.createdAt,

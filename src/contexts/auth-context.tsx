@@ -1,12 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { User, UserRole } from '@/types/user';
-import { getCurrentUser, logoutUser } from '@/features/auth/actions/auth';
-import { AuthUserData } from '@/features/auth/schema/auth';
-import { getAccessToken, clearTokens } from '@/lib/api-client';
-import { logError } from '@/utils/logger';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { User, UserRole } from "@/types/user";
+import { getCurrentUser, logoutUser } from "@/features/auth/actions/auth";
+import { AuthUserData } from "@/features/auth/schema/auth";
+import { getAccessToken, clearTokens } from "@/lib/api-client";
+import { logError } from "@/utils/logger";
 
 interface AuthContextType {
   user: User | null;
@@ -23,32 +23,38 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Helper function to detect role from pathname
 const getRoleFromPath = (pathname: string): UserRole => {
-  if (pathname.startsWith('/freelancer')) return 'freelancer';
-  if (pathname.startsWith('/client')) return 'client';
-  if (pathname.startsWith('/admin')) return 'admin';
-  return 'guest';
+  if (pathname.startsWith("/freelancer")) return "freelancer";
+  if (pathname.startsWith("/client")) return "client";
+  if (pathname.startsWith("/admin")) return "admin";
+  return "guest";
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [overrideRole, setOverrideRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
-  
+
   // Get role from current route
   const routeRole = getRoleFromPath(pathname);
-  
+
   // Determine current role: authenticated user role > route-based role > override role
   const currentRole = user?.role || routeRole;
-  
+
   // Convert AuthUserData to User type
   const convertAuthUserToUser = (authUser: AuthUserData): User => {
+    const firstName = authUser.firstName || (authUser as any).first_name || "";
+    const lastName = authUser.lastName || (authUser as any).last_name || "";
+    const name = `${firstName} ${lastName}`.trim() || "User";
+
     return {
       id: authUser.id,
       email: authUser.email,
-      name: `${authUser.firstName} ${authUser.lastName}`,
-      role: authUser.role,
+      name,
+      role: authUser.role || "client",
       avatar: null, // API doesn't return avatar yet
       balance: 0, // Will be fetched separately if needed
       createdAt: authUser.createdAt,
@@ -61,31 +67,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initAuth = async () => {
       try {
         const token = getAccessToken();
-        
+
         if (token) {
           // Try to fetch current user from API
           const authUser = await getCurrentUser();
           const userData = convertAuthUserToUser(authUser);
           setUser(userData);
-        } else {
-          // Check for saved user in localStorage (backward compatibility)
-          const savedUser = localStorage.getItem('user');
-          
-          if (savedUser) {
-            try {
-              const parsedUser = JSON.parse(savedUser);
-              setUser(parsedUser);
-            } catch (error) {
-              logError('Failed to parse saved user', error);
-              localStorage.removeItem('user');
-            }
-          }
         }
       } catch (error) {
-        logError('Auth initialization failed', error);
+        logError("Auth initialization failed", error);
         // Clear invalid tokens
         clearTokens();
-        localStorage.removeItem('user');
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -94,35 +87,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  // Clear override role when route changes (prioritize route-based detection)
-  useEffect(() => {
-    if (!user) {
-      // Clear any saved override role when route changes and no authenticated user
-      setOverrideRole(null);
-      localStorage.removeItem('overrideRole');
-    }
-  }, [pathname, user]);
-
   const login = (userData: User) => {
     setUser(userData);
     setOverrideRole(null);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.removeItem('overrideRole');
   };
 
   const logout = async () => {
     try {
       await logoutUser();
     } catch (error) {
-      logError('Logout error', error);
+      logError("Logout error", error);
     } finally {
       setUser(null);
       setOverrideRole(null);
-      localStorage.removeItem('user');
-      localStorage.removeItem('overrideRole');
-      
+      clearTokens();
+
       // Redirect to login page
-      router.push('/auth');
+      router.push("/auth");
     }
   };
 
@@ -131,11 +112,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // If user is authenticated, update their role
       const updatedUser = { ...user, role };
       setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
     } else {
       // If no authenticated user, use override role (for manual testing)
       setOverrideRole(role);
-      localStorage.setItem('overrideRole', role);
     }
   };
 
@@ -144,9 +123,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const authUser = await getCurrentUser();
       const userData = convertAuthUserToUser(authUser);
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
-      logError('Failed to refresh user', error);
+      logError("Failed to refresh user", error);
       throw error;
     }
   };
@@ -172,7 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

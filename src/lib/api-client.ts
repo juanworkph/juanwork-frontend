@@ -1,4 +1,11 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
+import Cookies from "js-cookie";
 
 // API Response types
 export interface ApiSuccessResponse<T = unknown> {
@@ -17,59 +24,68 @@ export interface ApiErrorResponse {
 export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 // Token storage
-const TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
+const TOKEN_KEY = "accessToken";
+const REFRESH_TOKEN_KEY = "refreshToken";
+const ROLE_KEY = "userRole";
 
 export const getAccessToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem(TOKEN_KEY);
-  }
-  return null;
+  return Cookies.get(TOKEN_KEY) || null;
 };
 
 export const getRefreshToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-  }
-  return null;
+  return Cookies.get(REFRESH_TOKEN_KEY) || null;
 };
 
 export const setAccessToken = (token: string): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(TOKEN_KEY, token);
-  }
+  Cookies.set(TOKEN_KEY, token, {
+    expires: 1 / 24, // 1 hour
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
 };
 
 export const setRefreshToken = (token: string): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
-  }
+  Cookies.set(REFRESH_TOKEN_KEY, token, {
+    expires: 7, // 7 days
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
+};
+
+export const setUserRoleCookie = (role: string): void => {
+  Cookies.set(ROLE_KEY, role, {
+    expires: 7, // 7 days
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
 };
 
 export const clearTokens = (): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-  }
+  Cookies.remove(TOKEN_KEY, { path: "/" });
+  Cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
+  Cookies.remove(ROLE_KEY, { path: "/" });
 };
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 30000,
 });
 
 // Validate HTTPS in production
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-  if (apiUrl && !apiUrl.startsWith('https://')) {
+if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+  if (apiUrl && !apiUrl.startsWith("https://")) {
     console.error(
-      '⚠️ SECURITY WARNING: API URL must use HTTPS in production. ' +
-      `Current URL: ${apiUrl}. ` +
-      'Please update NEXT_PUBLIC_API_URL to use https://'
+      "⚠️ SECURITY WARNING: API URL must use HTTPS in production. " +
+        `Current URL: ${apiUrl}. ` +
+        "Please update NEXT_PUBLIC_API_URL to use https://",
     );
   }
 }
@@ -85,7 +101,7 @@ apiClient.interceptors.request.use(
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor - handle errors and refresh token
@@ -113,17 +129,24 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
     // Don't attempt token refresh for auth endpoints (login, register, refresh, etc.)
-    const isAuthEndpoint = originalRequest.url?.includes('/auth/login') || 
-                          originalRequest.url?.includes('/auth/register') ||
-                          originalRequest.url?.includes('/auth/refresh') ||
-                          originalRequest.url?.includes('/auth/forgot-password') ||
-                          originalRequest.url?.includes('/auth/reset-password');
+    const isAuthEndpoint =
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/register") ||
+      originalRequest.url?.includes("/auth/refresh") ||
+      originalRequest.url?.includes("/auth/forgot-password") ||
+      originalRequest.url?.includes("/auth/reset-password");
 
     // If error is 401 and we haven't tried to refresh token yet
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
       if (isRefreshing) {
         // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
@@ -148,8 +171,8 @@ apiClient.interceptors.response.use(
       if (!refreshToken) {
         // No refresh token, redirect to login
         clearTokens();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/auth';
+        if (typeof window !== "undefined") {
+          window.location.href = "/auth";
         }
         return Promise.reject(error);
       }
@@ -157,8 +180,8 @@ apiClient.interceptors.response.use(
       try {
         // Try to refresh the token
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/auth/refresh`,
-          { refreshToken }
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/auth/refresh`,
+          { refreshToken },
         );
 
         const { tokens } = response.data.data;
@@ -178,11 +201,11 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         clearTokens();
-        
-        if (typeof window !== 'undefined') {
-          window.location.href = '/auth';
+
+        if (typeof window !== "undefined") {
+          window.location.href = "/auth";
         }
-        
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -190,7 +213,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

@@ -124,7 +124,7 @@ export const userMenuConfig: MenuSection[] = [
   },
 ];
 
-// Helper function to filter menu sections based on user role
+// Helper function to filter and map menu sections based on user role
 export const getFilteredMenuSections = (userRole: UserRole): MenuSection[] => {
   return userMenuConfig
     .filter((section) => {
@@ -136,27 +136,46 @@ export const getFilteredMenuSections = (userRole: UserRole): MenuSection[] => {
     })
     .map((section) => ({
       ...section,
-      items: section.items.filter((item) => {
-        // If item has no role restriction, show for all roles
-        if (!item.roles) return true;
+      items: section.items
+        .filter((item) => {
+          // If item has no role restriction, show for all roles
+          if (!item.roles) return true;
 
-        // If item has role restrictions, check if user role is included
-        return item.roles.includes(userRole);
-      }),
+          // If item has role restrictions, check if user role is included
+          return item.roles.includes(userRole);
+        })
+        .map((item) => {
+          // Don't prefix href if it's "#" (e.g., Sign Out) or already an absolute URL
+          if (item.href === "#" || item.href.startsWith("http")) {
+            return item;
+          }
+
+          // Construct role-specific path, e.g., "/settings" -> "/freelancer/settings"
+          // Don't prefix for guests
+          if (userRole === "guest") {
+            return item;
+          }
+
+          const prefixedHref = `/${userRole}${item.href}`;
+          return {
+            ...item,
+            href: prefixedHref,
+          };
+        }),
     }));
 };
 
 // Helper function to get menu sections for mobile
 export const getMobileMenuSections = (userRole: UserRole): MenuSection[] => {
   return getFilteredMenuSections(userRole).filter(
-    (section) => section.id !== "signout"
+    (section) => section.id !== "signout",
   );
 };
 
 // Helper function to get sign out item
 export const getSignOutItem = (): MenuItem | null => {
   const signOutSection = userMenuConfig.find(
-    (section) => section.id === "signout"
+    (section) => section.id === "signout",
   );
   return signOutSection?.items[0] || null;
 };

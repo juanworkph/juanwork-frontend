@@ -106,8 +106,6 @@ export function FreelancerSignupForm() {
       // Call registerUser() with transformed data
       const authResponse = await registerUser(registerData);
 
-      // Success! Tokens are already stored by registerUser
-
       // Display success message with email verification notice
       setSuccessMessage(
         authResponse.message ||
@@ -115,11 +113,21 @@ export function FreelancerSignupForm() {
       );
 
       // Convert AuthUserData to User format for Auth Context
+      const firstName =
+        authResponse.user.firstName ||
+        (authResponse.user as any).first_name ||
+        "";
+      const lastName =
+        authResponse.user.lastName ||
+        (authResponse.user as any).last_name ||
+        "";
+      const name = `${firstName} ${lastName}`.trim() || "User";
+
       const user: User = {
         id: authResponse.user.id,
         email: authResponse.user.email,
-        name: `${authResponse.user.firstName} ${authResponse.user.lastName}`,
-        role: authResponse.user.role,
+        name,
+        role: authResponse.user.role || "freelancer",
         avatar: null,
         balance: 0,
         createdAt: authResponse.user.createdAt,

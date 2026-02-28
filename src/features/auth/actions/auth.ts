@@ -2,10 +2,11 @@ import apiClient, {
   ApiResponse,
   setAccessToken,
   setRefreshToken,
+  setUserRoleCookie,
   clearTokens,
   getAccessToken,
-} from '@/lib/api-client';
-import { logError, logApiError } from '@/utils/logger';
+} from "@/lib/api-client";
+import { logError, logApiError } from "@/utils/logger";
 import {
   RegisterRequest,
   LoginRequest,
@@ -15,7 +16,7 @@ import {
   ResetPasswordRequest,
   AuthResponse,
   AuthUserData,
-} from '../schema/auth';
+} from "../schema/auth";
 
 // ============================================================================
 // AUTH ACTIONS
@@ -25,59 +26,79 @@ import {
  * Register a new user
  * @throws Error with user-friendly message for various error scenarios
  */
-export async function registerUser(data: RegisterRequest): Promise<AuthResponse> {
+export async function registerUser(
+  data: RegisterRequest,
+): Promise<AuthResponse> {
   try {
     const response = await apiClient.post<ApiResponse<AuthResponse>>(
-      '/auth/register',
-      data
+      "/auth/register",
+      data,
     );
 
     if (response.data.success && response.data.data) {
       const authData = response.data.data;
-      
+
       // Store tokens
       if (authData.tokens) {
         setAccessToken(authData.tokens.accessToken);
         setRefreshToken(authData.tokens.refreshToken);
       }
 
+      if (authData.user && authData.user.role) {
+        setUserRoleCookie(authData.user.role);
+      }
+
       return authData;
     }
 
-    throw new Error('Registration failed');
+    throw new Error("Registration failed");
   } catch (error: unknown) {
     // Handle network errors (no response from server)
-    if (error && typeof error === 'object' && 'response' in error && !error.response) {
-      logApiError('Network error during registration', error);
-      throw new Error('Unable to connect to server. Please check your internet connection.');
+    if (
+      error &&
+      typeof error === "object" &&
+      "response" in error &&
+      !error.response
+    ) {
+      logApiError("Network error during registration", error);
+      throw new Error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
     }
 
     // Extract error details from response
-    const errorResponse = error as { response?: { status: number; data?: { error?: string; message?: string; details?: unknown } } };
+    const errorResponse = error as {
+      response?: {
+        status: number;
+        data?: { error?: string; message?: string; details?: unknown };
+      };
+    };
     const status = errorResponse.response?.status || 500;
     const errorData = errorResponse.response?.data;
-    const errorMessage = errorData?.error || errorData?.message || 'Registration failed';
+    const errorMessage =
+      errorData?.error || errorData?.message || "Registration failed";
 
     // Log error for debugging (sensitive data will be redacted in production)
-    logApiError('Registration error', error);
+    logApiError("Registration error", error);
 
     // Handle specific HTTP status codes
     if (status === 400) {
       // Check for duplicate email error
       if (
-        errorMessage.toLowerCase().includes('already exists') ||
-        errorMessage.toLowerCase().includes('duplicate') ||
-        errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('exist')
+        errorMessage.toLowerCase().includes("already exists") ||
+        errorMessage.toLowerCase().includes("duplicate") ||
+        (errorMessage.toLowerCase().includes("email") &&
+          errorMessage.toLowerCase().includes("exist"))
       ) {
-        throw new Error('An account with this email already exists');
+        throw new Error("An account with this email already exists");
       }
 
       // Check for password strength errors
       if (
-        errorMessage.toLowerCase().includes('password') &&
-        (errorMessage.toLowerCase().includes('must') ||
-         errorMessage.toLowerCase().includes('require') ||
-         errorMessage.toLowerCase().includes('character'))
+        errorMessage.toLowerCase().includes("password") &&
+        (errorMessage.toLowerCase().includes("must") ||
+          errorMessage.toLowerCase().includes("require") ||
+          errorMessage.toLowerCase().includes("character"))
       ) {
         // Return backend's specific password requirements message
         throw new Error(errorMessage);
@@ -95,7 +116,7 @@ export async function registerUser(data: RegisterRequest): Promise<AuthResponse>
 
     // Handle server errors (500+)
     if (status >= 500) {
-      throw new Error('Something went wrong. Please try again later.');
+      throw new Error("Something went wrong. Please try again later.");
     }
 
     // Handle other error codes (401, 403, etc.)
@@ -109,8 +130,8 @@ export async function registerUser(data: RegisterRequest): Promise<AuthResponse>
 export async function loginUser(data: LoginRequest): Promise<AuthResponse> {
   try {
     const response = await apiClient.post<ApiResponse<AuthResponse>>(
-      '/auth/login',
-      data
+      "/auth/login",
+      data,
     );
 
     if (response.data.success && response.data.data) {
@@ -127,17 +148,25 @@ export async function loginUser(data: LoginRequest): Promise<AuthResponse> {
         setRefreshToken(authData.tokens.refreshToken);
       }
 
+      if (authData.user && authData.user.role) {
+        setUserRoleCookie(authData.user.role);
+      }
+
       return authData;
     }
 
-    throw new Error('Login failed');
+    throw new Error("Login failed");
   } catch (error: unknown) {
     // Extract error message from API response
-    const errorResponse = error as { response?: { data?: { error?: string; message?: string } }; message?: string };
-    const message = errorResponse.response?.data?.error || 
-                   errorResponse.response?.data?.message || 
-                   errorResponse.message || 
-                   'Login failed. Please check your credentials and try again.';
+    const errorResponse = error as {
+      response?: { data?: { error?: string; message?: string } };
+      message?: string;
+    };
+    const message =
+      errorResponse.response?.data?.error ||
+      errorResponse.response?.data?.message ||
+      errorResponse.message ||
+      "Login failed. Please check your credentials and try again.";
     throw new Error(message);
   }
 }
@@ -145,29 +174,41 @@ export async function loginUser(data: LoginRequest): Promise<AuthResponse> {
 /**
  * Refresh access token
  */
-export async function refreshAccessToken(refreshToken: string): Promise<AuthResponse> {
+export async function refreshAccessToken(
+  refreshToken: string,
+): Promise<AuthResponse> {
   try {
     const response = await apiClient.post<ApiResponse<AuthResponse>>(
-      '/auth/refresh',
-      { refreshToken }
+      "/auth/refresh",
+      { refreshToken },
     );
 
     if (response.data.success && response.data.data) {
       const authData = response.data.data;
-      
+
       // Update tokens
       if (authData.tokens) {
         setAccessToken(authData.tokens.accessToken);
         setRefreshToken(authData.tokens.refreshToken);
       }
 
+      if (authData.user && authData.user.role) {
+        setUserRoleCookie(authData.user.role);
+      }
+
       return authData;
     }
 
-    throw new Error('Token refresh failed');
+    throw new Error("Token refresh failed");
   } catch (error: unknown) {
-    const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
-    const message = errorResponse.response?.data?.message || errorResponse.message || 'Token refresh failed';
+    const errorResponse = error as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    const message =
+      errorResponse.response?.data?.message ||
+      errorResponse.message ||
+      "Token refresh failed";
     clearTokens();
     throw new Error(message);
   }
@@ -180,13 +221,13 @@ export async function logoutUser(): Promise<void> {
   try {
     // Call logout endpoint if it exists
     const token = getAccessToken();
-    
+
     if (token) {
-      await apiClient.post('/auth/logout');
+      await apiClient.post("/auth/logout");
     }
   } catch (error) {
     // Ignore logout errors, clear tokens anyway
-    logError('Logout error', error);
+    logError("Logout error", error);
   } finally {
     // Clear tokens from storage
     clearTokens();
@@ -196,21 +237,29 @@ export async function logoutUser(): Promise<void> {
 /**
  * Verify email
  */
-export async function verifyUserEmail(data: VerifyEmailRequest): Promise<AuthUserData> {
+export async function verifyUserEmail(
+  data: VerifyEmailRequest,
+): Promise<AuthUserData> {
   try {
     const response = await apiClient.post<ApiResponse<{ user: AuthUserData }>>(
-      '/auth/verify-email',
-      data
+      "/auth/verify-email",
+      data,
     );
 
     if (response.data.success && response.data.data) {
       return response.data.data.user;
     }
 
-    throw new Error('Email verification failed');
+    throw new Error("Email verification failed");
   } catch (error: unknown) {
-    const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
-    const message = errorResponse.response?.data?.message || errorResponse.message || 'Email verification failed';
+    const errorResponse = error as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    const message =
+      errorResponse.response?.data?.message ||
+      errorResponse.message ||
+      "Email verification failed";
     throw new Error(message);
   }
 }
@@ -221,16 +270,22 @@ export async function verifyUserEmail(data: VerifyEmailRequest): Promise<AuthUse
 export async function resendVerificationEmail(email: string): Promise<void> {
   try {
     const response = await apiClient.post<ApiResponse>(
-      '/auth/resend-verification',
-      { email }
+      "/auth/resend-verification",
+      { email },
     );
 
     if (!response.data.success) {
-      throw new Error('Failed to resend verification email');
+      throw new Error("Failed to resend verification email");
     }
   } catch (error: unknown) {
-    const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
-    const message = errorResponse.response?.data?.message || errorResponse.message || 'Failed to resend verification email';
+    const errorResponse = error as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    const message =
+      errorResponse.response?.data?.message ||
+      errorResponse.message ||
+      "Failed to resend verification email";
     throw new Error(message);
   }
 }
@@ -238,19 +293,27 @@ export async function resendVerificationEmail(email: string): Promise<void> {
 /**
  * Forgot password - send reset email
  */
-export async function sendPasswordResetEmail(data: ForgotPasswordRequest): Promise<void> {
+export async function sendPasswordResetEmail(
+  data: ForgotPasswordRequest,
+): Promise<void> {
   try {
     const response = await apiClient.post<ApiResponse>(
-      '/auth/forgot-password',
-      data
+      "/auth/forgot-password",
+      data,
     );
 
     if (!response.data.success) {
-      throw new Error('Failed to send reset email');
+      throw new Error("Failed to send reset email");
     }
   } catch (error: unknown) {
-    const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
-    const message = errorResponse.response?.data?.message || errorResponse.message || 'Failed to send reset email';
+    const errorResponse = error as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    const message =
+      errorResponse.response?.data?.message ||
+      errorResponse.message ||
+      "Failed to send reset email";
     throw new Error(message);
   }
 }
@@ -258,19 +321,27 @@ export async function sendPasswordResetEmail(data: ForgotPasswordRequest): Promi
 /**
  * Reset password
  */
-export async function resetUserPassword(data: ResetPasswordRequest): Promise<void> {
+export async function resetUserPassword(
+  data: ResetPasswordRequest,
+): Promise<void> {
   try {
     const response = await apiClient.post<ApiResponse>(
-      '/auth/reset-password',
-      data
+      "/auth/reset-password",
+      data,
     );
 
     if (!response.data.success) {
-      throw new Error('Password reset failed');
+      throw new Error("Password reset failed");
     }
   } catch (error: unknown) {
-    const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
-    const message = errorResponse.response?.data?.message || errorResponse.message || 'Password reset failed';
+    const errorResponse = error as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    const message =
+      errorResponse.response?.data?.message ||
+      errorResponse.message ||
+      "Password reset failed";
     throw new Error(message);
   }
 }
@@ -280,18 +351,23 @@ export async function resetUserPassword(data: ResetPasswordRequest): Promise<voi
  */
 export async function getCurrentUser(): Promise<AuthUserData> {
   try {
-    const response = await apiClient.get<ApiResponse<{ user: AuthUserData }>>(
-      '/auth/me'
-    );
+    const response =
+      await apiClient.get<ApiResponse<{ user: AuthUserData }>>("/auth/me");
 
     if (response.data.success && response.data.data) {
       return response.data.data.user;
     }
 
-    throw new Error('Failed to fetch user profile');
+    throw new Error("Failed to fetch user profile");
   } catch (error: unknown) {
-    const errorResponse = error as { response?: { data?: { message?: string } }; message?: string };
-    const message = errorResponse.response?.data?.message || errorResponse.message || 'Failed to fetch user profile';
+    const errorResponse = error as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    const message =
+      errorResponse.response?.data?.message ||
+      errorResponse.message ||
+      "Failed to fetch user profile";
     throw new Error(message);
   }
 }

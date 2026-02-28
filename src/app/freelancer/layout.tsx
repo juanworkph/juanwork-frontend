@@ -9,14 +9,7 @@ export default function FreelancerLayout({
   children: React.ReactNode;
 }>) {
   // Client-side role check
-  const { user, setUserRole } = useAuth();
-
-  // Set the role to freelancer when accessing freelancer routes
-  useEffect(() => {
-    if (user && user.role !== "freelancer") {
-      setUserRole("freelancer");
-    }
-  }, [user, setUserRole]);
+  const { user } = useAuth();
 
   return <>{children}</>;
 }

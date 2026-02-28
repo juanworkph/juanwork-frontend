@@ -41,7 +41,7 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
-  const { currentRole, user, isAuthenticated, logout } = useAuth();
+  const { currentRole, user, isAuthenticated, isLoading, logout } = useAuth();
   const signOutItem = getSignOutItem();
 
   // Prevent hydration mismatch by only rendering after mount
@@ -108,7 +108,7 @@ export function Navbar() {
       <div
         className={cn(
           "flex h-16 items-center justify-between px-4 md:px-6 mx-auto",
-          currentRole == "guest" && "max-w-7xl"
+          currentRole == "guest" && "max-w-7xl",
         )}
       >
         <div className="flex items-center gap-2">
@@ -180,7 +180,7 @@ export function Navbar() {
                     asChild
                     className={cn(
                       "transition-colors duration-200",
-                      item.variant === "ghost" && "hover:bg-muted/50"
+                      item.variant === "ghost" && "hover:bg-muted/50",
                     )}
                   >
                     <Link href={item.href}>{item.label}</Link>
@@ -219,7 +219,11 @@ export function Navbar() {
                   </Link>
                 </Button>
 
-                <UserAvatarDropdown user={user} onLogout={logout} />
+                <UserAvatarDropdown
+                  user={user}
+                  isLoading={isLoading}
+                  onLogout={logout}
+                />
               </div>
             ) : (
               <div className="flex items-center gap-2 ml-2">
@@ -235,7 +239,7 @@ export function Navbar() {
                     asChild
                     className={cn(
                       "transition-colors duration-200",
-                      item.variant === "ghost" && "hover:bg-muted/50"
+                      item.variant === "ghost" && "hover:bg-muted/50",
                     )}
                   >
                     <Link href={item.href}>{item.label}</Link>
@@ -281,7 +285,11 @@ export function Navbar() {
                 </Link>
               </Button>
 
-              <UserAvatarDropdown user={user} onLogout={logout} />
+              <UserAvatarDropdown
+                user={user}
+                isLoading={isLoading}
+                onLogout={logout}
+              />
             </div>
           )}
           <Button
@@ -355,25 +363,35 @@ export function Navbar() {
             {isAuthenticated ? (
               <div className="pt-4 border-t border-border/40 mt-6">
                 <div className="p-3 bg-muted/30 rounded-lg mb-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src={user?.avatar || undefined}
-                        alt={user?.name}
-                      />
-                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                        {user?.name?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {user?.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {user?.email}
-                      </p>
+                  {isLoading ? (
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="h-10 w-10 rounded-full bg-muted/50 animate-pulse" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
+                        <div className="h-3 w-32 bg-muted/50 rounded animate-pulse" />
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-3 mb-2">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage
+                          src={user?.avatar || undefined}
+                          alt={user?.name}
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                          {user?.name?.charAt(0).toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {user?.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   {user?.role === "freelancer" &&
                     user?.balance !== undefined && (
                       <div className="flex items-center justify-between pt-2 border-t border-border/40">
@@ -411,7 +429,7 @@ export function Navbar() {
                           );
                         })}
                       </div>
-                    )
+                    ),
                   )}
 
                   {/* Sign Out */}
@@ -470,7 +488,7 @@ function NavbarItem({ item, pathname }: { item: NavItem; pathname: string }) {
               isActive
                 ? "text-primary bg-primary/10 shadow-sm"
                 : "text-muted-foreground hover:text-foreground hover:bg-accent/50 hover:shadow-sm",
-              item.disabled && "pointer-events-none opacity-50"
+              item.disabled && "pointer-events-none opacity-50",
             )}
           >
             <span className="relative z-10">{item.label}</span>
@@ -497,7 +515,7 @@ function NavbarItem({ item, pathname }: { item: NavItem; pathname: string }) {
         isActive
           ? "text-primary bg-primary/10 shadow-sm"
           : "text-muted-foreground hover:text-foreground hover:bg-accent/50 hover:shadow-sm",
-        item.disabled && "pointer-events-none opacity-50"
+        item.disabled && "pointer-events-none opacity-50",
       )}
     >
       <span className="relative z-10">{item.label}</span>
@@ -529,7 +547,7 @@ function MobileNavItem({
         <div
           className={cn(
             "flex items-center py-3 px-4 text-sm font-medium transition-all duration-200 rounded-lg",
-            "text-primary bg-primary/5 shadow-sm"
+            "text-primary bg-primary/5 shadow-sm",
           )}
         >
           <span className="relative z-10">{item.label}</span>
@@ -544,7 +562,7 @@ function MobileNavItem({
                 "flex items-center py-2 px-4 text-sm transition-all duration-200 rounded-lg",
                 pathname === dropdownItem.href
                   ? "text-primary bg-primary/10 shadow-sm font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
               )}
             >
               {dropdownItem.label}
@@ -565,7 +583,7 @@ function MobileNavItem({
         isActive
           ? "text-primary bg-primary/10 shadow-sm"
           : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
-        item.disabled && "pointer-events-none opacity-50"
+        item.disabled && "pointer-events-none opacity-50",
       )}
     >
       <span className="relative z-10">{item.label}</span>
@@ -582,9 +600,11 @@ function MobileNavItem({
 // User Avatar Dropdown Component
 function UserAvatarDropdown({
   user,
+  isLoading,
   onLogout,
 }: {
   user: User | null;
+  isLoading: boolean;
   onLogout: () => void;
 }) {
   const getInitials = (name: string) => {
@@ -606,33 +626,50 @@ function UserAvatarDropdown({
           variant="ghost"
           className="relative h-10 w-10 rounded-full p-0 hover:bg-muted/50 transition-colors duration-200"
         >
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
-            <AvatarFallback className="bg-primary/10 text-primary font-medium">
-              {user?.name ? getInitials(user.name) : "U"}
-            </AvatarFallback>
-          </Avatar>
+          {isLoading ? (
+            <div className="h-10 w-10 rounded-full bg-muted/50 animate-pulse" />
+          ) : (
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
+              <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                {user?.name ? getInitials(user.name) : "U"}
+              </AvatarFallback>
+            </Avatar>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-72" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-2">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
-                <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                  {user?.name ? getInitials(user.name) : "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium leading-none truncate">
-                  {user?.name}
-                </p>
-                <p className="text-xs leading-none text-muted-foreground truncate">
-                  {user?.email}
-                </p>
+            {isLoading ? (
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-muted/50 animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
+                  <div className="h-3 w-32 bg-muted/50 rounded animate-pulse" />
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage
+                    src={user?.avatar || undefined}
+                    alt={user?.name}
+                  />
+                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                    {user?.name ? getInitials(user.name) : "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium leading-none truncate">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              </div>
+            )}
             {user?.role === "freelancer" && user?.balance !== undefined && (
               <div className="pt-2 border-t border-border/40">
                 <div className="flex items-center justify-between">
