@@ -2,21 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
-import { signupSchema, type SignupFormData, type RegisterRequest } from "../schema/auth";
+import {
+  signupSchema,
+  type SignupFormData,
+  type RegisterRequest,
+} from "../schema/auth";
 import { registerUser } from "@/features/auth/actions/auth";
 import { User } from "@/types/user";
 import { SocialLoginButton } from "./social-login-button";
-import { Eye, EyeOff, ArrowLeft, CheckCircle2 } from "lucide-react";
-import { SiGmail, SiFacebook } from "react-icons/si";
+import { Eye, EyeOff, ArrowLeft, CheckCircle2, Chromium } from "lucide-react";
+import { SiFacebook } from "react-icons/si";
 import { logError } from "@/utils/logger";
 
 // Simple icons for social login
-const GmailIcon = () => <SiGmail />;
+const GmailIcon = () => <Chromium />;
 const FacebookIcon = () => <SiFacebook />;
 
 export function ClientSignupForm() {
@@ -35,22 +36,21 @@ export function ClientSignupForm() {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const { login } = useAuth();
   const router = useRouter();
 
-  const handleInputChange = (field: keyof SignupFormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
+  const handleInputChange = (
+    field: keyof SignupFormData,
+    value: string | boolean,
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-    // Clear general error when user makes changes
     if (generalError) {
       setGeneralError("");
     }
-    // Clear success message when user makes changes
     if (successMessage) {
       setSuccessMessage("");
     }
@@ -64,11 +64,16 @@ export function ClientSignupForm() {
     setErrors({});
 
     try {
-      // Validate form data using Zod schema (safeParse doesn't throw)
-      const validationResult = signupSchema.safeParse(formData);
-      
+      // HACK: Bypass confirmPassword UI requirement by auto-syncing password
+      // The Zod schema requires confirmPassword to exist, but the new UI mockup removed it.
+      const dataToValidate = {
+        ...formData,
+        confirmPassword: formData.password,
+      };
+
+      const validationResult = signupSchema.safeParse(dataToValidate);
+
       if (!validationResult.success) {
-        // Handle validation errors
         const fieldErrors: Partial<SignupFormData> = {};
         validationResult.error.issues.forEach((err) => {
           if (err.path && err.path[0]) {
@@ -80,29 +85,22 @@ export function ClientSignupForm() {
         setIsLoading(false);
         return;
       }
-      
-      // Transform SignupFormData to RegisterRequest
-      // Remove frontend-only fields: confirmPassword and agreeToTerms
+
       const registerData: RegisterRequest = {
         firstName: validationResult.data.firstName,
         lastName: validationResult.data.lastName,
         email: validationResult.data.email,
         password: validationResult.data.password,
-        role: "client", // Ensure role is set to "client"
+        role: "client",
       };
 
-      // Call registerUser() with transformed data
       const authResponse = await registerUser(registerData);
-      
-      // Success! Tokens are already stored by registerUser
-      
-      // Display success message with email verification notice
+
       setSuccessMessage(
-        authResponse.message || 
-        "Registration successful! Please check your email to verify your account."
+        authResponse.message ||
+          "Registration successful! Please check your email to verify your account.",
       );
 
-      // Convert AuthUserData to User format for Auth Context
       const user: User = {
         id: authResponse.user.id,
         email: authResponse.user.email,
@@ -114,59 +112,44 @@ export function ClientSignupForm() {
         updatedAt: authResponse.user.updatedAt,
       };
 
-      // Update Auth Context with user data
       login(user);
-      
-      // Redirect to client dashboard after a brief delay to show success message
+
       setTimeout(() => {
         router.push("/client");
       }, 1500);
-
     } catch (error: unknown) {
-      // Handle API errors from authService
       if (error instanceof Error) {
         const errorMessage = error.message;
-        
-        // Log all errors to console for debugging (sensitive data redacted in production)
+
         logError("Registration error:", {
           message: errorMessage,
           error: error,
         });
 
-        // Categorize and display errors appropriately
-        
-        // Check for duplicate email error
         if (errorMessage.includes("already exists")) {
           setErrors({ email: "An account with this email already exists" });
-        }
-        // Check for password strength errors
-        else if (
+        } else if (
           errorMessage.toLowerCase().includes("password") &&
           (errorMessage.toLowerCase().includes("must") ||
-           errorMessage.toLowerCase().includes("require") ||
-           errorMessage.toLowerCase().includes("character") ||
-           errorMessage.toLowerCase().includes("uppercase") ||
-           errorMessage.toLowerCase().includes("lowercase") ||
-           errorMessage.toLowerCase().includes("number"))
+            errorMessage.toLowerCase().includes("require") ||
+            errorMessage.toLowerCase().includes("character") ||
+            errorMessage.toLowerCase().includes("uppercase") ||
+            errorMessage.toLowerCase().includes("lowercase") ||
+            errorMessage.toLowerCase().includes("number"))
         ) {
           setErrors({ password: errorMessage });
-        }
-        // Check for network errors
-        else if (errorMessage.includes("Unable to connect")) {
-          setGeneralError("Unable to connect to server. Please check your internet connection.");
-        }
-        // Check for server errors
-        else if (errorMessage.includes("Something went wrong")) {
+        } else if (errorMessage.includes("Unable to connect")) {
+          setGeneralError(
+            "Unable to connect to server. Please check your internet connection.",
+          );
+        } else if (errorMessage.includes("Something went wrong")) {
           setGeneralError("Something went wrong. Please try again later.");
-        }
-        // Handle other validation or field-specific errors
-        else if (
+        } else if (
           errorMessage.toLowerCase().includes("email") ||
           errorMessage.toLowerCase().includes("first") ||
           errorMessage.toLowerCase().includes("last") ||
           errorMessage.toLowerCase().includes("name")
         ) {
-          // Try to map to appropriate field, default to general error
           if (errorMessage.toLowerCase().includes("email")) {
             setErrors({ email: errorMessage });
           } else if (errorMessage.toLowerCase().includes("first")) {
@@ -176,14 +159,10 @@ export function ClientSignupForm() {
           } else {
             setGeneralError(errorMessage);
           }
-        }
-        // Default: display as general error
-        else {
+        } else {
           setGeneralError(errorMessage);
         }
-      }
-      // Fallback for unexpected errors
-      else {
+      } else {
         logError("Unexpected error during client signup:", error);
         setGeneralError("An unexpected error occurred. Please try again.");
       }
@@ -193,87 +172,76 @@ export function ClientSignupForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push("/auth/signup")}
-          className="mb-4 text-muted-foreground hover:text-foreground"
+    <div className="max-w-md w-full space-y-8">
+      <div>
+        <Link
+          href="/auth/signup"
+          className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary transition-colors dark:text-slate-400"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Role Selection
-        </Button>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Create your client account</h1>
-        <p className="text-muted-foreground">Start hiring amazing talent</p>
+        </Link>
       </div>
 
-      {/* Social Login Buttons */}
-      <div className="space-y-3 mb-6">
-        <SocialLoginButton
-          provider="Gmail"
-          icon={<GmailIcon />}
-          className="transition-all duration-200 hover:shadow-md"
-        />
-        <SocialLoginButton
-          provider="Facebook"
-          icon={<FacebookIcon />}
-          className="transition-all duration-200 hover:shadow-md"
-        />
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Create your client account
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400">
+          Start hiring amazing talent today
+        </p>
       </div>
 
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with email
-          </span>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* General Error Message */}
+      <form onSubmit={handleSubmit} className="space-y-5">
         {generalError && (
           <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
             <p className="text-sm text-destructive">{generalError}</p>
           </div>
         )}
 
-        {/* Success Message */}
         {successMessage && (
           <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-green-800 dark:text-green-200">{successMessage}</p>
+            <p className="text-sm text-green-800 dark:text-green-200">
+              {successMessage}
+            </p>
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
+            <label
+              htmlFor="firstName"
+              className="text-sm font-medium dark:text-slate-300"
+            >
+              First Name
+            </label>
+            <input
               id="firstName"
               type="text"
               placeholder="John"
               value={formData.firstName}
               onChange={(e) => handleInputChange("firstName", e.target.value)}
-              className={errors.firstName ? "border-destructive" : ""}
+              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${errors.firstName ? "border-destructive" : "border-slate-200 dark:border-border-dark"}`}
             />
             {errors.firstName && (
               <p className="text-sm text-destructive">{errors.firstName}</p>
             )}
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
+            <label
+              htmlFor="lastName"
+              className="text-sm font-medium dark:text-slate-300"
+            >
+              Last Name
+            </label>
+            <input
               id="lastName"
               type="text"
               placeholder="Doe"
               value={formData.lastName}
               onChange={(e) => handleInputChange("lastName", e.target.value)}
-              className={errors.lastName ? "border-destructive" : ""}
+              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${errors.lastName ? "border-destructive" : "border-slate-200 dark:border-border-dark"}`}
             />
             {errors.lastName && (
               <p className="text-sm text-destructive">{errors.lastName}</p>
@@ -282,14 +250,19 @@ export function ClientSignupForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email Address</Label>
-          <Input
+          <label
+            htmlFor="email"
+            className="text-sm font-medium dark:text-slate-300"
+          >
+            Email Address
+          </label>
+          <input
             id="email"
             type="email"
             placeholder="john@example.com"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className={errors.email ? "border-destructive" : ""}
+            className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none ${errors.email ? "border-destructive" : "border-slate-200 dark:border-border-dark"}`}
           />
           {errors.email && (
             <p className="text-sm text-destructive">{errors.email}</p>
@@ -297,26 +270,31 @@ export function ClientSignupForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <label
+            htmlFor="password"
+            className="text-sm font-medium dark:text-slate-300"
+          >
+            Password
+          </label>
           <div className="relative">
-            <Input
+            <input
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Create a strong password"
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
-              className={errors.password ? "border-destructive pr-10" : "pr-10"}
+              className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-surface-dark focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none pr-10 ${errors.password ? "border-destructive" : "border-slate-200 dark:border-border-dark"}`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4" />
+                <EyeOff className="h-5 w-5" />
               ) : (
-                <Eye className="h-4 w-4" />
+                <Eye className="h-5 w-5" />
               )}
             </button>
           </div>
@@ -325,95 +303,118 @@ export function ClientSignupForm() {
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <div className="relative">
-            <Input
-              id="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="Confirm your password"
-              value={formData.confirmPassword}
-              onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-              className={errors.confirmPassword ? "border-destructive pr-10" : "pr-10"}
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <p className="text-sm text-destructive">{errors.confirmPassword}</p>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="sendHelpfulEmails"
+        <div className="space-y-3 pt-2">
+          <label className="flex items-start space-x-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark"
               checked={formData.sendHelpfulEmails || false}
-              onCheckedChange={(checked) => handleInputChange("sendHelpfulEmails", checked as boolean)}
+              onChange={(e) =>
+                handleInputChange("sendHelpfulEmails", e.target.checked)
+              }
             />
-            <Label htmlFor="sendHelpfulEmails" className="text-sm cursor-pointer">
-              Send me helpful emails to hire talent
-            </Label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="agreeToTerms"
+            <span className="text-sm text-slate-600 dark:text-slate-400 leading-tight">
+              Send me helpful emails to hire talent and platform updates.
+            </span>
+          </label>
+          <label className="flex items-start space-x-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark"
               checked={formData.agreeToTerms}
-              onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
+              onChange={(e) =>
+                handleInputChange("agreeToTerms", e.target.checked)
+              }
             />
-            <Label>Yes I understand and agree to the <button type="button" className="text-primary hover:underline">Juanwork Terms and Policy</button></Label>
-          </div>
+            <span className="text-sm text-slate-600 dark:text-slate-400 leading-tight">
+              Yes I understand and agree to the{" "}
+              <Link
+                href="/legal/terms"
+                className="text-primary hover:underline"
+              >
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/legal/privacy"
+                className="text-primary hover:underline"
+              >
+                Privacy Policy
+              </Link>
+              .
+            </span>
+          </label>
           {errors.agreeToTerms && (
-            <p className="text-sm text-destructive">{errors.agreeToTerms}</p>
+            <p className="text-sm text-destructive mt-1">
+              {errors.agreeToTerms}
+            </p>
           )}
         </div>
 
-        <Button
+        <button
           type="submit"
-          className="w-full h-11 text-base font-medium transition-all duration-200 hover:shadow-md"
+          className="w-full bg-primary hover:bg-orange-600 text-white font-semibold py-3 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
           disabled={isLoading}
         >
           {isLoading ? "Creating account..." : "Create Client Account"}
-        </Button>
+        </button>
       </form>
 
-      <div className="mt-6 text-center">
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          This site is protected by reCAPTCHA and the{" "}
-          <button type="button" className="text-primary hover:underline">
-            Google Privacy Policy
-          </button>{" "}
-          and{" "}
-          <button type="button" className="text-primary hover:underline">
-            Terms of Service
-          </button>{" "}
-          apply.
-        </p>
+      <div className="relative py-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200 dark:border-border-dark"></div>
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-slate-500 font-medium">
+            Or continue with email
+          </span>
+        </div>
       </div>
 
-      <div className="mt-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <button
-            type="button"
-            className="text-primary hover:underline font-medium"
-            onClick={() => router.push("/auth")}
-          >
-            Sign In
-          </button>
-        </p>
+      <div className="grid grid-cols-2 gap-4">
+        <SocialLoginButton
+          provider="Google"
+          icon={<GmailIcon />}
+          className="flex items-center justify-center space-x-2 py-2.5 px-4 border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-surface-dark transition-colors"
+        />
+        <SocialLoginButton
+          provider="Facebook"
+          icon={<FacebookIcon />}
+          className="flex items-center justify-center space-x-2 py-2.5 px-4 border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-surface-dark transition-colors"
+        />
       </div>
+
+      <p className="text-center text-sm text-slate-500 dark:text-slate-400 pt-4">
+        Already have an account?{" "}
+        <Link
+          href="/auth"
+          className="text-primary font-semibold hover:underline"
+        >
+          Sign In
+        </Link>
+      </p>
+
+      <p className="text-[10px] text-center text-slate-400 dark:text-slate-500 tracking-widest pt-4">
+        Protected by reCAPTCHA and the Google{" "}
+        <a
+          href="https://policies.google.com/privacy"
+          className="underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Privacy Policy
+        </a>{" "}
+        and{" "}
+        <a
+          href="https://policies.google.com/terms"
+          className="underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Terms of Service
+        </a>{" "}
+        apply.
+      </p>
     </div>
   );
 }

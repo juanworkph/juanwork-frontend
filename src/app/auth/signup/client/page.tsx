@@ -1,39 +1,98 @@
-import { ClientSignupForm } from "@/features/auth/components";
+"use client";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { ClientSignupForm } from "@/features/auth/components";
 
 export default function ClientSignupPage() {
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Column - Client Signup Form */}
-          <div className="flex items-center justify-center p-6 lg:p-8">
-            <div className="w-full max-w-md">
-              <ClientSignupForm />
-            </div>
-          </div>
+  const [mounted, setMounted] = useState(false);
 
-          {/* Right Column - Placeholder Image */}
-          <div className="hidden lg:flex items-center justify-center p-8">
-            <div className="relative w-full h-[600px] rounded-xl overflow-hidden shadow-2xl transition-all duration-300 hover:shadow-3xl">
-              <Image
-                src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-                alt="Client workspace"
-                fill
-                className="object-cover transition-transform duration-300 hover:scale-105"
-                priority
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = "/images/logo white.png";
+
+  return (
+    <main className="flex min-h-screen w-full flex-col lg:flex-row bg-background">
+      <section className="w-full lg:w-1/2 flex flex-col justify-center items-center px-6 py-12 lg:px-16">
+        <ClientSignupForm />
+      </section>
+
+      <section className="hidden lg:block lg:w-1/2 relative overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt="Professional collaboration"
+          className="absolute inset-0 w-full h-full object-cover"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLNbqTrEYwBPh4LCcv9AqS_S_Rkx6RMfi9661dNIXRwPpMWl6On3evIJuUbtTZflVXUuiVFOSzNxNWXPnpcyQxpa0YxPaWK78SPqirYYhqRTj87jUIMxImvEeIbksky-3c0W8vbx8Q9Mpx7MdgI9TDgWAMiimMrYtVgQbG2q8pqyepfCeR-4EWUQbcE-tgF3oy6YH7kjgPZXUp6H5tDgpFP7XdD4KUj-p0JZgfJzzFh8qTsKvhefNNa98aYiSrfo_twbY1ejbPAKph"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(9, 9, 11, 0.9) 0%, rgba(249, 115, 22, 0.1) 100%)",
+          }}
+        ></div>
+
+        <div className="absolute top-12 left-16 flex items-center gap-2">
+          {mounted && (
+            <Link href="/" className="flex items-center space-x-2 group">
+              <div className="relative h-10 w-40 transition-transform duration-200 group-hover:scale-105">
+                <Image
+                  src={logoSrc}
+                  alt="JuanWork Logo"
+                  fill
+                  style={{ objectFit: "contain" }}
+                  priority
+                  className="transition-opacity duration-200"
+                />
+              </div>
+            </Link>
+          )}
+        </div>
+
+        <div className="absolute bottom-20 left-16 right-16 space-y-6">
+          <div className="space-y-4">
+            <h2 className="text-5xl font-bold text-white leading-tight">
+              Hire top talent
+            </h2>
+            <p className="text-xl text-zinc-300 max-w-md leading-relaxed font-light">
+              Connect with skilled professionals and build your next great
+              project together. Join the world's most innovative freelance
+              marketplace.
+            </p>
+          </div>
+          <div className="flex items-center space-x-4 pt-4">
+            <div className="flex -space-x-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="Avatar 1"
+                className="inline-block h-12 w-12 rounded-full border-4 border-zinc-900 object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5W0TaS7GcOG-uBYI3KF_97E8rpqJwCTPg8IT3guy5DTCUQJxD37TMSngmOImzSFA_NoSR82BdZdmaQOjVkaShF2ngM8Y-DuxlovqktopyVT_KISvblBQBiYxpA0BVzteUXHsYftfz4Fg_ZJsyTl4drmF0h8zYt7dpvG5mfeEBhZjYziqY54xkEBgzl4GiLqzNK8z6qKOpH9wMtAQTpkVQi_sn9s3vz2wjOKk-ehcTl_hIvHiX4syVl3ebilmVIodmdkna_TDLlWBv"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-              <div className="absolute bottom-8 left-8 right-8 text-white">
-                <h2 className="text-3xl font-bold mb-3">Hire top talent</h2>
-                <p className="text-white/90 text-lg leading-relaxed">
-                  Connect with skilled professionals and build your next great project together.
-                </p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="Avatar 2"
+                className="inline-block h-12 w-12 rounded-full border-4 border-zinc-900 object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAuJpU7Wku-eULabLelrjNYjHF-xmDP7TKsQVMKqeVPsglZdukF-NXRLC3BATxJzUhPn9qpb_jy0GmJFk5v1jboh8bNksmEY1A1AGHqRitJXxYvKxNbCPtkkSS6MMTuTSqxv4-uPWWMtqZgwE7PRTi3EyPLLLbFf-48QVpfrC2WsIvrKxfz-AuRerbPFC9QBsIvFjh83IEeGeekx2JgKlbfRNeO9sOMApVTTMemff94doxfN22-fCGhYeRTMbnvAPYqp-uNC6J6u0x"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="Avatar 3"
+                className="inline-block h-12 w-12 rounded-full border-4 border-zinc-900 object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqFX6jWHbgSaOCuelA-w9VyaTkV4pBjKZUp5rvF4heAJXvc75Mj9FwEMtpN-xK2p2KbBhgq0hLWM53q6cFzrA_E7vlT1mzq4pTpW-dnVbzrc0Fz0LE9JQQE2xAOG1RE0D1pOalniBz8j46QqYkAnjJ5jPoGrYGDWwXU8_BEDstx9v3qaMBoPVKvb6s3LNPVPyWklVZ9xNKKTaBtRQ2fUKCZLPWLCzjdW4ueiWF9AOXgNHQiMf2kjpEi3G-IACBoBaOLsFJQiY3x5yJ"
+              />
+              <div className="flex items-center justify-center h-12 w-12 rounded-full border-4 border-zinc-900 bg-primary text-white text-xs font-bold relative z-10">
+                +10k
               </div>
             </div>
+            <span className="text-white font-medium">
+              Trusted by 10,000+ businesses
+            </span>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
