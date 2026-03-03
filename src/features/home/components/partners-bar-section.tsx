@@ -2,7 +2,7 @@ import React from "react";
 
 export function PartnersBarSection() {
   return (
-    <section className="py-12 border-y border-border bg-background">
+    <section className="py-12 border-y border-border bg-muted/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground mb-8">
           Localized Payments & Partners

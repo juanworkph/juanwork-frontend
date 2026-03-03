@@ -34,8 +34,14 @@ export function TestimonialsSection() {
 
   return (
     <section className="py-24 bg-background relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 pointer-events-none" />
+      {/* Background Image */}
+      <Image
+        src="/images/testimonials.png"
+        alt="Testimonials Background"
+        fill
+        className="h-full w-full object-fill opacity-30 dark:opacity-20 mix-blend-multiply dark:mix-blend-screen pointer-events-none"
+        priority
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
