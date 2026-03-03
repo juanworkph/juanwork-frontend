@@ -76,7 +76,7 @@ export function TestimonialsSection() {
 
                 <div className="flex items-center gap-4 mt-8 pt-6 border-t border-border">
                   <Image
-                    className="w-12 h-12 rounded-full object-cover grayscale"
+                    className="w-12 h-12 rounded-full object-cover"
                     src={testimonial.avatar}
                     alt={testimonial.name}
                     width={48}

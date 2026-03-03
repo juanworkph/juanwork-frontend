@@ -54,9 +54,6 @@ export function WorkflowSection() {
 
   return (
     <section className="py-24 bg-background relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 pointer-events-none" />
-
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
           <div className="max-w-2xl">

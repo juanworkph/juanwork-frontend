@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/features/home/components/footer";
+import { Footer } from "@/components/layout/footer";
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;

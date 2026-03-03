@@ -5,7 +5,10 @@ import { Globe } from "lucide-react";
 
 export function CtaBannerSection() {
   return (
-    <section className="py-24 bg-background overflow-hidden">
+    <section className="py-24 bg-background overflow-hidden relative">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-primary p-12 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden shadow-2xl">
           {/* Decorative background icon */}
