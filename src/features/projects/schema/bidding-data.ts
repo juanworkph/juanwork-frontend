@@ -5,7 +5,7 @@ export type BidStatus = "pending" | "accepted" | "rejected" | "withdrawn";
 export interface BidFormData {
   projectId: string;
   bidAmount: number;
-  deliveryDays: number;
+  deliveryDays?: number;
   coverLetter: string;
   attachments: File[];
 }
@@ -22,7 +22,7 @@ export interface Bid {
   projectId: string;
   freelancerId: string;
   bidAmount: number;
-  deliveryDays: number;
+  deliveryDays?: number;
   coverLetter: string;
   attachments: BidAttachment[];
   status: BidStatus;
@@ -59,7 +59,8 @@ export const defaultBidValidationRules: BidValidationRules = {
 // Validation function
 export const validateBid = (
   data: BidFormData,
-  rules: BidValidationRules = defaultBidValidationRules
+  paymentType: "fixed" | "hourly" = "fixed",
+  rules: BidValidationRules = defaultBidValidationRules,
 ): BidValidationResult => {
   const errors: Record<string, string> = {};
 
@@ -72,17 +73,20 @@ export const validateBid = (
     errors.bidAmount = `Maximum bid is $${rules.maxBidAmount}`;
   }
 
-  // Validate delivery days
-  if (!data.deliveryDays || data.deliveryDays <= 0) {
-    errors.deliveryDays = "Delivery time is required and must be greater than 0";
-  } else if (data.deliveryDays < rules.minDeliveryDays) {
-    errors.deliveryDays = `Minimum delivery time is ${rules.minDeliveryDays} day${
-      rules.minDeliveryDays > 1 ? "s" : ""
-    }`;
-  } else if (data.deliveryDays > rules.maxDeliveryDays) {
-    errors.deliveryDays = `Maximum delivery time is ${rules.maxDeliveryDays} days`;
-  } else if (!Number.isInteger(data.deliveryDays)) {
-    errors.deliveryDays = "Delivery time must be a whole number";
+  // Validate delivery days (only for fixed-price projects)
+  if (paymentType === "fixed") {
+    if (!data.deliveryDays || data.deliveryDays <= 0) {
+      errors.deliveryDays =
+        "Delivery time is required and must be greater than 0";
+    } else if (data.deliveryDays < rules.minDeliveryDays) {
+      errors.deliveryDays = `Minimum delivery time is ${rules.minDeliveryDays} day${
+        rules.minDeliveryDays > 1 ? "s" : ""
+      }`;
+    } else if (data.deliveryDays > rules.maxDeliveryDays) {
+      errors.deliveryDays = `Maximum delivery time is ${rules.maxDeliveryDays} days`;
+    } else if (!Number.isInteger(data.deliveryDays)) {
+      errors.deliveryDays = "Delivery time must be a whole number";
+    }
   }
 
   // Validate cover letter
@@ -100,7 +104,7 @@ export const validateBid = (
   // Validate individual attachment sizes
   if (data.attachments && data.attachments.length > 0) {
     const oversizedFiles = data.attachments.filter(
-      (file) => file.size > rules.maxAttachmentSize
+      (file) => file.size > rules.maxAttachmentSize,
     );
     if (oversizedFiles.length > 0) {
       const maxSizeMB = rules.maxAttachmentSize / (1024 * 1024);

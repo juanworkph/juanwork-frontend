@@ -3,6 +3,7 @@
 // React and Next.js imports
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // UI components from library
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,12 @@ import {
 import { SingleViewBiddingCard } from "@/features/projects/components/single-view-bidding-card";
 
 // API actions
-import { getProjectById } from "@/features/projects/actions/project-detail.actions";
+import {
+  getProjectById,
+  submitProjectBid,
+  cancelProjectBid,
+  getMyProjectBid,
+} from "@/features/projects/actions/project-detail.actions";
 
 // Custom hooks
 import { useBookmark } from "@/hooks/use-bookmark";
@@ -97,101 +103,112 @@ export default function ProjectDetailsPage({
         setProject(null);
         setExistingBid(undefined);
         setProjectImages([]);
-      } else {
-        // Transform the flat API response into the nested ProjectDetails structure
-        // that the UI components expect.
-        const transformedProject: ProjectDetails = {
-          ...projectData,
-          category: projectData.category?.name || "Uncategorized",
-          skills: Array.isArray(projectData.skills)
-            ? projectData.skills.map((s: any) => s.name || s)
-            : [],
-          budget: {
-            type: projectData.paymentType || "fixed",
-            amount: parseFloat(projectData.budgetMax || "0"),
-            currency: projectData.currency || "PHP",
-            hourlyRate:
-              projectData.paymentType === "hourly"
-                ? parseFloat(projectData.budgetMax || "0")
-                : undefined,
-          },
-          // Map min/max for the PricingCard
-          budgetMin: parseFloat(projectData.budgetMin || "0"),
-          budgetMax: parseFloat(projectData.budgetMax || "0"),
-          // Use real view count
-          views: projectData.views || 0,
-          // Upgrades mapping
-          upgrades: Array.isArray(projectData.upgrades)
-            ? projectData.upgrades
-            : [],
-          deadline: {
-            startDate: projectData.createdAt,
-            endDate: projectData.createdAt,
-            deliveryDays: projectData.deliveryDays || 0,
-            hoursLeft: 0,
-            isOverdue: false,
-          },
-          // Required mock properties for Project interface if missing in API
-          client: projectData.client
-            ? {
-                id: projectData.client.id,
-                name: projectData.client.name,
-                avatar: projectData.client.avatar || undefined,
-                country: projectData.client.country || "Philippines",
-                countryCode: "PH",
-                verified: projectData.client.verified,
-                rating: projectData.client.rating,
-                totalProjects: projectData.client.totalProjects,
-                responseTime: projectData.client.responseTime,
-                lastActive: projectData.client.lastActive,
-              }
-            : {
-                id: projectData.clientId || "unknown",
-                name: "Client",
-                country: "Philippines",
-                countryCode: "PH",
-                verified: false,
-              },
-          clientDetails: projectData.client
-            ? {
-                id: projectData.client.id,
-                name: projectData.client.name,
-                avatar: projectData.client.avatar || undefined,
-                country: projectData.client.country || "Philippines",
-                countryCode: "PH",
-                verified: projectData.client.verified,
-                rating: projectData.client.rating,
-                totalProjects: projectData.client.totalProjects,
-                totalHires: projectData.client.totalHires,
-                paymentVerified: projectData.client.paymentVerified,
-                memberSince: projectData.client.memberSince,
-                responseRate: projectData.client.responseRate,
-                reviewCount: projectData.client.totalProjects,
-                lastActive: projectData.client.lastActive,
-              }
-            : undefined,
-          progress: projectData.progress || {
-            completedTasks: 0,
-            totalTasks: 0,
-            completedMilestones: 0,
-            totalMilestones: 0,
-            progressPercentage: 0,
-            lastUpdated: projectData.updatedAt || projectData.createdAt,
-          },
-          projectUrl: `/projects/${projectData.id}`,
-        };
-
-        setProject(transformedProject);
-        setExistingBid(undefined);
-
-        // Extract image attachments for the gallery
-        const images = Array.isArray(projectData.attachments)
-          ? projectData.attachments
-              .filter((a: any) => a?.type?.toLowerCase().includes("image"))
-              .map((a: any) => a.url)
-          : [];
-        setProjectImages(images);
+        return;
       }
+
+      // Fetch existing bid if any
+      let existingBidData: Bid | undefined = undefined;
+      try {
+        const bidResult = await getMyProjectBid(unwrappedParams.projectId);
+        if (bidResult) {
+          existingBidData = bidResult;
+        }
+      } catch (err) {
+        console.warn("Failed to fetch existing bid", err);
+      }
+      // Transform the flat API response into the nested ProjectDetails structure
+      // that the UI components expect.
+      const transformedProject: ProjectDetails = {
+        ...projectData,
+        category: projectData.category?.name || "Uncategorized",
+        skills: Array.isArray(projectData.skills)
+          ? projectData.skills.map((s: any) => s.name || s)
+          : [],
+        budget: {
+          type: projectData.paymentType || "fixed",
+          amount: parseFloat(projectData.budgetMax || "0"),
+          currency: projectData.currency || "PHP",
+          hourlyRate:
+            projectData.paymentType === "hourly"
+              ? parseFloat(projectData.budgetMax || "0")
+              : undefined,
+        },
+        // Map min/max for the PricingCard
+        budgetMin: parseFloat(projectData.budgetMin || "0"),
+        budgetMax: parseFloat(projectData.budgetMax || "0"),
+        // Use real view count
+        views: projectData.views || 0,
+        // Upgrades mapping
+        upgrades: Array.isArray(projectData.upgrades)
+          ? projectData.upgrades
+          : [],
+        deadline: {
+          startDate: projectData.createdAt,
+          endDate: projectData.createdAt,
+          deliveryDays: projectData.deliveryDays || 0,
+          hoursLeft: 0,
+          isOverdue: false,
+        },
+        // Required mock properties for Project interface if missing in API
+        client: projectData.client
+          ? {
+              id: projectData.client.id,
+              name: projectData.client.name,
+              avatar: projectData.client.avatar || undefined,
+              country: projectData.client.country || "Philippines",
+              countryCode: "PH",
+              verified: projectData.client.verified,
+              rating: projectData.client.rating,
+              totalProjects: projectData.client.totalProjects,
+              responseTime: projectData.client.responseTime,
+              lastActive: projectData.client.lastActive,
+            }
+          : {
+              id: projectData.clientId || "unknown",
+              name: "Client",
+              country: "Philippines",
+              countryCode: "PH",
+              verified: false,
+            },
+        clientDetails: projectData.client
+          ? {
+              id: projectData.client.id,
+              name: projectData.client.name,
+              avatar: projectData.client.avatar || undefined,
+              country: projectData.client.country || "Philippines",
+              countryCode: "PH",
+              verified: projectData.client.verified,
+              rating: projectData.client.rating,
+              totalProjects: projectData.client.totalProjects,
+              totalHires: projectData.client.totalHires,
+              paymentVerified: projectData.client.paymentVerified,
+              memberSince: projectData.client.memberSince,
+              responseRate: projectData.client.responseRate,
+              reviewCount: projectData.client.totalProjects,
+              lastActive: projectData.client.lastActive,
+            }
+          : undefined,
+        progress: projectData.progress || {
+          completedTasks: 0,
+          totalTasks: 0,
+          completedMilestones: 0,
+          totalMilestones: 0,
+          progressPercentage: 0,
+          lastUpdated: projectData.updatedAt || projectData.createdAt,
+        },
+        projectUrl: `/projects/${projectData.id}`,
+      };
+
+      setProject(transformedProject);
+      setExistingBid(existingBidData);
+
+      // Extract image attachments for the gallery
+      const images = Array.isArray(projectData.attachments)
+        ? projectData.attachments
+            .filter((a: any) => a?.type?.toLowerCase().includes("image"))
+            .map((a: any) => a.url)
+        : [];
+      setProjectImages(images);
     } catch (err) {
       console.error("Error fetching project:", err);
       setError("network");
@@ -211,12 +228,24 @@ export default function ProjectDetailsPage({
   // Handle bid submission
   const handleBidSubmit = async (bidData: BidFormData) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Bid submitted:", bidData);
-      // In a real app, this would make an API call
+      const result = await submitProjectBid(unwrappedParams.projectId, bidData);
+      setExistingBid(result);
+      // Removed toast.success here since SingleViewBiddingCard handles it
     } catch (err) {
       console.error("Error submitting bid:", err);
+      throw err;
+    }
+  };
+
+  // Handle bid cancellation
+  const handleBidCancel = async () => {
+    try {
+      await cancelProjectBid(unwrappedParams.projectId);
+      setExistingBid(undefined);
+      toast.success("Bid cancelled successfully");
+    } catch (err) {
+      console.error("Error cancelling bid:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to cancel bid");
       throw err;
     }
   };
@@ -408,7 +437,10 @@ export default function ProjectDetailsPage({
               <SingleViewBiddingCard
                 project={project}
                 existingBid={existingBid}
+                isProjectOnWork={false} // Adjust this logic as needed based on actual work status
+                hasEnoughPoints={true} // Add real points check here when loyalty/points system is integrated
                 onSubmit={handleBidSubmit}
+                onCancel={handleBidCancel}
               />
 
               {/* Client Card - Hidden on mobile, shown on tablet+ */}

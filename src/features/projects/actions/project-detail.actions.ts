@@ -7,6 +7,7 @@
 
 import apiClient, { ApiSuccessResponse } from "@/lib/api-client";
 import { FreelancerBid, ProjectInsights } from "../schema/project-detail-data";
+import { BidFormData, Bid } from "../schema/bidding-data";
 import {
   retryWithBackoff,
   getErrorMessage,
@@ -38,7 +39,7 @@ import {
  */
 export const getProjectById = async (
   projectId: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<any> => {
   try {
     // Retry configuration
@@ -49,7 +50,7 @@ export const getProjectById = async (
       onRetry: (attempt, error) => {
         console.log(
           `[getProjectById] Retry attempt ${attempt} after error:`,
-          error.message
+          error.message,
         );
       },
     };
@@ -60,7 +61,7 @@ export const getProjectById = async (
         apiClient.get<ApiSuccessResponse<any>>(`/projects/${projectId}`, {
           signal,
         }),
-      retryOptions
+      retryOptions,
     );
 
     return response.data.data;
@@ -109,7 +110,7 @@ export const getProjectById = async (
  */
 export const getProjectBids = async (
   projectId: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<FreelancerBid[]> => {
   try {
     // Retry configuration
@@ -120,7 +121,7 @@ export const getProjectBids = async (
       onRetry: (attempt, error) => {
         console.log(
           `[getProjectBids] Retry attempt ${attempt} after error:`,
-          error.message
+          error.message,
         );
       },
     };
@@ -130,9 +131,9 @@ export const getProjectBids = async (
       () =>
         apiClient.get<ApiSuccessResponse<{ bids: FreelancerBid[] }>>(
           `/projects/${projectId}/bids`,
-          { signal }
+          { signal },
         ),
-      retryOptions
+      retryOptions,
     );
 
     return response.data.data.bids;
@@ -183,7 +184,7 @@ export const getProjectBids = async (
  */
 export const getProjectInsights = async (
   projectId: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<ProjectInsights> => {
   try {
     // Retry configuration
@@ -194,7 +195,7 @@ export const getProjectInsights = async (
       onRetry: (attempt, error) => {
         console.log(
           `[getProjectInsights] Retry attempt ${attempt} after error:`,
-          error.message
+          error.message,
         );
       },
     };
@@ -204,9 +205,9 @@ export const getProjectInsights = async (
       () =>
         apiClient.get<ApiSuccessResponse<ProjectInsights>>(
           `/projects/${projectId}/insights`,
-          { signal }
+          { signal },
         ),
-      retryOptions
+      retryOptions,
     );
 
     return response.data.data;
@@ -259,7 +260,7 @@ export const getProjectInsights = async (
  */
 export const closeProjectBids = async (
   projectId: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<void> => {
   try {
     // Retry configuration (fewer retries for write operations)
@@ -270,7 +271,7 @@ export const closeProjectBids = async (
       onRetry: (attempt, error) => {
         console.log(
           `[closeProjectBids] Retry attempt ${attempt} after error:`,
-          error.message
+          error.message,
         );
       },
     };
@@ -278,7 +279,7 @@ export const closeProjectBids = async (
     // Wrap API call with retry logic
     await retryWithBackoff(
       () => apiClient.post(`/projects/${projectId}/close-bids`, {}, { signal }),
-      retryOptions
+      retryOptions,
     );
   } catch (error: any) {
     // Don't swallow cancellation errors - rethrow them so the UI can handle them
@@ -331,7 +332,7 @@ export const closeProjectBids = async (
 export const shortlistBid = async (
   projectId: string,
   bidId: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<void> => {
   try {
     // Retry configuration (fewer retries for write operations)
@@ -342,7 +343,7 @@ export const shortlistBid = async (
       onRetry: (attempt, error) => {
         console.log(
           `[shortlistBid] Retry attempt ${attempt} after error:`,
-          error.message
+          error.message,
         );
       },
     };
@@ -353,9 +354,9 @@ export const shortlistBid = async (
         apiClient.post(
           `/projects/${projectId}/bids/${bidId}/shortlist`,
           {},
-          { signal }
+          { signal },
         ),
-      retryOptions
+      retryOptions,
     );
   } catch (error: any) {
     // Don't swallow cancellation errors - rethrow them so the UI can handle them
@@ -369,7 +370,7 @@ export const shortlistBid = async (
 
     console.error(
       `Failed to shortlist bid ${bidId} for project ${projectId}:`,
-      error
+      error,
     );
 
     // Get user-friendly error message
@@ -412,7 +413,7 @@ export const shortlistBid = async (
 export const interviewBid = async (
   projectId: string,
   bidId: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<void> => {
   try {
     // Retry configuration (fewer retries for write operations)
@@ -423,7 +424,7 @@ export const interviewBid = async (
       onRetry: (attempt, error) => {
         console.log(
           `[interviewBid] Retry attempt ${attempt} after error:`,
-          error.message
+          error.message,
         );
       },
     };
@@ -434,9 +435,9 @@ export const interviewBid = async (
         apiClient.post(
           `/projects/${projectId}/bids/${bidId}/interview`,
           {},
-          { signal }
+          { signal },
         ),
-      retryOptions
+      retryOptions,
     );
   } catch (error: any) {
     // Don't swallow cancellation errors - rethrow them so the UI can handle them
@@ -450,7 +451,7 @@ export const interviewBid = async (
 
     console.error(
       `Failed to mark bid ${bidId} for interview for project ${projectId}:`,
-      error
+      error,
     );
 
     // Get user-friendly error message
@@ -493,7 +494,7 @@ export const interviewBid = async (
 export const rejectBid = async (
   projectId: string,
   bidId: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<void> => {
   try {
     // Retry configuration (fewer retries for write operations)
@@ -504,7 +505,7 @@ export const rejectBid = async (
       onRetry: (attempt, error) => {
         console.log(
           `[rejectBid] Retry attempt ${attempt} after error:`,
-          error.message
+          error.message,
         );
       },
     };
@@ -515,9 +516,9 @@ export const rejectBid = async (
         apiClient.post(
           `/projects/${projectId}/bids/${bidId}/reject`,
           {},
-          { signal }
+          { signal },
         ),
-      retryOptions
+      retryOptions,
     );
   } catch (error: any) {
     // Don't swallow cancellation errors - rethrow them so the UI can handle them
@@ -531,11 +532,154 @@ export const rejectBid = async (
 
     console.error(
       `Failed to reject bid ${bidId} for project ${projectId}:`,
-      error
+      error,
     );
 
     // Get user-friendly error message
     const errorMessage = getErrorMessage(error, "rejecting bid");
     throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Submit a bid for a project
+ *
+ * @param projectId - The UUID identifier of the project
+ * @param data - Bid data
+ * @param signal - Optional AbortSignal for request cancellation
+ * @returns Promise<Bid>
+ */
+export const submitProjectBid = async (
+  projectId: string,
+  data: BidFormData,
+  signal?: AbortSignal,
+): Promise<Bid> => {
+  try {
+    const retryOptions: RetryOptions = {
+      maxRetries: 2,
+      baseDelay: 1000,
+      signal,
+      onRetry: (attempt, error) => {
+        console.log(
+          `[submitProjectBid] Retry attempt ${attempt} after error:`,
+          error.message,
+        );
+      },
+    };
+
+    const response = await retryWithBackoff(
+      () =>
+        apiClient.post<ApiSuccessResponse<Bid>>(
+          `/projects/${projectId}/bids`,
+          data,
+          { signal },
+        ),
+      retryOptions,
+    );
+
+    return response.data.data;
+  } catch (error: any) {
+    if (
+      error.name === "CanceledError" ||
+      error.name === "AbortError" ||
+      error.message === "canceled"
+    ) {
+      throw error;
+    }
+    console.error(`Failed to submit bid for project ${projectId}:`, error);
+    throw new Error(getErrorMessage(error, "submitting bid"));
+  }
+};
+
+/**
+ * Cancel a project bid
+ *
+ * @param projectId - The UUID identifier of the project
+ * @param signal - Optional AbortSignal for request cancellation
+ * @returns Promise<void>
+ */
+export const cancelProjectBid = async (
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<void> => {
+  try {
+    const retryOptions: RetryOptions = {
+      maxRetries: 2,
+      baseDelay: 1000,
+      signal,
+      onRetry: (attempt, error) => {
+        console.log(
+          `[cancelProjectBid] Retry attempt ${attempt} after error:`,
+          error.message,
+        );
+      },
+    };
+
+    await retryWithBackoff(
+      () => apiClient.delete(`/projects/${projectId}/bids`, { signal }),
+      retryOptions,
+    );
+  } catch (error: any) {
+    if (
+      error.name === "CanceledError" ||
+      error.name === "AbortError" ||
+      error.message === "canceled"
+    ) {
+      throw error;
+    }
+    console.error(`Failed to cancel bid for project ${projectId}:`, error);
+    throw new Error(getErrorMessage(error, "cancelling bid"));
+  }
+};
+
+/**
+ * Get freelancer's bid for a project
+ *
+ * @param projectId - The UUID identifier of the project
+ * @param signal - Optional AbortSignal for request cancellation
+ * @returns Promise<Bid | null>
+ */
+export const getMyProjectBid = async (
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<Bid | null> => {
+  try {
+    const retryOptions: RetryOptions = {
+      maxRetries: 3,
+      baseDelay: 1000,
+      signal,
+      onRetry: (attempt, error) => {
+        console.log(
+          `[getMyProjectBid] Retry attempt ${attempt} after error:`,
+          error.message,
+        );
+      },
+    };
+
+    const response = await retryWithBackoff(
+      () =>
+        apiClient.get<ApiSuccessResponse<{ bid: Bid | null }>>(
+          `/projects/${projectId}/bids/me`,
+          { signal },
+        ),
+      retryOptions,
+    );
+
+    return response.data.data.bid;
+  } catch (error: any) {
+    if (
+      error.name === "CanceledError" ||
+      error.name === "AbortError" ||
+      error.message === "canceled"
+    ) {
+      throw error;
+    }
+
+    // If it's a 401 or 403, we might not be authenticated as a freelancer or at all.
+    // In that case, we can safely return null or throw.
+    // We'll let standard error handle it unless it's a generic UI error.
+
+    console.error(`Failed to get my bid for project ${projectId}:`, error);
+    throw new Error(getErrorMessage(error, "loading your bid"));
   }
 };
