@@ -67,10 +67,7 @@ export const SingleViewBiddingCard = ({
       const formData: BidFormData = {
         projectId: project.id,
         bidAmount: parseFloat(bidAmount) || 0,
-        deliveryDays:
-          project.budget.type === "fixed"
-            ? parseInt(deliveryDays) || 0
-            : undefined,
+        deliveryDays: parseInt(deliveryDays) || 0,
         coverLetter: coverLetter.trim(),
         attachments: [],
       };
@@ -125,10 +122,7 @@ export const SingleViewBiddingCard = ({
     const formData: BidFormData = {
       projectId: project.id,
       bidAmount: parseFloat(bidAmount) || 0,
-      deliveryDays:
-        project.budget.type === "fixed"
-          ? parseInt(deliveryDays) || 0
-          : undefined,
+      deliveryDays: parseInt(deliveryDays) || 0,
       coverLetter: coverLetter.trim(),
       attachments: [],
     };
@@ -203,13 +197,16 @@ export const SingleViewBiddingCard = ({
         Already on Work
       </Button>
     );
-  } else if (!isActive && !existingBid) {
+  } else if (
+    !isActive &&
+    (!existingBid || existingBid.status === "withdrawn")
+  ) {
     content = (
       <Button disabled className="w-full" variant="secondary">
         Project Closed
       </Button>
     );
-  } else if (existingBid && !isEditing) {
+  } else if (existingBid && existingBid.status !== "withdrawn" && !isEditing) {
     // If there's an existing bid, show the bid details unless the user is specifically editing (which is not allowed for some states)
     const canCancel = isActive && existingBid.status === "pending";
     const statusResultText =
@@ -277,7 +274,11 @@ export const SingleViewBiddingCard = ({
         )}
       </div>
     );
-  } else if (isActive && !existingBid && !hasEnoughPoints) {
+  } else if (
+    isActive &&
+    (!existingBid || existingBid.status === "withdrawn") &&
+    !hasEnoughPoints
+  ) {
     content = (
       <Button disabled className="w-full" variant="secondary">
         JuanPoints Required
@@ -322,39 +323,37 @@ export const SingleViewBiddingCard = ({
           )}
         </div>
 
-        {/* Delivery Time (Only for Fixed) */}
-        {project.budget.type === "fixed" && (
-          <div>
-            <label className="block text-xs text-foreground uppercase mb-1.5">
-              Delivery Time *
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                value={deliveryDays}
-                onChange={(e) =>
-                  handleFieldChange("deliveryDays", e.target.value)
-                }
-                onBlur={() => handleBlur("deliveryDays")}
-                className={`w-full bg-background border ${
-                  touched.deliveryDays && errors.deliveryDays
-                    ? "border-destructive focus:ring-destructive"
-                    : "border-input focus:ring-primary focus:border-primary"
-                } rounded-lg px-4 py-2 text-sm focus:ring-1 placeholder:text-muted-foreground transition-all text-foreground`}
-                placeholder="30"
-                disabled={isSubmitting}
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                days
-              </span>
-            </div>
-            {touched.deliveryDays && errors.deliveryDays && (
-              <p className="text-[10px] text-destructive mt-1">
-                {errors.deliveryDays}
-              </p>
-            )}
+        {/* Delivery Time */}
+        <div>
+          <label className="block text-xs text-foreground uppercase mb-1.5">
+            Delivery Time *
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              value={deliveryDays}
+              onChange={(e) =>
+                handleFieldChange("deliveryDays", e.target.value)
+              }
+              onBlur={() => handleBlur("deliveryDays")}
+              className={`w-full bg-background border ${
+                touched.deliveryDays && errors.deliveryDays
+                  ? "border-destructive focus:ring-destructive"
+                  : "border-input focus:ring-primary focus:border-primary"
+              } rounded-lg px-4 py-2 text-sm focus:ring-1 placeholder:text-muted-foreground transition-all text-foreground`}
+              placeholder="30"
+              disabled={isSubmitting}
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+              days
+            </span>
           </div>
-        )}
+          {touched.deliveryDays && errors.deliveryDays && (
+            <p className="text-[10px] text-destructive mt-1">
+              {errors.deliveryDays}
+            </p>
+          )}
+        </div>
 
         {/* Cover Letter */}
         <div>

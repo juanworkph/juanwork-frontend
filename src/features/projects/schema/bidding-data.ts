@@ -5,7 +5,7 @@ export type BidStatus = "pending" | "accepted" | "rejected" | "withdrawn";
 export interface BidFormData {
   projectId: string;
   bidAmount: number;
-  deliveryDays?: number;
+  deliveryDays: number;
   coverLetter: string;
   attachments: File[];
 }
@@ -22,7 +22,7 @@ export interface Bid {
   projectId: string;
   freelancerId: string;
   bidAmount: number;
-  deliveryDays?: number;
+  deliveryDays: number;
   coverLetter: string;
   attachments: BidAttachment[];
   status: BidStatus;
@@ -73,20 +73,18 @@ export const validateBid = (
     errors.bidAmount = `Maximum bid is $${rules.maxBidAmount}`;
   }
 
-  // Validate delivery days (only for fixed-price projects)
-  if (paymentType === "fixed") {
-    if (!data.deliveryDays || data.deliveryDays <= 0) {
-      errors.deliveryDays =
-        "Delivery time is required and must be greater than 0";
-    } else if (data.deliveryDays < rules.minDeliveryDays) {
-      errors.deliveryDays = `Minimum delivery time is ${rules.minDeliveryDays} day${
-        rules.minDeliveryDays > 1 ? "s" : ""
-      }`;
-    } else if (data.deliveryDays > rules.maxDeliveryDays) {
-      errors.deliveryDays = `Maximum delivery time is ${rules.maxDeliveryDays} days`;
-    } else if (!Number.isInteger(data.deliveryDays)) {
-      errors.deliveryDays = "Delivery time must be a whole number";
-    }
+  // Validate delivery days (required for all project types)
+  if (!data.deliveryDays || data.deliveryDays <= 0) {
+    errors.deliveryDays =
+      "Delivery time is required and must be greater than 0";
+  } else if (data.deliveryDays < rules.minDeliveryDays) {
+    errors.deliveryDays = `Minimum delivery time is ${rules.minDeliveryDays} day${
+      rules.minDeliveryDays > 1 ? "s" : ""
+    }`;
+  } else if (data.deliveryDays > rules.maxDeliveryDays) {
+    errors.deliveryDays = `Maximum delivery time is ${rules.maxDeliveryDays} days`;
+  } else if (!Number.isInteger(data.deliveryDays)) {
+    errors.deliveryDays = "Delivery time must be a whole number";
   }
 
   // Validate cover letter
