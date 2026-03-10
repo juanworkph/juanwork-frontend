@@ -84,6 +84,7 @@ export default function ProjectDetailPage({
   const bidsAbortController = useRef<AbortController | null>(null);
   const insightsAbortController = useRef<AbortController | null>(null);
   const pollingAbortController = useRef<AbortController | null>(null);
+  const pollingIntervalRef = useRef<any>(null);
 
   // Note: Confirmation dialogs are handled by child components (TimeRemainingCard and BidCard)
   // No need for page-level dialog state
@@ -547,10 +548,20 @@ export default function ProjectDetailPage({
     return () => clearInterval(interval);
   }, [timeRemaining, resolvedParams.projectId]);
 
+  // Use a ref to track current bids length to avoid dependency loop in polling useEffect
+  const bidsLengthRef = useRef(bids.length);
+  useEffect(() => {
+    bidsLengthRef.current = bids.length;
+  }, [bids.length]);
+
   // Poll for new bids every 30 seconds
   useEffect(() => {
     // Don't poll if bidding is closed or expired
     if (!timeRemaining || timeRemaining.isExpired) {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
       return;
     }
 
@@ -582,9 +593,9 @@ export default function ProjectDetailPage({
           console.log("[Polling] Connection restored");
         }
 
-        // Check if there are new bids
-        if (latestBids.length !== bids.length) {
-          const newBidsCount = latestBids.length - bids.length;
+        // Check if there are new bids using the ref to avoid dependency loop
+        if (latestBids.length !== bidsLengthRef.current) {
+          const newBidsCount = latestBids.length - bidsLengthRef.current;
 
           // Update bids state
           setBids(latestBids);
@@ -647,10 +658,13 @@ export default function ProjectDetailPage({
       }
     }, 30000); // Poll every 30 seconds
 
+    pollingIntervalRef.current = pollInterval;
+
     // Cleanup interval and abort controller on unmount
     return () => {
       console.log("[Polling] Cleaning up polling interval");
       clearInterval(pollInterval);
+      pollingIntervalRef.current = null;
 
       if (pollingAbortController.current) {
         pollingAbortController.current.abort();
@@ -659,11 +673,11 @@ export default function ProjectDetailPage({
     };
   }, [
     resolvedParams.projectId,
-    bids.length,
     timeRemaining?.isExpired,
     isOnline,
     retryCount,
     maxRetries,
+    // bids.length removed to fix loop
   ]);
 
   // Handle loading state (including auth loading)
