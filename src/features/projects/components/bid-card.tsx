@@ -35,12 +35,14 @@ import {
   CheckCircle,
   AlertTriangle,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import {
   FreelancerBid,
   formatBidAmount,
   formatRelativeTime,
 } from "../schema/project-detail-data";
+import { FileText } from "lucide-react";
 
 interface BidCardProps {
   bid: FreelancerBid;
@@ -87,6 +89,8 @@ const BidCardComponent: React.FC<BidCardProps> = ({
 
   // State for reject confirmation dialog
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  // State for toggling cover letter
+  const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
 
   /**
    * Get initials for avatar fallback
@@ -343,6 +347,43 @@ const BidCardComponent: React.FC<BidCardProps> = ({
         </div>
       </div>
 
+      {/* Expandable Cover Letter */}
+      {bid.coverLetter && (
+        <div className="border-t border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-900/20">
+          <button
+            onClick={() => setIsCoverLetterOpen(!isCoverLetterOpen)}
+            className="w-full flex items-center justify-between px-6 py-3 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+            aria-expanded={isCoverLetterOpen}
+          >
+            <span className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Cover Letter
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-200 ${
+                isCoverLetterOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              isCoverLetterOpen
+                ? "max-h-[1000px] opacity-100"
+                : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="px-6 pb-6 pt-2">
+              <div className="p-4 bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-lg shadow-inner">
+                <p className="text-sm text-zinc-600 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">
+                  {bid.coverLetter}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Reject Bid Confirmation Dialog */}
       <AlertDialog
         open={isRejectDialogOpen}
@@ -466,14 +507,18 @@ export const BidCardSkeleton: React.FC = () => {
           </div>
 
           {/* Bid Details Section Skeleton */}
-          <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-5 w-28" />
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-12 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+            <div className="flex gap-8">
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-28" />
+            </div>
+            <div className="hidden md:block">
+              <Skeleton className="h-8 w-64" />
+            </div>
           </div>
 
           {/* Action Buttons Section Skeleton */}
-          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-zinc-200 dark:border-zinc-800">
             <Skeleton className="h-9 w-24" />
             <Skeleton className="h-9 w-28" />
             <Skeleton className="h-9 w-10" />

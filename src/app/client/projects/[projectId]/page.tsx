@@ -660,7 +660,7 @@ export default function ProjectDetailPage({
   }, [
     resolvedParams.projectId,
     bids.length,
-    timeRemaining,
+    timeRemaining?.isExpired,
     isOnline,
     retryCount,
     maxRetries,

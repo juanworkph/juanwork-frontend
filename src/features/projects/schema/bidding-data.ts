@@ -6,7 +6,7 @@ export interface BidFormData {
   projectId: string;
   bidAmount: number;
   deliveryDays: number;
-  coverLetter: string;
+  coverLetter?: string;
   attachments: File[];
 }
 
@@ -87,11 +87,11 @@ export const validateBid = (
     errors.deliveryDays = "Delivery time must be a whole number";
   }
 
-  // Validate cover letter
-  if (!data.coverLetter || data.coverLetter.trim().length === 0) {
-    errors.coverLetter = "Cover letter is required";
-  } else if (data.coverLetter.trim().length < rules.minCoverLetterLength) {
-    errors.coverLetter = `Cover letter must be at least ${rules.minCoverLetterLength} characters (currently ${data.coverLetter.trim().length})`;
+  // Validate cover letter (optional)
+  if (data.coverLetter && data.coverLetter.trim().length > 0) {
+    if (data.coverLetter.trim().length < rules.minCoverLetterLength) {
+      errors.coverLetter = `Cover letter must be at least ${rules.minCoverLetterLength} characters (currently ${data.coverLetter.trim().length})`;
+    }
   }
 
   // Validate attachments

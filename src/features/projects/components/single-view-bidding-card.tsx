@@ -357,8 +357,11 @@ export const SingleViewBiddingCard = ({
 
         {/* Cover Letter */}
         <div>
-          <label className="block text-xs text-foreground uppercase mb-1.5">
-            Cover Letter *
+          <label className="block text-xs text-foreground uppercase mb-1.5 flex justify-between items-center">
+            <span>Cover Letter</span>
+            <span className="text-[10px] text-muted-foreground normal-case font-normal">
+              (Optional)
+            </span>
           </label>
           <textarea
             value={coverLetter}
