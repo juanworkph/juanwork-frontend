@@ -50,7 +50,7 @@ interface BidCardProps {
   onMessage?: (freelancerId: string) => void;
   onViewProfile?: (freelancerId: string) => void;
   onShortlist?: (bidId: string) => void;
-  onInterview?: (bidId: string) => void;
+  onAccept?: (bidId: string) => void;
   onReject?: (bidId: string) => void;
   onReport?: (bidId: string) => void;
 }
@@ -81,13 +81,14 @@ const BidCardComponent: React.FC<BidCardProps> = ({
   onMessage,
   onViewProfile,
   onShortlist,
-  onInterview,
+  onAccept,
   onReject,
   onReport,
 }) => {
   const { freelancer } = bid;
 
-  // State for reject confirmation dialog
+  // State for accept and reject confirmation dialogs
+  const [isAcceptDialogOpen, setIsAcceptDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   // State for toggling cover letter
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
@@ -174,12 +175,22 @@ const BidCardComponent: React.FC<BidCardProps> = ({
   };
 
   /**
-   * Handle interview action
+   * Handle accept action
+   * Opens confirmation dialog
    */
-  const handleInterview = (): void => {
-    if (onInterview) {
-      onInterview(bid.id);
+  const handleAccept = (): void => {
+    setIsAcceptDialogOpen(true);
+  };
+
+  /**
+   * Handle accept confirmation
+   * Calls onAccept handler and closes dialog
+   */
+  const handleConfirmAccept = (): void => {
+    if (onAccept) {
+      onAccept(bid.id);
     }
+    setIsAcceptDialogOpen(false);
   };
 
   /**
@@ -321,11 +332,11 @@ const BidCardComponent: React.FC<BidCardProps> = ({
                 <span className="text-sm font-medium">Shortlist Bid</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={handleInterview}
-                className="gap-3 py-2.5"
+                onClick={handleAccept}
+                className="gap-3 py-2.5 text-green-600 focus:text-green-600 dark:text-green-400"
               >
-                <Video className="h-4 w-4" />
-                <span className="text-sm font-medium">Schedule Interview</span>
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">Accept Bid</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
               <DropdownMenuItem
@@ -383,6 +394,39 @@ const BidCardComponent: React.FC<BidCardProps> = ({
           </div>
         </div>
       )}
+
+      {/* Accept Bid Confirmation Dialog */}
+      <AlertDialog
+        open={isAcceptDialogOpen}
+        onOpenChange={setIsAcceptDialogOpen}
+      >
+        <AlertDialogContent className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              Accept This Bid?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-500 dark:text-zinc-400">
+              Are you sure you want to accept this bid from{" "}
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                {freelancer.name}
+              </span>
+              ? This will start the project workspace and mark other pending bids as lost. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmAccept}
+              className="bg-green-600 hover:bg-green-700 text-white border-none"
+            >
+              Accept Bid
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Reject Bid Confirmation Dialog */}
       <AlertDialog

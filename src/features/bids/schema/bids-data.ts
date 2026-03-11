@@ -3,6 +3,8 @@ export type BidStatus =
   | "accepted"
   | "rejected"
   | "withdrawn"
+  | "shortlisted"
+  | "lost"
   | "expired";
 
 export interface Client {

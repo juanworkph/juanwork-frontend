@@ -41,7 +41,7 @@ import {
   getProjectInsights,
   closeProjectBids,
   shortlistBid,
-  interviewBid,
+  acceptBid,
   rejectBid,
 } from "@/features/projects/actions/project-detail.actions";
 import { addConnectionListeners } from "@/lib/network-utils";
@@ -197,7 +197,7 @@ export default function ProjectDetailPage({
     [resolvedParams.projectId, user, isOwner],
   );
 
-  const handleInterview = useCallback(
+  const handleAcceptBid = useCallback(
     async (bidId: string) => {
       // Guard: Check ownership
       if (!user || !isOwner) {
@@ -206,17 +206,20 @@ export default function ProjectDetailPage({
       }
 
       try {
-        await interviewBid(resolvedParams.projectId, bidId);
-        toast.success("Bid marked for interview");
-        // Update local state
+        await acceptBid(resolvedParams.projectId, bidId);
+        toast.success("Bid accepted successfully");
+        // Update local state: mark accepted bid as 'accepted', mark other pending bids as 'lost'
+        // Shortlisted bids remain 'shortlisted'.
         setBids((prev) =>
-          prev.map((bid) =>
-            bid.id === bidId ? { ...bid, status: "interviewed" as const } : bid,
-          ),
+          prev.map((bid) => {
+            if (bid.id === bidId) return { ...bid, status: "accepted" as const };
+            if (bid.status === "pending") return { ...bid, status: "lost" as const };
+            return bid;
+          }),
         );
       } catch (error) {
-        toast.error("Failed to mark bid for interview");
-        console.error("Error marking bid for interview:", error);
+        toast.error("Failed to accept bid");
+        console.error("Error accepting bid:", error);
       }
     },
     [resolvedParams.projectId, user, isOwner],
@@ -829,7 +832,7 @@ export default function ProjectDetailPage({
                   onMessageFreelancer={handleMessageFreelancer}
                   onViewProfile={handleViewProfile}
                   onShortlist={handleShortlist}
-                  onInterview={handleInterview}
+                  onAccept={handleAcceptBid}
                   onReject={handleReject}
                   onReport={handleReport}
                   onRetry={retryFetchBids}

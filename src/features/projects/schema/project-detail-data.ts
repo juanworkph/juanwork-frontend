@@ -6,12 +6,7 @@
  * Bid status type for freelancer bids
  * Represents the current state of a bid in the hiring process
  */
-export type BidStatus = 
-  | "pending" 
-  | "shortlisted" 
-  | "interviewed" 
-  | "accepted" 
-  | "rejected";
+import type { BidStatus } from "./bidding-data";
 
 /**
  * Freelancer information within a bid
@@ -91,8 +86,8 @@ export interface ClientInfo {
 export const isBidStatus = (value: unknown): value is BidStatus => {
   return (
     typeof value === "string" &&
-    ["pending", "shortlisted", "interviewed", "accepted", "rejected"].includes(
-      value
+    ["pending", "shortlisted", "lost", "accepted", "rejected", "withdrawn", "expired"].includes(
+      value as string
     )
   );
 };
@@ -144,12 +139,12 @@ export const getBidStatusConfig = (
           "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
         icon: "⭐",
       };
-    case "interviewed":
+    case "lost":
       return {
-        label: "Interviewed",
+        label: "Lost",
         color:
-          "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-        icon: "💬",
+          "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
+        icon: "✕",
       };
     case "accepted":
       return {
@@ -418,7 +413,7 @@ export const mockFreelancerBids: FreelancerBid[] = [
     deliveryDays: 7,
     coverLetter:
       "Hi! I'm a senior full-stack developer with 8+ years of experience. I specialize in React, Next.js, and TypeScript. I've built numerous e-commerce platforms and can deliver a high-quality solution. My portfolio includes work for Fortune 500 companies. Let's discuss your requirements!",
-    status: "interviewed",
+    status: "lost",
     submittedAt: new Date("2024-01-20T08:15:00"),
   },
   {
@@ -523,7 +518,7 @@ export const mockFreelancerBids: FreelancerBid[] = [
     deliveryDays: 6,
     coverLetter:
       "Hi there! I'm a full-stack developer specializing in React ecosystem. I have extensive experience with Next.js, TypeScript, and modern state management. I've built 20+ e-commerce platforms with features like payment integration, inventory management, and analytics. I guarantee timely delivery and excellent code quality.",
-    status: "interviewed",
+    status: "lost",
     submittedAt: new Date("2024-01-20T07:00:00"),
   },
   {

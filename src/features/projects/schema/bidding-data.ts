@@ -1,6 +1,12 @@
 // Bidding data schema for project proposals
 
-export type BidStatus = "pending" | "accepted" | "rejected" | "withdrawn";
+export type BidStatus = 
+  | "pending" 
+  | "shortlisted" 
+  | "lost" 
+  | "accepted" 
+  | "rejected" 
+  | "withdrawn";
 
 export interface BidFormData {
   projectId: string;
@@ -132,6 +138,10 @@ export const getBidStatusColor = (status: BidStatus): string => {
   switch (status) {
     case "pending":
       return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
+    case "shortlisted":
+      return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+    case "lost":
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400";
     case "accepted":
       return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
     case "rejected":
@@ -148,6 +158,10 @@ export const getBidStatusLabel = (status: BidStatus): string => {
   switch (status) {
     case "pending":
       return "Pending Review";
+    case "shortlisted":
+      return "Shortlisted";
+    case "lost":
+      return "Lost";
     case "accepted":
       return "Accepted";
     case "rejected":

@@ -380,41 +380,29 @@ export const shortlistBid = async (
 };
 
 /**
- * Mark a bid for interview
+ * Accept a bid
  *
- * This function marks a bid as interviewed, indicating that the client
- * has conducted or scheduled an interview with the freelancer.
- * Only the project owner can mark bids for interview.
+ * This function accepts a bid, marking it as accepted, creating a workspace,
+ * and marking the project as active. Other pending bids are marked as lost.
+ * Only the project owner can accept bids.
  *
  * Includes automatic retry with exponential backoff for network errors.
  *
  * @param projectId - The UUID identifier of the project
- * @param bidId - The UUID identifier of the bid to mark for interview
+ * @param bidId - The UUID identifier of the bid to accept
  * @param signal - Optional AbortSignal for request cancellation
- * @returns Promise<void> - Resolves when bid is marked successfully
+ * @returns Promise<any> - Resolves with workspace data when bid is accepted successfully
  * @throws Error if the API request fails:
  *   - 401: Unauthorized (no token or invalid token)
  *   - 403: Forbidden (not project owner)
  *   - 404: Project or bid not found
  *   - 500: Server error
- *
- * Requirements: 8.4, 8.5
- *
- * @example
- * ```typescript
- * try {
- *   await interviewBid('project-123', 'bid-456');
- *   console.log('Bid marked for interview successfully');
- * } catch (error) {
- *   console.error('Failed to mark bid for interview:', error);
- * }
- * ```
  */
-export const interviewBid = async (
+export const acceptBid = async (
   projectId: string,
   bidId: string,
   signal?: AbortSignal,
-): Promise<void> => {
+): Promise<any> => {
   try {
     // Retry configuration (fewer retries for write operations)
     const retryOptions: RetryOptions = {
@@ -423,22 +411,24 @@ export const interviewBid = async (
       signal,
       onRetry: (attempt, error) => {
         console.log(
-          `[interviewBid] Retry attempt ${attempt} after error:`,
+          `[acceptBid] Retry attempt ${attempt} after error:`,
           error.message,
         );
       },
     };
 
     // Wrap API call with retry logic
-    await retryWithBackoff(
+    const response = await retryWithBackoff(
       () =>
         apiClient.post(
-          `/projects/${projectId}/bids/${bidId}/interview`,
+          `/projects/${projectId}/bids/${bidId}/accept`,
           {},
           { signal },
         ),
       retryOptions,
     );
+    
+    return response.data;
   } catch (error: any) {
     // Don't swallow cancellation errors - rethrow them so the UI can handle them
     if (
@@ -450,12 +440,12 @@ export const interviewBid = async (
     }
 
     console.error(
-      `Failed to mark bid ${bidId} for interview for project ${projectId}:`,
+      `Failed to accept bid ${bidId} for project ${projectId}:`,
       error,
     );
 
     // Get user-friendly error message
-    const errorMessage = getErrorMessage(error, "marking bid for interview");
+    const errorMessage = getErrorMessage(error, "accepting bid");
     throw new Error(errorMessage);
   }
 };

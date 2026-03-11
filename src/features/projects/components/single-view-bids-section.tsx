@@ -22,7 +22,7 @@ interface SingleViewBidsSectionProps {
   onMessageFreelancer?: (freelancerId: string) => void;
   onViewProfile?: (freelancerId: string) => void;
   onShortlist?: (bidId: string) => void;
-  onInterview?: (bidId: string) => void;
+  onAccept?: (bidId: string) => void;
   onReject?: (bidId: string) => void;
   onReport?: (bidId: string) => void;
   onRetry?: () => void;
@@ -54,14 +54,14 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
   onMessageFreelancer,
   onViewProfile,
   onShortlist,
-  onInterview,
+  onAccept,
   onReject,
   onReport,
   onRetry,
 }) => {
   // State for active tab
   const [activeTab, setActiveTab] = useState<
-    "all" | "shortlisted" | "interviewed"
+    "all" | "shortlisted" | "accepted"
   >("all");
 
   /**
@@ -72,8 +72,8 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
     () => getBidCountByStatus(bids, "shortlisted"),
     [bids],
   );
-  const interviewedCount = useMemo(
-    () => getBidCountByStatus(bids, "interviewed"),
+  const acceptedCount = useMemo(
+    () => getBidCountByStatus(bids, "accepted"),
     [bids],
   );
 
@@ -92,7 +92,7 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
    * Handle tab change
    */
   const handleTabChange = (value: string): void => {
-    if (value === "all" || value === "shortlisted" || value === "interviewed") {
+    if (value === "all" || value === "shortlisted" || value === "accepted") {
       setActiveTab(value);
     }
   };
@@ -114,11 +114,11 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
         description:
           "Shortlist promising candidates from the All Bids tab to keep track of your top choices.",
       },
-      interviewed: {
-        icon: <AlertCircle className="h-12 w-12 text-gray-400" />,
-        title: "No interviewed bids yet",
+      accepted: {
+        icon: <Users className="h-12 w-12 text-gray-400" />,
+        title: "No accepted bids yet",
         description:
-          "Schedule interviews with shortlisted candidates to discuss your project in detail.",
+          "Bids that you have accepted will appear here.",
       },
     };
 
@@ -179,7 +179,7 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
             onMessage={onMessageFreelancer}
             onViewProfile={onViewProfile}
             onShortlist={onShortlist}
-            onInterview={onInterview}
+            onAccept={onAccept}
             onReject={onReject}
             onReport={onReport}
           />
@@ -224,8 +224,8 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
             <TabsTrigger value="shortlisted" variant="line">
               Shortlisted
             </TabsTrigger>
-            <TabsTrigger value="interviewed" variant="line">
-              Interviewed
+            <TabsTrigger value="accepted" variant="line">
+              Accepted
             </TabsTrigger>
           </TabsList>
 
@@ -260,9 +260,9 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
         </TabsContent>
 
         <TabsContent
-          value="interviewed"
+          value="accepted"
           className="mt-0"
-          id="interviewed-bids-panel"
+          id="accepted-bids-panel"
           role="tabpanel"
         >
           {renderBidsList()}
