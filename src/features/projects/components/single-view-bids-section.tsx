@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, FileText, AlertCircle, Search, Filter } from "lucide-react";
+import { Users, FileText, AlertCircle, Search, Filter, X } from "lucide-react";
 import { BidCard, BidCardSkeleton } from "./bid-card";
 import { ErrorState } from "./error-state";
 import {
@@ -61,7 +61,7 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
 }) => {
   // State for active tab
   const [activeTab, setActiveTab] = useState<
-    "all" | "shortlisted" | "accepted"
+    "all" | "shortlisted" | "accepted" | "rejected"
   >("all");
 
   /**
@@ -74,6 +74,10 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
   );
   const acceptedCount = useMemo(
     () => getBidCountByStatus(bids, "accepted"),
+    [bids],
+  );
+  const rejectedCount = useMemo(
+    () => getBidCountByStatus(bids, "rejected"),
     [bids],
   );
 
@@ -92,8 +96,13 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
    * Handle tab change
    */
   const handleTabChange = (value: string): void => {
-    if (value === "all" || value === "shortlisted" || value === "accepted") {
-      setActiveTab(value);
+    if (
+      value === "all" ||
+      value === "shortlisted" ||
+      value === "accepted" ||
+      value === "rejected"
+    ) {
+      setActiveTab(value as any);
     }
   };
 
@@ -117,8 +126,12 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
       accepted: {
         icon: <Users className="h-12 w-12 text-gray-400" />,
         title: "No accepted bids yet",
-        description:
-          "Bids that you have accepted will appear here.",
+        description: "Bids that you have accepted will appear here.",
+      },
+      rejected: {
+        icon: <X className="h-12 w-12 text-gray-400" />,
+        title: "No rejected bids yet",
+        description: "Bids that you have rejected will appear here.",
       },
     };
 
@@ -227,6 +240,9 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
             <TabsTrigger value="accepted" variant="line">
               Accepted
             </TabsTrigger>
+            <TabsTrigger value="rejected" variant="line">
+              Rejected
+            </TabsTrigger>
           </TabsList>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -263,6 +279,14 @@ const SingleViewBidsSectionComponent: React.FC<SingleViewBidsSectionProps> = ({
           value="accepted"
           className="mt-0"
           id="accepted-bids-panel"
+          role="tabpanel"
+        >
+          {renderBidsList()}
+        </TabsContent>
+        <TabsContent
+          value="rejected"
+          className="mt-0"
+          id="rejected-bids-panel"
           role="tabpanel"
         >
           {renderBidsList()}

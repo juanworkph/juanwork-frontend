@@ -293,69 +293,99 @@ const BidCardComponent: React.FC<BidCardProps> = ({
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2 w-full md:w-auto justify-end">
-          <Button
-            onClick={handleMessage}
-            className="h-10 w-10 p-0 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-            title="Message Freelancer"
-          >
-            <MessageSquare className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleViewProfile}
-            className="h-10 w-10 p-0 bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
-            title="View Profile"
-          >
-            <User className="h-5 w-5" />
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-10 w-10 p-0 bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
-              >
-                <MoreVertical className="h-5 w-5 text-zinc-500" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-56 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
+        {/* Actions - Only show for pending or shortlisted bids */}
+        {(bid.status === "pending" || bid.status === "shortlisted") && (
+          <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+            <Button
+              onClick={handleMessage}
+              className="h-10 w-10 p-0 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+              title="Message Freelancer"
             >
-              <DropdownMenuItem
-                onClick={handleShortlist}
-                className="gap-3 py-2.5"
+              <MessageSquare className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleViewProfile}
+              className="h-10 w-10 p-0 bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+              title="View Profile"
+            >
+              <User className="h-5 w-5" />
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="h-10 w-10 p-0 bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                >
+                  <MoreVertical className="h-5 w-5 text-zinc-500" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-56 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
               >
-                <Star className="h-4 w-4" />
-                <span className="text-sm font-medium">Shortlist Bid</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleAccept}
-                className="gap-3 py-2.5 text-green-600 focus:text-green-600 dark:text-green-400"
-              >
-                <CheckCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">Accept Bid</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
-              <DropdownMenuItem
-                onClick={handleReject}
-                className="gap-3 py-2.5 text-rose-500 focus:text-rose-500"
-              >
-                <X className="h-4 w-4" />
-                <span className="text-sm font-medium">Reject Bid</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleReport}
-                className="gap-3 py-2.5 text-zinc-500"
-              >
-                <Flag className="h-4 w-4" />
-                <span className="text-sm font-medium">Report Dispute</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                {bid.status === "pending" && (
+                  <DropdownMenuItem
+                    onClick={handleShortlist}
+                    className="gap-3 py-2.5"
+                  >
+                    <Star className="h-4 w-4" />
+                    <span className="text-sm font-medium">Shortlist Bid</span>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={handleAccept}
+                  className="gap-3 py-2.5 text-green-600 focus:text-green-600 dark:text-green-400"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Accept Bid</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+                <DropdownMenuItem
+                  onClick={handleReject}
+                  className="gap-3 py-2.5 text-rose-500 focus:text-rose-500"
+                >
+                  <X className="h-4 w-4" />
+                  <span className="text-sm font-medium">Reject Bid</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleReport}
+                  className="gap-3 py-2.5 text-zinc-500"
+                >
+                  <Flag className="h-4 w-4" />
+                  <span className="text-sm font-medium">Report Dispute</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        {/* Status indicator for non-actionable bids */}
+        {bid.status !== "pending" && bid.status !== "shortlisted" && (
+          <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+            <Badge
+              variant="outline"
+              className={`capitalize px-3 py-1 font-bold ${
+                bid.status === "accepted"
+                  ? "bg-green-500/10 text-green-500 border-green-500/20"
+                  : bid.status === "rejected"
+                  ? "bg-rose-500/10 text-rose-500 border-rose-500/20"
+                  : "bg-zinc-500/10 text-zinc-500 border-zinc-500/20"
+              }`}
+            >
+              {bid.status}
+            </Badge>
+            <Button
+              variant="outline"
+              onClick={handleViewProfile}
+              className="h-10 w-10 p-0 rounded-lg"
+              title="View Profile"
+            >
+              <User className="h-5 w-5" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Expandable Cover Letter */}
