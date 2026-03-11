@@ -206,15 +206,13 @@ export const SingleViewBiddingCard = ({
         Project Closed
       </Button>
     );
-  } else if (existingBid && existingBid.status !== "withdrawn" && !isEditing) {
+  } else if (existingBid && existingBid.status !== "withdrawn" && existingBid.status !== "rejected" && !isEditing) {
     // If there's an existing bid, show the bid details unless the user is specifically editing (which is not allowed for some states)
     const canCancel = isActive && existingBid.status === "pending";
     const statusResultText =
       existingBid.status === "accepted"
         ? "You Won the bid"
-        : existingBid.status === "rejected"
-          ? "You Lost the bid"
-          : `You ${existingBid.status} the bid`;
+        : `Your bid is ${existingBid.status}`;
 
     content = (
       <div className="space-y-6">
@@ -288,6 +286,18 @@ export const SingleViewBiddingCard = ({
     // Show normal bidding form
     content = (
       <form onSubmit={handleSubmit} className="space-y-4">
+        {existingBid?.status === "rejected" && (
+          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex flex-col gap-1 mb-4">
+            <p className="text-xs font-semibold text-destructive flex items-center gap-1.5 uppercase tracking-wider">
+              <span className="w-1 h-3 bg-destructive rounded-full"></span>
+              Your previous bid was rejected
+            </p>
+            <p className="text-[10px] text-destructive/80 leading-relaxed">
+              Don't worry! You can update your proposal and try again. Adjust
+              your bid amount or delivery time to better match the client's needs.
+            </p>
+          </div>
+        )}
         {/* Bid Amount */}
         <div>
           <label className="block text-xs text-foreground uppercase mb-1.5">
@@ -388,7 +398,11 @@ export const SingleViewBiddingCard = ({
           disabled={isSubmitting}
           className="w-full bg-primary text-primary-foreground font-semibold py-2.5 rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 text-sm"
         >
-          {isSubmitting ? "Submitting..." : "Submit Bid"}
+          {isSubmitting
+            ? "Submitting..."
+            : existingBid?.status === "rejected"
+              ? "Resubmit Bid"
+              : "Submit Bid"}
         </button>
       </form>
     );
