@@ -229,8 +229,8 @@ We have provided design mockups, brand guidelines, and current site analytics in
       uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
-  proposalStats: {
-    totalProposals: 28,
+  bidStats: {
+    totalBids: 28,
     averageBid: 4200,
     lowestBid: 3200,
     highestBid: 5800,
@@ -351,8 +351,8 @@ We're looking for an experienced mobile developer who can start immediately and 
       uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
-  proposalStats: {
-    totalProposals: 42,
+  bidStats: {
+    totalBids: 42,
     averageBid: 58,
     lowestBid: 45,
     highestBid: 75,
@@ -414,8 +414,8 @@ This is a straightforward project for an experienced backend developer. We're lo
   updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
   experienceLevel: "intermediate",
   duration: "4 weeks",
-  proposalStats: {
-    totalProposals: 0,
+  bidStats: {
+    totalBids: 0,
     averageBid: 0,
     lowestBid: 0,
     highestBid: 0,
@@ -477,8 +477,8 @@ The plugin should integrate seamlessly with WooCommerce and provide actionable i
   updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
   experienceLevel: "intermediate",
   duration: "5 weeks",
-  proposalStats: {
-    totalProposals: 8,
+  bidStats: {
+    totalBids: 8,
     averageBid: 1150,
     lowestBid: 900,
     highestBid: 1500,
@@ -548,8 +548,8 @@ This is a great opportunity for someone looking to build their portfolio. We're 
       uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
-  proposalStats: {
-    totalProposals: 5,
+  bidStats: {
+    totalBids: 5,
     averageBid: 320,
     lowestBid: 250,
     highestBid: 400,
@@ -641,8 +641,8 @@ This is a complex, long-term project requiring deep technical expertise. We're l
       uploadedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
-  proposalStats: {
-    totalProposals: 12,
+  bidStats: {
+    totalBids: 12,
     averageBid: 75,
     lowestBid: 60,
     highestBid: 95,
@@ -701,8 +701,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-1",
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
-    proposalStats: {
-      totalProposals: 8,
+    bidStats: {
+      totalBids: 8,
       averageBid: 3000,
       lowestBid: 2500,
       highestBid: 3800,
@@ -756,8 +756,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-2",
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
-    proposalStats: {
-      totalProposals: 22,
+    bidStats: {
+      totalBids: 22,
       averageBid: 58,
       lowestBid: 45,
       highestBid: 75,
@@ -809,8 +809,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-3",
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
-    proposalStats: {
-      totalProposals: 15,
+    bidStats: {
+      totalBids: 15,
       averageBid: 3600,
       lowestBid: 3000,
       highestBid: 4500,
@@ -862,8 +862,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-4",
     createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
-    proposalStats: {
-      totalProposals: 12,
+    bidStats: {
+      totalBids: 12,
       averageBid: 4500,
       lowestBid: 3800,
       highestBid: 5500,
@@ -915,8 +915,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-5",
     createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    proposalStats: {
-      totalProposals: 18,
+    bidStats: {
+      totalBids: 18,
       averageBid: 1650,
       lowestBid: 1200,
       highestBid: 2200,

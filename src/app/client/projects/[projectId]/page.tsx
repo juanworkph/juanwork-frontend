@@ -714,7 +714,7 @@ export default function ProjectDetailPage({
             >
               <SingleViewInsights
                 views={insights?.totalViews || 0}
-                proposalsCount={insights?.proposalsReceived || 0}
+                bidsCount={insights?.totalBids || 0}
               />
 
               <SingleViewPricingCard

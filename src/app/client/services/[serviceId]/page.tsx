@@ -261,7 +261,7 @@ export default function ServiceDetailsPage() {
             {/* 1. Service Insights */}
             <SingleViewInsights
               views={service.views || 0}
-              proposalsCount={service.proposalsCount || 0}
+              bidsCount={service.bidsCount || 0}
             />
 
             {/* 2. Service Pricing Card */}

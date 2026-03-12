@@ -136,8 +136,6 @@ export default function ProjectDetailsPage({
         // Map min/max for the PricingCard
         budgetMin: parseFloat(projectData.budgetMin || "0"),
         budgetMax: parseFloat(projectData.budgetMax || "0"),
-        // Use real view count
-        views: projectData.views || 0,
         // Upgrades mapping
         upgrades: Array.isArray(projectData.upgrades)
           ? projectData.upgrades
@@ -188,6 +186,9 @@ export default function ProjectDetailsPage({
               lastActive: projectData.client.lastActive,
             }
           : undefined,
+        // Use real stats
+        bidStats: projectData.bidStats,
+        views: projectData.views || 0,
         progress: projectData.progress || {
           completedTasks: 0,
           totalTasks: 0,
@@ -418,8 +419,8 @@ export default function ProjectDetailsPage({
               {/* Insights Card */}
               <SingleViewInsights
                 views={project.views || 0}
-                proposalsCount={project.proposalStats?.totalProposals || 0}
-                proposalsLabel="Bids"
+                bidsCount={project.bidStats?.totalBids || 0}
+                bidsLabel="Bids"
               />
 
               {/* Pricing Card */}

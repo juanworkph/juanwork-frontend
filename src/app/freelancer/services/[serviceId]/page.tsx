@@ -215,7 +215,7 @@ export default function ServiceDetailPage({
             <TabsTrigger value="proposals" variant="line" className="gap-2">
               Proposals
               <span className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded text-[10px] border border-zinc-200 dark:border-zinc-800">
-                {service.proposalsCount}
+                {service.bidsCount}
               </span>
             </TabsTrigger>
           </TabsList>
@@ -267,7 +267,7 @@ export default function ServiceDetailPage({
               {/* INSIGHTS */}
               <SingleViewInsights
                 views={service.views}
-                proposalsCount={service.proposalsCount}
+                bidsCount={service.bidsCount}
               />
 
               {/* Pricing Card */}

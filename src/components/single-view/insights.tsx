@@ -5,14 +5,14 @@ import { Eye, MessageCircle } from "lucide-react";
 
 interface SingleViewInsightsProps {
   views: number;
-  proposalsCount: number;
+  bidsCount: number;
 }
 
 export const SingleViewInsights = ({
   views,
-  proposalsCount,
-  proposalsLabel = "Proposals",
-}: SingleViewInsightsProps & { proposalsLabel?: string }) => {
+  bidsCount,
+  bidsLabel = "Bids",
+}: SingleViewInsightsProps & { bidsLabel?: string }) => {
   return (
     <div>
       <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-4 flex items-center gap-2">
@@ -42,10 +42,10 @@ export const SingleViewInsights = ({
             </div>
             <div>
               <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
-                {proposalsLabel}
+                {bidsLabel}
               </p>
               <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-                {proposalsCount.toLocaleString()}
+                {bidsCount.toLocaleString()}
               </p>
             </div>
           </div>

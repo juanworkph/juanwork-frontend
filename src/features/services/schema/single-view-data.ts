@@ -63,7 +63,7 @@ export interface ServiceDetailsData {
   faqs?: FAQ[];
   packageDetails?: PackageDetails;
   views?: number;
-  proposalsCount?: number;
+  bidsCount?: number;
   hasImages?: boolean;
 }
 

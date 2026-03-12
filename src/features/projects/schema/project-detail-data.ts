@@ -44,7 +44,7 @@ export interface FreelancerBid {
  */
 export interface ProjectInsights {
   totalViews: number;
-  proposalsReceived: number;
+  totalBids: number;
   averageBidAmount: number;
   currency: string;
 }
@@ -340,8 +340,8 @@ export const validateProjectInsights = (
   if (insights.totalViews < 0) {
     errors.push("Total views cannot be negative");
   }
-  if (insights.proposalsReceived < 0) {
-    errors.push("Proposals received cannot be negative");
+  if (insights.totalBids < 0) {
+    errors.push("Bids received cannot be negative");
   }
   if (insights.averageBidAmount < 0) {
     errors.push("Average bid amount cannot be negative");
@@ -600,19 +600,19 @@ export const getMockBidsForProject = (projectId: string): FreelancerBid[] => {
 export const mockProjectInsights: Record<string, ProjectInsights> = {
   "1": {
     totalViews: 156,
-    proposalsReceived: 10,
+    totalBids: 10,
     averageBidAmount: 716,
     currency: "USD",
   },
   "2": {
     totalViews: 42,
-    proposalsReceived: 0,
+    totalBids: 0,
     averageBidAmount: 0,
     currency: "USD",
   },
   "3": {
     totalViews: 28,
-    proposalsReceived: 5,
+    totalBids: 5,
     averageBidAmount: 1250,
     currency: "USD",
   },
@@ -627,7 +627,7 @@ export const getMockInsightsForProject = (
   return (
     mockProjectInsights[projectId] || {
       totalViews: 0,
-      proposalsReceived: 0,
+      totalBids: 0,
       averageBidAmount: 0,
       currency: "USD",
     }

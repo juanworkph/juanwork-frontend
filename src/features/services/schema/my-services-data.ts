@@ -48,8 +48,8 @@ export type ServiceSortOption =
   | "oldest"
   | "most-views"
   | "least-views"
-  | "most-proposals"
-  | "least-proposals"
+  | "most-bids"
+  | "least-bids"
   | "name-asc"
   | "name-desc";
 
@@ -87,7 +87,7 @@ export interface MyService {
     slug: string;
   }>;
   views: number;
-  proposalsCount: number;
+  bidsCount: number;
   thumbnail?: string;
   gallery?: string[];
   hasImages: boolean;
@@ -148,7 +148,7 @@ export interface ServiceStatistics {
   approvedServices: number;
   pendingServices: number;
   totalViews: number;
-  totalProposals: number;
+  totalBids: number;
 }
 
 // ============================================================================
@@ -244,8 +244,8 @@ export const sortOptions: Array<{
   { value: "oldest", label: "Oldest First" },
   { value: "most-views", label: "Most Views" },
   { value: "least-views", label: "Least Views" },
-  { value: "most-proposals", label: "Most Proposals" },
-  { value: "least-proposals", label: "Least Proposals" },
+  { value: "most-bids", label: "Most Bids" },
+  { value: "least-bids", label: "Least Bids" },
   { value: "name-asc", label: "Name (A-Z)" },
   { value: "name-desc", label: "Name (Z-A)" },
 ];
@@ -293,7 +293,7 @@ export const transformServiceResponse = (
       slug: upgrade.slug || upgrade.name.toLowerCase().replace(/\s+/g, "-"),
     })),
     views: 0, // TODO: Backend needs to provide this
-    proposalsCount: 0, // TODO: Backend needs to provide this
+    bidsCount: 0, // TODO: Backend needs to provide this
     thumbnail:
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop", // Mock data
     gallery: [
@@ -519,10 +519,10 @@ export const sortServices = (
       return sorted.sort((a, b) => b.views - a.views);
     case "least-views":
       return sorted.sort((a, b) => a.views - b.views);
-    case "most-proposals":
-      return sorted.sort((a, b) => b.proposalsCount - a.proposalsCount);
-    case "least-proposals":
-      return sorted.sort((a, b) => a.proposalsCount - b.proposalsCount);
+    case "most-bids":
+      return sorted.sort((a, b) => b.bidsCount - a.bidsCount);
+    case "least-bids":
+      return sorted.sort((a, b) => a.bidsCount - b.bidsCount);
     case "name-asc":
       return sorted.sort((a, b) => a.name.localeCompare(b.name));
     case "name-desc":
@@ -547,7 +547,7 @@ export const calculateStatistics = (
     approvedServices: services.filter((s) => s.status === "approved").length,
     pendingServices: services.filter((s) => s.status === "pending").length,
     totalViews: services.reduce((sum, s) => sum + s.views, 0),
-    totalProposals: services.reduce((sum, s) => sum + s.proposalsCount, 0),
+    totalBids: services.reduce((sum, s) => sum + s.bidsCount, 0),
   };
 };
 

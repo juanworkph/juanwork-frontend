@@ -366,7 +366,7 @@ export default function MyServicesPage() {
           approvedServices={statistics.approvedServices}
           pendingServices={statistics.pendingServices}
           totalViews={statistics.totalViews}
-          totalProposals={statistics.totalProposals}
+          totalBids={statistics.totalBids}
           filteredCount={sortedServices.length}
           onCreateNew={handleCreateNew}
           onRefresh={handleRefresh}

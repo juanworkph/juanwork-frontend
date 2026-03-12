@@ -78,7 +78,8 @@ export interface Project {
   messageCount?: number;
   attachmentCount?: number;
   notes?: string;
-  proposalStats?: ProposalStatistics;
+  bidStats?: BidStatistics;
+  views?: number;
 }
 
 export interface ProjectAttachment {
@@ -99,22 +100,20 @@ export interface ProjectUpgrade {
   endDate?: string;
 }
 
-export interface ProposalStatistics {
-  totalProposals: number;
+export interface BidStatistics {
+  totalBids: number;
   averageBid: number;
-  lowestBid: number;
-  highestBid: number;
-  averageDeliveryTime: number;
+  lowestBid?: number;
+  highestBid?: number;
+  averageDeliveryTime?: number;
 }
 
 export interface ProjectDetails extends Project {
   attachments?: ProjectAttachment[];
-  proposalStats?: ProposalStatistics;
   clientDetails?: ExtendedClientInfo;
   experienceLevel?: "entry" | "intermediate" | "expert";
   duration?: string;
   upgrades?: ProjectUpgrade[];
-  views?: number;
 }
 
 export interface ProjectsStats {
@@ -274,8 +273,8 @@ export const mockProjectsData: ProjectsState = {
       hasUnreadMessages: true,
       messageCount: 3,
       attachmentCount: 8,
-      proposalStats: {
-        totalProposals: 15,
+      bidStats: {
+        totalBids: 15,
         averageBid: 4200,
         lowestBid: 3500,
         highestBid: 5500,
@@ -334,8 +333,8 @@ export const mockProjectsData: ProjectsState = {
       hasUnreadMessages: true,
       messageCount: 7,
       attachmentCount: 12,
-      proposalStats: {
-        totalProposals: 28,
+      bidStats: {
+        totalBids: 28,
         averageBid: 48,
         lowestBid: 35,
         highestBid: 65,
@@ -588,8 +587,8 @@ export const mockProjectsData: ProjectsState = {
       updatedAt: new Date().toISOString(),
       messageCount: 2,
       attachmentCount: 4,
-      proposalStats: {
-        totalProposals: 8,
+      bidStats: {
+        totalBids: 8,
         averageBid: 3000,
         lowestBid: 2500,
         highestBid: 3800,
@@ -645,8 +644,8 @@ export const mockProjectsData: ProjectsState = {
       updatedAt: new Date().toISOString(),
       messageCount: 5,
       attachmentCount: 6,
-      proposalStats: {
-        totalProposals: 22,
+      bidStats: {
+        totalBids: 22,
         averageBid: 58,
         lowestBid: 45,
         highestBid: 75,
@@ -700,8 +699,8 @@ export const mockProjectsData: ProjectsState = {
       updatedAt: new Date().toISOString(),
       messageCount: 3,
       attachmentCount: 5,
-      proposalStats: {
-        totalProposals: 12,
+      bidStats: {
+        totalBids: 12,
         averageBid: 4500,
         lowestBid: 3800,
         highestBid: 5500,
