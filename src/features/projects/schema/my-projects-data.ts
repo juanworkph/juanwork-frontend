@@ -124,6 +124,10 @@ export interface IProjectResponse {
   }[];
   createdAt: Date;
   updatedAt: Date;
+  bidStats?: {
+    totalBids: number;
+    averageBidAmount: number;
+  };
 }
 
 // ============================================
@@ -227,7 +231,7 @@ export const transformProjectResponse = (
       name: upgrade.name,
       slug: upgrade.slug,
     })),
-    biddersCount: 0, // TODO: Backend needs to provide this field
+    biddersCount: apiProject.bidStats?.totalBids ?? 0,
     createdAt: new Date(apiProject.createdAt),
     updatedAt: new Date(apiProject.updatedAt),
   };
