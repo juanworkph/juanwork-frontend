@@ -64,10 +64,10 @@ export function BidsHeader({
           </div>
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-              {title}
+              {title || "My Bids"}
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {subtitle || `${stats.total} bids across all projects`}
+              {subtitle || `${stats.total} total bids`}
             </p>
           </div>
         </div>
@@ -218,10 +218,10 @@ export function BidsHeader({
               {filters.sortBy === "date"
                 ? "Date"
                 : filters.sortBy === "amount"
-                ? "Amount"
-                : filters.sortBy === "expiry"
-                ? "Expiry"
-                : "Activity"}
+                  ? "Amount"
+                  : filters.sortBy === "expiry"
+                    ? "Expiry"
+                    : "Activity"}
             </Badge>
           </Button>
         </div>

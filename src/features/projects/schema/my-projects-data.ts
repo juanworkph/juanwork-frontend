@@ -80,6 +80,7 @@ export interface MyProject {
   status: ProjectStatus;
   experienceLevel: ExperienceLevel;
   upgrades: ProjectUpgrade[];
+  lowestBidAmount: number;
   biddersCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -124,9 +125,10 @@ export interface IProjectResponse {
   }[];
   createdAt: Date;
   updatedAt: Date;
-  bidStats?: {
+  bidStats: {
     totalBids: number;
     averageBidAmount: number;
+    lowestBidAmount: number;
   };
 }
 
@@ -231,6 +233,7 @@ export const transformProjectResponse = (
       name: upgrade.name,
       slug: upgrade.slug,
     })),
+    lowestBidAmount: apiProject.bidStats?.lowestBidAmount ?? 0,
     biddersCount: apiProject.bidStats?.totalBids ?? 0,
     createdAt: new Date(apiProject.createdAt),
     updatedAt: new Date(apiProject.updatedAt),
@@ -347,7 +350,8 @@ export const mockMyProjects: MyProject[] = [
     status: "active",
     createdAt: new Date("2024-01-25"),
     updatedAt: new Date("2024-01-28"),
-    biddersCount: 15,
+    biddersCount: 8,
+    lowestBidAmount: 45,
     experienceLevel: "expert",
     upgrades: [
       { id: "up-1", name: "Featured", slug: "featured" },
@@ -378,6 +382,7 @@ export const mockMyProjects: MyProject[] = [
     createdAt: new Date("2024-01-15"),
     updatedAt: new Date("2024-01-27"),
     biddersCount: 22,
+    lowestBidAmount: 1800,
     experienceLevel: "intermediate",
     upgrades: [{ id: "up-3", name: "NDA", slug: "nda" }],
   },

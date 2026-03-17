@@ -23,7 +23,6 @@ import {
   ArrowLeft,
   AlertCircle,
   Eye,
-  EyeOff,
   Pin,
   FileText,
   Star,
@@ -71,10 +70,10 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
   const formattedBudget =
     bid.project.budget.type === "fixed"
       ? `${formatCurrency(bid.project.budget.min)} - ${formatCurrency(
-          bid.project.budget.max
+          bid.project.budget.max,
         )}`
       : `${formatCurrency(bid.project.budget.min)} - ${formatCurrency(
-          bid.project.budget.max
+          bid.project.budget.max,
         )}/hr`;
 
   // Calculate minimum bid from all bids for this project (client view only)
@@ -93,7 +92,20 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
   // Format bid date - consistent between server and client
   const formatBidDate = (dateString: string) => {
     const date = new Date(dateString);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
   };
 
@@ -103,7 +115,7 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
   const canWithdraw = bid.status === "pending" && onWithdraw && !isClient;
 
   return (
-    <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow duration-200 py-0">
+    <Card className="bid-card overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow duration-200 py-0">
       <CardContent className="flex-1 p-4">
         {/* Header with date and status */}
         <div className="flex items-center justify-between mb-3">
@@ -148,7 +160,7 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
 
         {/* Project Title */}
         <div className="space-y-4">
-          <h3 className="font-medium text-lg line-clamp-2 mb-[10px]">
+          <h3 className="text-lg font-bold line-clamp-2 mb-[10px]">
             <Link
               href={bid.project.projectUrl}
               className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
@@ -161,8 +173,8 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
             {bid.project.description}
           </p>
 
-          {/* Client/Company info with avatar */}
-          {!isClient ? (
+          {/* Client/Company info with avatar - Hidden for clients */}
+          {!isClient && (
             <div className="flex items-center gap-2">
               <Image
                 src={
@@ -204,132 +216,105 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="flex items-center gap-2 mb-4">
-              <Image
-                src="/images/logo.png"
-                alt="Your Company"
-                width={32}
-                height={32}
-                className="rounded-full object-cover"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    Your Company
-                  </p>
-                  <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Project Owner
-                </p>
-              </div>
-            </div>
           )}
 
-          {/* Bid Details - Compact Grid */}
-          <div className="grid grid-cols-2 gap-3 mt-3">
-            {/* My Bid (Freelancer) */}
-            {!isClient && (
-              <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    My Bid
-                  </p>
-                  <p className="text-sm font-semibold">{formattedAmount}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Budget */}
+          {/* Analytics Grid - Role specific */}
+          <div className="grid grid-cols-2 gap-3 mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+            {/* Slot 1: Top-left */}
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <DollarSign
+                className={`h-4 w-4 ${isClient ? "text-gray-500" : "text-green-600"}`}
+              />
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {isClient ? "My Budget" : "Budget"}
+                <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                  {isClient ? "My Budget" : "My Bid"}
                 </p>
-                <p className="text-sm font-semibold">{formattedBudget}</p>
+                <p className="text-sm font-bold truncate">
+                  {isClient ? formattedBudget : formattedAmount}
+                </p>
               </div>
             </div>
 
-            {/* Bidders */}
+            {/* Slot 2: Top-right */}
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              {isClient ? (
+                <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              ) : (
+                <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              )}
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Bidders
+                <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                  {isClient ? "Bidders" : "Client Budget"}
                 </p>
-                <p className="text-sm font-semibold">{bid.bidderCount}</p>
+                <p className="text-sm font-bold truncate">
+                  {isClient ? `${bid.bidderCount} total` : formattedBudget}
+                </p>
               </div>
             </div>
 
-            {/* Time Left */}
+            {/* Slot 3: Bottom-left */}
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+              {isClient ? (
+                <TrendingDown className="h-4 w-4 text-primary" />
+              ) : (
+                <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              )}
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                  {isClient ? "Lowest Bid" : "Bidders"}
+                </p>
+                <p
+                  className={`text-sm font-bold truncate ${isClient ? "text-primary" : ""}`}
+                >
+                  {isClient
+                    ? bid.lowestBidAmount
+                      ? formatCurrency(bid.lowestBidAmount)
+                      : "No bids"
+                    : bid.bidderCount}
+                </p>
+              </div>
+            </div>
+
+            {/* Slot 4: Bottom-right */}
+            <div className="flex items-center gap-2">
+              <Clock
+                className={`h-4 w-4 ${bid.expiresAt && new Date(bid.expiresAt).getTime() - new Date().getTime() < 4 * 24 * 60 * 60 * 1000 ? "text-red-500" : "text-amber-500"}`}
+              />
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
                   Time Left
                 </p>
-                <p className="text-sm font-semibold">{timeLeft}</p>
+                <p
+                  className={`text-sm font-bold truncate ${bid.expiresAt && new Date(bid.expiresAt).getTime() - new Date().getTime() < 4 * 24 * 60 * 60 * 1000 ? "text-red-500" : ""}`}
+                >
+                  {timeLeft}
+                </p>
               </div>
             </div>
-          </div>
-
-          {/* Engagement Status - Simplified */}
-          <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-gray-600 dark:text-gray-400">
-            {bid.clientViewed ? (
-              <div className="flex items-center gap-1">
-                <Eye className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
-                <span>Viewed</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1">
-                <EyeOff className="h-3.5 w-3.5" />
-                <span>Not viewed</span>
-              </div>
-            )}
-
-            {bid.clientMessages && bid.clientMessages > 0 && (
-              <div className="flex items-center gap-1">
-                <MessageSquare className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
-                <span>{bid.clientMessages} msg</span>
-              </div>
-            )}
-
-            {bid.deliveryTime && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" />
-                <span>{bid.deliveryTime}</span>
-              </div>
-            )}
-
-            {bid.proposedMilestones && bid.proposedMilestones.length > 0 && (
-              <div className="flex items-center gap-1">
-                <FileText className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
-                <span>{bid.proposedMilestones.length} milestones</span>
-              </div>
-            )}
           </div>
         </div>
       </CardContent>
 
       <CardFooter className="p-4 pt-0 mt-auto border-t border-gray-100 dark:border-gray-700">
-        <div className="flex justify-between w-full gap-2">
-          <div className="flex gap-2">
-            {onPin && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs h-8"
-                onClick={() => onPin(bid.id, !bid.isPinned)}
-              >
-                <Pin
-                  className={`h-3 w-3 ${bid.isPinned ? "fill-amber-500" : ""}`}
-                />
-              </Button>
-            )}
+        <div className="flex items-center justify-between w-full pt-4">
+          {/* Left side: Stats */}
+          <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-1.5" title={isClient ? "Views" : "View Status"}>
+              <Eye className="h-4 w-4 text-blue-500" />
+              <span className="font-medium">
+                {isClient ? "0 views" : (bid.clientViewed ? "Viewed" : "Not viewed")}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5" title="Messages">
+              <MessageSquare className="h-4 w-4 text-blue-500" />
+              <span className="font-medium">
+                {isClient ? "0 messages" : `${bid.clientMessages || 0} msgs`}
+              </span>
+            </div>
+          </div>
 
+          {/* Right side: Actions */}
+          <div className="flex items-center gap-2">
             {canWithdraw && (
               <Button
                 variant="outline"
@@ -337,25 +322,30 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
                 className="text-xs h-8 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                 onClick={() => onWithdraw(bid.id)}
               >
-                <ArrowLeft className="h-3 w-3 mr-1" />
                 Withdraw
               </Button>
             )}
 
-            {bid.attachments && bid.attachments.length > 0 && (
-              <Button variant="outline" size="sm" className="text-xs h-8">
-                <FileText className="h-3 w-3 mr-1" />
-                {bid.attachments.length}
+            {onPin && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 w-8 p-0"
+                onClick={() => onPin(bid.id, !bid.isPinned)}
+              >
+                <Pin
+                  className={`h-3.5 w-3.5 ${bid.isPinned ? "fill-amber-500 text-amber-500" : ""}`}
+                />
               </Button>
             )}
-          </div>
 
-          <Link href={bid.project.projectUrl} passHref>
-            <Button size="sm" className="gap-1 text-xs h-8">
-              <span>View</span>
-              <ExternalLink className="h-3 w-3" />
-            </Button>
-          </Link>
+            <Link href={bid.project.projectUrl} passHref>
+              <Button size="sm" className="gap-1 text-xs h-8 px-4 font-semibold">
+                <span>View</span>
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </CardFooter>
     </Card>

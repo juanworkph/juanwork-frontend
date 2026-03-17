@@ -50,6 +50,17 @@ export interface Bid {
   bidType: "fixed" | "hourly";
   coverLetter: string;
   deliveryTime?: string;
+  bidderCount: number;
+  lowestBidAmount: number;
+  clientViewed: boolean;
+  clientViewedAt?: string;
+  clientMessages?: number;
+  bidDate: string;
+  status: BidStatus;
+  expiresAt?: string;
+  lastUpdated?: string;
+  isPinned?: boolean;
+  notes?: string;
   proposedMilestones?: {
     title: string;
     description: string;
@@ -62,16 +73,6 @@ export interface Bid {
     type: string;
     url: string;
   }[];
-  status: BidStatus;
-  bidDate: string;
-  lastUpdated: string;
-  expiresAt?: string;
-  bidderCount: number;
-  clientViewed: boolean;
-  clientViewedAt?: string;
-  clientMessages?: number;
-  isPinned?: boolean;
-  notes?: string;
 }
 
 export interface BidsState {
@@ -89,9 +90,13 @@ export interface BidsState {
     rejected: number;
     withdrawn: number;
     expired: number;
-    viewRate: number;
-    responseRate: number;
-    successRate: number;
+    // Freelancer specific
+    viewRate?: number;
+    responseRate?: number;
+    successRate?: number;
+    // Client specific
+    activeProjects?: number;
+    totalBidsReceived?: number;
   };
   pagination: {
     currentPage: number;
@@ -270,7 +275,8 @@ export const mockBidsData: BidsState = {
       bidDate: "2024-04-16T14:25:00Z",
       lastUpdated: "2024-04-16T14:25:00Z",
       expiresAt: "2024-05-15T23:59:59Z",
-      bidderCount: 15,
+      bidderCount: 12,
+      lowestBidAmount: 450,
       clientViewed: true,
       clientViewedAt: "2024-04-17T09:15:00Z",
       clientMessages: 2,
@@ -326,6 +332,7 @@ export const mockBidsData: BidsState = {
       bidDate: "2024-04-12T11:30:00Z",
       lastUpdated: "2024-04-18T15:45:00Z",
       bidderCount: 23,
+      lowestBidAmount: 3200,
       clientViewed: true,
       clientViewedAt: "2024-04-13T08:20:00Z",
       clientMessages: 5,
@@ -377,7 +384,9 @@ export const mockBidsData: BidsState = {
       bidDate: "2024-04-07T08:15:00Z",
       lastUpdated: "2024-04-15T11:30:00Z",
       expiresAt: "2024-04-25T23:59:59Z",
+      deliveryTime: "3 weeks",
       bidderCount: 18,
+      lowestBidAmount: 2200,
       clientViewed: true,
       clientViewedAt: "2024-04-08T16:45:00Z",
       clientMessages: 1,
@@ -431,6 +440,7 @@ export const mockBidsData: BidsState = {
       lastUpdated: "2024-04-14T10:20:00Z",
       expiresAt: "2024-04-22T23:59:59Z",
       bidderCount: 27,
+      lowestBidAmount: 2100,
       clientViewed: true,
       clientViewedAt: "2024-04-10T09:30:00Z",
       clientMessages: 0,
@@ -483,6 +493,7 @@ export const mockBidsData: BidsState = {
       lastUpdated: "2024-04-02T09:30:00Z",
       expiresAt: "2024-04-20T23:59:59Z",
       bidderCount: 31,
+      lowestBidAmount: 3800,
       clientViewed: false,
       clientMessages: 0,
     },
@@ -537,7 +548,8 @@ export const mockBidsData: BidsState = {
       bidDate: "2024-04-14T16:30:00Z",
       lastUpdated: "2024-04-14T16:30:00Z",
       expiresAt: "2024-05-10T23:59:59Z",
-      bidderCount: 19,
+      bidderCount: 9,
+      lowestBidAmount: 280,
       clientViewed: true,
       clientViewedAt: "2024-04-15T11:45:00Z",
       clientMessages: 3,
@@ -593,6 +605,7 @@ export const mockBidsData: BidsState = {
       lastUpdated: "2024-04-11T14:20:00Z",
       expiresAt: "2024-05-05T23:59:59Z",
       bidderCount: 24,
+      lowestBidAmount: 3800,
       clientViewed: false,
       clientMessages: 0,
     },
@@ -644,6 +657,7 @@ export const mockBidsData: BidsState = {
       lastUpdated: "2024-04-16T09:30:00Z",
       expiresAt: "2024-04-28T23:59:59Z",
       bidderCount: 29,
+      lowestBidAmount: 3800,
       clientViewed: true,
       clientViewedAt: "2024-04-09T14:15:00Z",
       clientMessages: 7,
@@ -761,6 +775,7 @@ export const mockClientBidsData: BidsState = {
       lastUpdated: "2024-04-12T09:30:00Z",
       expiresAt: "2024-05-20T23:59:59Z",
       bidderCount: 23,
+      lowestBidAmount: 9000,
       clientViewed: true,
       clientViewedAt: "2024-04-13T14:20:00Z",
       clientMessages: 4,
@@ -818,6 +833,7 @@ export const mockClientBidsData: BidsState = {
       lastUpdated: "2024-04-11T15:45:00Z",
       expiresAt: "2024-05-20T23:59:59Z",
       bidderCount: 23,
+      lowestBidAmount: 9000,
       clientViewed: true,
       clientViewedAt: "2024-04-13T10:15:00Z",
       clientMessages: 2,
@@ -874,6 +890,7 @@ export const mockClientBidsData: BidsState = {
       lastUpdated: "2024-04-15T16:30:00Z",
       expiresAt: "2024-05-20T23:59:59Z",
       bidderCount: 23,
+      lowestBidAmount: 9000,
       clientViewed: true,
       clientViewedAt: "2024-04-13T09:45:00Z",
       clientMessages: 8,
@@ -930,6 +947,7 @@ export const mockClientBidsData: BidsState = {
       lastUpdated: "2024-04-09T13:15:00Z",
       expiresAt: "2024-04-30T23:59:59Z",
       bidderCount: 18,
+      lowestBidAmount: 3500,
       clientViewed: true,
       clientViewedAt: "2024-04-10T08:30:00Z",
       clientMessages: 3,
@@ -984,6 +1002,7 @@ export const mockClientBidsData: BidsState = {
       lastUpdated: "2024-04-14T11:00:00Z",
       expiresAt: "2024-04-30T23:59:59Z",
       bidderCount: 18,
+      lowestBidAmount: 3500,
       clientViewed: true,
       clientViewedAt: "2024-04-10T14:20:00Z",
       clientMessages: 1,
@@ -1038,6 +1057,7 @@ export const mockClientBidsData: BidsState = {
       lastUpdated: "2024-04-06T14:30:00Z",
       expiresAt: "2024-05-01T23:59:59Z",
       bidderCount: 31,
+      lowestBidAmount: 4000,
       clientViewed: false,
       clientMessages: 0,
     },
@@ -1091,7 +1111,8 @@ export const mockClientBidsData: BidsState = {
       bidDate: "2024-04-13T10:20:00Z",
       lastUpdated: "2024-04-13T10:20:00Z",
       expiresAt: "2024-05-25T23:59:59Z",
-      bidderCount: 14,
+      bidderCount: 4,
+      lowestBidAmount: 120,
       clientViewed: true,
       clientViewedAt: "2024-04-14T09:15:00Z",
       clientMessages: 5,
@@ -1147,6 +1168,7 @@ export const mockClientBidsData: BidsState = {
       lastUpdated: "2024-04-12T10:30:00Z",
       expiresAt: "2024-05-10T23:59:59Z",
       bidderCount: 27,
+      lowestBidAmount: 4200,
       clientViewed: true,
       clientViewedAt: "2024-04-09T11:25:00Z",
       clientMessages: 6,
