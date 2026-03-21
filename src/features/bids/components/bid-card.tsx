@@ -29,6 +29,12 @@ import {
   TrendingDown,
   MapPin,
   Layers,
+  GraduationCap,
+  Briefcase,
+  Flame,
+  Shield,
+  Lock,
+  Zap,
 } from "lucide-react";
 
 interface BidCardProps {
@@ -114,6 +120,78 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
   // Check if bid can be withdrawn (only pending bids for freelancers)
   const canWithdraw = bid.status === "pending" && onWithdraw && !isClient;
 
+  // Helper to render experience badge with icons
+  const renderExperienceBadge = (experience?: "entry" | "intermediate" | "expert") => {
+    if (!experience) return null;
+    
+    switch (experience) {
+      case "entry":
+        return (
+          <Badge variant="outline" className="text-xs capitalize bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+            <Briefcase className="h-3 w-3 mr-1" />
+            Entry Level
+          </Badge>
+        );
+      case "intermediate":
+        return (
+          <Badge variant="outline" className="text-xs capitalize bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
+            <Briefcase className="h-3 w-3 mr-1" />
+            Intermediate
+          </Badge>
+        );
+      case "expert":
+        return (
+          <Badge variant="outline" className="text-xs capitalize bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800">
+            <Briefcase className="h-3 w-3 mr-1" />
+            Expert
+          </Badge>
+        );
+    }
+  };
+
+  // Helper to render distinct upgrade badges
+  const renderUpgradeBadge = (upgrade: string) => {
+    switch (upgrade.toLowerCase()) {
+      case 'featured':
+        return (
+          <Badge key={upgrade} className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0 text-xs capitalize">
+            <Star className="h-3 w-3 mr-1 fill-blue-600" />
+            Featured
+          </Badge>
+        );
+      case 'urgent':
+        return (
+          <Badge key={upgrade} className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 text-xs capitalize">
+            <Flame className="h-3 w-3 mr-1 fill-red-600 text-red-600" />
+            Urgent
+          </Badge>
+        );
+      case 'sealed':
+        return (
+          <Badge key={upgrade} className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-0 text-xs capitalize">
+            <Lock className="h-3 w-3 mr-1 fill-purple-600 text-purple-600" />
+            Sealed
+          </Badge>
+        );
+      case 'nda':
+      case 'nda-required':
+      case 'nda_required':
+        return (
+          <Badge key={upgrade} className="bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400 border-0 text-xs uppercase">
+            <Shield className="h-3 w-3 mr-1 fill-slate-600 text-slate-600" />
+            NDA
+          </Badge>
+        );
+      default:
+        return (
+          <Badge key={upgrade} className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-0 text-xs capitalize">
+            <Zap className="h-3 w-3 mr-1 fill-emerald-600 text-emerald-600" />
+            {upgrade.replace(/-/g, ' ').replace(/_/g, ' ')}
+          </Badge>
+        );
+    }
+  };
+
   return (
     <Card className="bid-card overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow duration-200 py-0">
       <CardContent className="flex-1 p-4">
@@ -139,23 +217,20 @@ export function BidCard({ bid, onWithdraw, onPin, allBids }: BidCardProps) {
 
         {/* Badges row */}
         <div className="flex flex-wrap gap-1.5 mb-3">
-          {bid.project.experience && (
-            <Badge variant="outline" className="text-xs capitalize">
-              {bid.project.experience}
-            </Badge>
-          )}
+          {renderExperienceBadge(bid.project.experience)}
+          
           {bid.isPinned && (
             <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
               <Pin className="h-3 w-3 mr-1 fill-amber-600" />
               Pinned
             </Badge>
           )}
-          {bid.project.featured && (
-            <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0 text-xs">
-              <Star className="h-3 w-3 mr-1 fill-blue-600" />
-              Featured
-            </Badge>
-          )}
+
+          {/* Render all upgrades coming from the backend payload */}
+          {bid.project.upgrades && bid.project.upgrades.map(upgrade => renderUpgradeBadge(upgrade))}
+          
+          {/* Fallback for the boolean 'featured' if upgrades array handles missing mock data */}
+          {(!bid.project.upgrades || !bid.project.upgrades.includes('featured')) && bid.project.featured && renderUpgradeBadge('featured')}
         </div>
 
         {/* Project Title */}

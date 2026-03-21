@@ -39,6 +39,7 @@ export interface Project {
   projectUrl: string;
   attachments?: number;
   featured?: boolean;
+  upgrades?: string[];
 }
 
 export interface Bid {
@@ -55,6 +56,7 @@ export interface Bid {
   clientViewed: boolean;
   clientViewedAt?: string;
   clientMessages?: number;
+  views?: number;
   bidDate: string;
   status: BidStatus;
   expiresAt?: string;
