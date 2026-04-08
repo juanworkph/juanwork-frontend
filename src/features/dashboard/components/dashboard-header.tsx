@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Plus } from "lucide-react";
+import { Download } from "lucide-react";
 
 interface DashboardHeaderProps {
   userName?: string;
@@ -21,10 +21,6 @@ export function DashboardHeader({ userName = "Alex" }: DashboardHeaderProps) {
         <Button variant="outline" className="gap-2 text-xs lg:text-sm">
           <Download className="h-4 w-4" />
           Export Report
-        </Button>
-        <Button className="gap-2 text-xs lg:text-sm bg-primary hover:bg-primary/90 text-primary-foreground">
-          <Plus className="h-4 w-4" />
-          Post a Service
         </Button>
       </div>
     </div>

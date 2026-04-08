@@ -34,8 +34,7 @@ export function ActivityDistribution({ data }: ActivityDistributionProps) {
   return (
     <div className="p-6 rounded-xl bg-card-accent border border-border flex flex-col h-[400px]">
       <div className="mb-6">
-        <h2 className="text-xl font-bold tracking-tight">Activity</h2>
-        <p className="text-sm text-muted-foreground">Distribution summary</p>
+        <h2 className="text-xl font-bold tracking-tight">Summary Overview</h2>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center gap-6">

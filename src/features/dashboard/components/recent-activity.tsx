@@ -16,19 +16,24 @@ export function RecentActivity({ activities }: RecentActivityProps) {
         </span>
       </h3>
 
-      <div className="relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
+      <div className="relative before:absolute before:inset-y-0 before:left-[9px] before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
         <div className="space-y-6">
           {activities.map((activity, index) => (
-            <div key={index} className="relative flex items-start justify-between">
+            <div
+              key={index}
+              className="relative flex items-start justify-between"
+            >
               <div className="flex items-start gap-4">
                 <div
                   className={cn(
-                    "w-5 h-5 rounded-full flex-shrink-0 z-10 ring-4 ring-card-accent mt-0.5",
-                    activity.color
+                    "w-5 h-5 rounded-full flex-shrink-0 z-10 ring-2 ring-card-accent mt-0.5",
+                    activity.color,
                   )}
                 />
                 <div>
-                  <p className="text-sm font-bold text-foreground">{activity.title}</p>
+                  <p className="text-sm font-bold text-foreground">
+                    {activity.title}
+                  </p>
                   <p className="text-sm text-muted-foreground mt-0.5 max-w-[200px] sm:max-w-none">
                     {activity.description}
                   </p>

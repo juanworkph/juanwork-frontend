@@ -21,6 +21,7 @@ interface StatConfig {
   icon: LucideIcon;
   format?: (val: number) => string;
   iconColorClass: string;
+  iconBgClass: string;
 }
 
 const STATS_CONFIG: StatConfig[] = [
@@ -30,18 +31,21 @@ const STATS_CONFIG: StatConfig[] = [
     icon: DollarSign,
     format: (val) => `$${val.toLocaleString()}`,
     iconColorClass: "text-emerald-500",
+    iconBgClass: "bg-emerald-500/10 dark:bg-emerald-500/20",
   },
   {
     key: "activeContracts",
     label: "Active Contracts",
     icon: Briefcase,
     iconColorClass: "text-blue-500",
+    iconBgClass: "bg-blue-500/10 dark:bg-blue-500/20",
   },
   {
     key: "bidsReceived",
     label: "Bids Received",
     icon: Inbox,
     iconColorClass: "text-purple-500",
+    iconBgClass: "bg-purple-500/10 dark:bg-purple-500/20",
   },
   {
     key: "successRate",
@@ -49,13 +53,14 @@ const STATS_CONFIG: StatConfig[] = [
     icon: Target,
     format: (val) => `${val}%`,
     iconColorClass: "text-orange-500",
+    iconBgClass: "bg-orange-500/10 dark:bg-orange-500/20",
   },
 ];
 
 export function StatsOverview({ stats }: StatsOverviewProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-      {STATS_CONFIG.map(({ key, label, icon: Icon, format, iconColorClass }) => {
+      {STATS_CONFIG.map(({ key, label, icon: Icon, format, iconColorClass, iconBgClass }) => {
         const stat = stats[key];
         const isPositive = stat.change >= 0;
         const ChangeIcon = isPositive ? ArrowUpRight : ArrowDownRight;
@@ -69,8 +74,8 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
             <div className="flex justify-between items-start mb-4">
               <div
                 className={cn(
-                  "p-3 rounded-full bg-opacity-10 dark:bg-opacity-20 transition-colors duration-300",
-                  iconColorClass.replace("text-", "bg-")
+                  "p-3 rounded-full transition-colors duration-300",
+                  iconBgClass
                 )}
               >
                 <Icon className={cn("w-6 h-6", iconColorClass)} />

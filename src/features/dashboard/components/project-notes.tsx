@@ -1,6 +1,7 @@
 import React from "react";
-import { StickyNote } from "lucide-react";
+import { StickyNote, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 // Using static notes matching reference. Real data could come via props.
 const NOTES = [
@@ -54,11 +55,17 @@ export function ProjectNotes() {
 
   return (
     <div className="p-6 rounded-xl bg-card-accent border border-border flex flex-col h-full">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-primary/10 rounded-lg text-primary">
-          <StickyNote className="w-5 h-5" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg text-primary">
+            <StickyNote className="w-5 h-5" />
+          </div>
+          <h3 className="text-lg font-bold">Notes</h3>
         </div>
-        <h3 className="text-lg font-bold">Project Notes</h3>
+        <Button variant="outline" size="sm" className="h-8 gap-1">
+          <Plus className="w-4 h-4" />
+          Add Notes
+        </Button>
       </div>
 
       <div className="space-y-4">

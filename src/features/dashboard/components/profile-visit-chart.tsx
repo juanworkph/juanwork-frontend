@@ -86,7 +86,7 @@ export function ProfileVisitChart({ data }: ProfileVisitChartProps) {
               <Area
                 type="monotone"
                 dataKey="visits"
-                stroke="var(--color-visits)"
+                stroke="hsl(var(--primary))"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorVisits)"
