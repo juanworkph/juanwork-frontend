@@ -18,7 +18,7 @@ export const profileVisitChartData: ProfileVisitDataPoint[] = [
 ];
 
 export const activityDistributionData: ActivityDistributionItem[] = [
-  { label: "Proposals", value: 14, color: "hsl(var(--primary))" }, // orange-500
+  { label: "Proposals", value: 14, color: "var(--primary)" }, // orange-500
   { label: "Projects", value: 17, color: "#3b82f6" }, // blue-500
   { label: "Bids", value: 11, color: "#a855f7" }, // purple-500
   { label: "Ongoing", value: 11, color: "#10b981" }, // emerald-500

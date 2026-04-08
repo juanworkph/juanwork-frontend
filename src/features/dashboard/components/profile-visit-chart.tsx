@@ -18,7 +18,7 @@ interface ProfileVisitChartProps {
 const chartConfig = {
   visits: {
     label: "Visits",
-    color: "hsl(var(--primary))",
+    color: "var(--primary)",
   },
 } satisfies ChartConfig;
 
@@ -86,7 +86,7 @@ export function ProfileVisitChart({ data }: ProfileVisitChartProps) {
               <Area
                 type="monotone"
                 dataKey="visits"
-                stroke="hsl(var(--primary))"
+                stroke="var(--primary)"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorVisits)"
