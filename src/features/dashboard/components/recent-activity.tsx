@@ -1,60 +1,46 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Activity,
-  FileText,
-  MessageSquare,
-  Star,
-  DollarSign,
-} from "lucide-react";
-import { Activity as ActivityType } from "../schema/dashboard-data";
+import { Activity } from "../schema/dashboard-data";
+import { cn } from "@/lib/utils";
 
 interface RecentActivityProps {
-  activities: ActivityType[];
+  activities: Activity[];
 }
 
 export function RecentActivity({ activities }: RecentActivityProps) {
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case "proposal":
-        return <FileText className="h-4 w-4 text-primary" />;
-      case "message":
-        return <MessageSquare className="h-4 w-4 text-primary" />;
-      case "review":
-        return <Star className="h-4 w-4 text-primary" />;
-      case "payment":
-        return <DollarSign className="h-4 w-4 text-primary" />;
-      default:
-        return <Activity className="h-4 w-4 text-primary" />;
-    }
-  };
-
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base lg:text-lg font-semibold flex items-center gap-2">
-          <Activity className="h-4 w-4 lg:h-5 lg:w-5" />
-          Recent Activity
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {activities.map((activity, index) => (
-          <div
-            key={index}
-            className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg"
-          >
-            <div className="p-2 bg-primary/10 rounded-full">
-              {getActivityIcon(activity.type)}
-            </div>
-            <div className="flex-1">
-              <p className="text-sm">{activity.message}</p>
-              <p className="text-xs text-muted-foreground mt-1">
+    <div className="p-6 rounded-xl bg-card-accent border border-border">
+      <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+        Recent Activity
+        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+          {activities.length}
+        </span>
+      </h3>
+
+      <div className="relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
+        <div className="space-y-6">
+          {activities.map((activity, index) => (
+            <div key={index} className="relative flex items-start justify-between">
+              <div className="flex items-start gap-4">
+                <div
+                  className={cn(
+                    "w-5 h-5 rounded-full flex-shrink-0 z-10 ring-4 ring-card-accent mt-0.5",
+                    activity.color
+                  )}
+                />
+                <div>
+                  <p className="text-sm font-bold text-foreground">{activity.title}</p>
+                  <p className="text-sm text-muted-foreground mt-0.5 max-w-[200px] sm:max-w-none">
+                    {activity.description}
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-medium text-muted-foreground whitespace-nowrap pl-2">
                 {activity.time}
-              </p>
+              </span>
             </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

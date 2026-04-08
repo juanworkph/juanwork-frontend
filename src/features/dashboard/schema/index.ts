@@ -2,8 +2,7 @@ export type {
   DashboardStats,
   Project,
   Activity,
-  Deadline,
+  ActivityDistributionItem,
+  ProfileVisitDataPoint,
   DashboardData,
 } from "./dashboard-data";
-
-export { mockDashboardData } from "./dashboard-data";
