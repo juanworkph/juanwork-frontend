@@ -53,9 +53,7 @@ export function WorkstationStats({ stats }: WorkstationStatsProps) {
                   <Icon className={`h-6 w-6 ${stat.iconColor}`} />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-white mb-1">
-                    {stat.value}
-                  </p>
+                  <p className="text-3xl font-bold mb-1">{stat.value}</p>
                   <p className="text-sm text-gray-400">{stat.label}</p>
                 </div>
               </div>

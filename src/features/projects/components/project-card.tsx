@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Clock,
   DollarSign,
@@ -12,12 +11,14 @@ import {
   CheckCircle,
   Star,
   ExternalLink,
-  MessageCircle,
+  MessageSquare,
   Pin,
   Flag,
   Calendar,
   Layers,
   TrendingUp,
+  Eye,
+  Flame,
 } from "lucide-react";
 import {
   Project,
@@ -38,6 +39,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({
   project,
+  onPin,
   onPause,
   onResume,
   onComplete,
@@ -83,22 +85,37 @@ export function ProjectCard({
         <div className="flex flex-wrap gap-1.5 mb-3">
           <Badge
             variant="outline"
-            className={`${getPriorityColor(project.priority)} text-xs`}
+            className={`${getPriorityColor(project.priority)} text-xs capitalize`}
           >
             <Flag className="h-3 w-3 mr-1" />
             {project.priority}
           </Badge>
+          
           {project.isPinned && (
             <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
               <Pin className="h-3 w-3 mr-1 fill-amber-600" />
               Pinned
             </Badge>
           )}
+
+          {project.isFeatured && (
+            <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0 text-xs capitalize">
+              <Star className="h-3 w-3 mr-1 fill-blue-600" />
+              Featured
+            </Badge>
+          )}
+
+          {project.isUrgent && (
+            <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 text-xs capitalize">
+              <Flame className="h-3 w-3 mr-1 fill-red-600 text-red-600" />
+              Urgent
+            </Badge>
+          )}
         </div>
 
         {/* Project Title and Description */}
         <div className="space-y-4">
-          <h3 className="font-medium text-lg line-clamp-2 mb-[10px]">
+          <h3 className="text-lg font-bold line-clamp-2 mb-[10px]">
             <Link
               href={project.projectUrl}
               className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
@@ -154,95 +171,104 @@ export function ProjectCard({
             </div>
           </div>
 
-          {/* Project Details - Compact Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {isClient ? "Cost" : "Budget"}
-                </p>
-                <p className="text-sm font-semibold">{formattedBudget}</p>
+          {/* Project Details - Analytics Grid */}
+          <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    {isClient ? "Cost" : "Budget"}
+                  </p>
+                  <p className="text-sm font-bold truncate">{formattedBudget}</p>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2">
-              <Clock
-                className={`h-4 w-4 ${
-                  project.deadline.isOverdue
-                    ? "text-red-500 dark:text-red-400"
-                    : "text-amber-500 dark:text-amber-400"
-                }`}
-              />
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Time Left
-                </p>
-                <p
-                  className={`text-sm font-semibold ${
-                    project.deadline.isOverdue ? "text-red-600 dark:text-red-400" : ""
+              <div className="flex items-center gap-2">
+                <Clock
+                  className={`h-4 w-4 ${
+                    project.deadline.isOverdue
+                      ? "text-red-500 dark:text-red-400"
+                      : "text-amber-500 dark:text-amber-400"
                   }`}
-                >
-                  {timeLeft}
-                </p>
+                />
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    Time Left
+                  </p>
+                  <p
+                    className={`text-sm font-bold truncate ${
+                      project.deadline.isOverdue ? "text-red-600 dark:text-red-400" : ""
+                    }`}
+                  >
+                    {timeLeft}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    Progress
+                  </p>
+                  <p className="text-sm font-bold truncate">
+                    {project.progress.progressPercentage}%
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    Tasks
+                  </p>
+                  <p className="text-sm font-bold truncate">
+                    {project.progress.completedTasks}/{project.progress.totalTasks}
+                  </p>
+                </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Progress
-                </p>
-                <p className="text-sm font-semibold">
-                  {project.progress.progressPercentage}%
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Tasks
-                </p>
-                <p className="text-sm font-semibold">
-                  {project.progress.completedTasks}/{project.progress.totalTasks}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div>
-            <Progress
-              value={project.progress.progressPercentage}
-              className="h-2"
-            />
-          </div>
-
-          {/* Additional info */}
-          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-            <div className="flex items-center gap-1">
-              <span>
-                {project.progress.completedMilestones}/{project.progress.totalMilestones} milestones
-              </span>
-            </div>
-            {project.hasUnreadMessages && (
-              <div className="flex items-center gap-1">
-                <MessageCircle className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
-                <span className="text-blue-600 dark:text-blue-400">
-                  {project.messageCount} new msg
-                </span>
-              </div>
-            )}
           </div>
         </div>
       </CardContent>
 
       <CardFooter className="p-4 pt-0 mt-auto border-t border-gray-100 dark:border-gray-700">
-        <div className="flex justify-between w-full gap-2">
-          <div className="flex gap-2">
+        <div className="flex items-center justify-between w-full pt-4">
+          {/* Left side: Stats */}
+          <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-1.5" title="Milestones">
+              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+              <span className="font-medium">
+                {project.progress.completedMilestones}/{project.progress.totalMilestones} done
+              </span>
+            </div>
+            
+            {(project.hasUnreadMessages || (project.messageCount && project.messageCount > 0)) ? (
+              <div className="flex items-center gap-1.5" title="Messages">
+                <MessageSquare className={`h-4 w-4 ${project.hasUnreadMessages ? "text-blue-500" : "text-gray-400"}`} />
+                <span className={`font-medium ${project.hasUnreadMessages ? "text-blue-600 dark:text-blue-400" : ""}`}>
+                  {project.messageCount} msgs
+                </span>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Right side: Actions */}
+          <div className="flex items-center gap-2">
+            {onPin && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 px-2"
+                onClick={() => onPin(project.id)}
+                title={project.isPinned ? "Unpin project" : "Pin project"}
+              >
+                <Pin className={`h-4 w-4 ${project.isPinned ? "fill-amber-500 text-amber-500" : "text-gray-500 dark:text-gray-400"}`} />
+              </Button>
+            )}
+            
             {project.status === "active" && onPause && (
               <Button
                 variant="outline"
@@ -273,13 +299,14 @@ export function ProjectCard({
                 Complete
               </Button>
             )}
+            
+            <Link href={project.projectUrl}>
+              <Button size="sm" className="gap-1 text-xs h-8 font-semibold px-4">
+                <span>View</span>
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+            </Link>
           </div>
-          <Link href={project.projectUrl}>
-            <Button size="sm" className="gap-1 text-xs h-8">
-              <span>View</span>
-              <ExternalLink className="h-3 w-3" />
-            </Button>
-          </Link>
         </div>
       </CardFooter>
     </Card>
