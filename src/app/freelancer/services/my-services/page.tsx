@@ -1,8 +1,8 @@
 /**
  * My Services Page
- * 
+ *
  * Main page for freelancers to view, manage, and track all their posted services.
- * 
+ *
  * Features:
  * - Authentication and authorization checks
  * - Real-time service data fetching from API
@@ -11,7 +11,7 @@
  * - Service status management (pause/activate)
  * - Statistics dashboard
  * - Responsive design
- * 
+ *
  * Requirements: All requirements from 1.1 to 13.5
  */
 
@@ -110,7 +110,10 @@ interface ErrorStateProps {
 const ErrorState: React.FC<ErrorStateProps> = ({ message, onRetry }) => {
   return (
     <div className="max-w-7xl mx-auto p-6 lg:p-8">
-      <Alert variant="destructive" className="border-red-200 dark:border-red-800">
+      <Alert
+        variant="destructive"
+        className="border-red-200 dark:border-red-800"
+      >
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Failed to Load Services</AlertTitle>
         <AlertDescription className="space-y-4">
@@ -140,11 +143,10 @@ const AccessDenied: React.FC = () => {
             Access Denied
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            This page is only accessible to freelancers. Please log in with a freelancer account.
+            This page is only accessible to freelancers. Please log in with a
+            freelancer account.
           </p>
-          <Button onClick={() => router.push("/auth")}>
-            Go to Login
-          </Button>
+          <Button onClick={() => router.push("/auth")}>Go to Login</Button>
         </CardContent>
       </Card>
     </div>
@@ -156,16 +158,22 @@ const AccessDenied: React.FC = () => {
  */
 export default function MyServicesPage() {
   const router = useRouter();
-  
+
   // Subtask 6.2: Authentication check
-  const { user, isAuthenticated, isLoading: authLoading, currentRole } = useAuth();
+  const {
+    user,
+    isAuthenticated,
+    isLoading: authLoading,
+    currentRole,
+  } = useAuth();
 
   // Subtask 6.3: State management
   const [services, setServices] = useState<MyService[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<ServiceFilterStatus>("all");
+  const [selectedStatus, setSelectedStatus] =
+    useState<ServiceFilterStatus>("all");
   const [sortBy, setSortBy] = useState<ServiceSortOption>("newest");
 
   // Subtask 6.8: Delete confirmation dialog state
@@ -180,7 +188,8 @@ export default function MyServicesPage() {
       const data = await getFreelancerServices();
       setServices(data);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch services";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch services";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -223,13 +232,19 @@ export default function MyServicesPage() {
   }, [services]);
 
   // Subtask 6.13: Implement navigation handlers
-  const handleView = useCallback((serviceId: string) => {
-    router.push(`/freelancer/services/${serviceId}`);
-  }, [router]);
+  const handleView = useCallback(
+    (serviceId: string) => {
+      router.push(`/freelancer/services/${serviceId}`);
+    },
+    [router],
+  );
 
-  const handleEdit = useCallback((serviceId: string) => {
-    router.push(`/freelancer/services/edit/${serviceId}`);
-  }, [router]);
+  const handleEdit = useCallback(
+    (serviceId: string) => {
+      router.push(`/freelancer/services/edit/${serviceId}`);
+    },
+    [router],
+  );
 
   const handleCreateNew = useCallback(() => {
     router.push("/freelancer/services/post-service");
@@ -249,7 +264,8 @@ export default function MyServicesPage() {
       setServices((prev) => prev.filter((s) => s.id !== serviceToDelete));
       toast.success("Service deleted successfully");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to delete service";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete service";
       toast.error(errorMessage);
     } finally {
       setDeleteDialogOpen(false);
@@ -263,28 +279,32 @@ export default function MyServicesPage() {
   }, []);
 
   // Subtask 6.9: Implement duplicate functionality
-  const handleDuplicate = useCallback((serviceId: string) => {
-    const service = services.find((s) => s.id === serviceId);
-    if (!service) {
-      toast.error("Service not found");
-      return;
-    }
+  const handleDuplicate = useCallback(
+    (serviceId: string) => {
+      const service = services.find((s) => s.id === serviceId);
+      if (!service) {
+        toast.error("Service not found");
+        return;
+      }
 
-    // Navigate to post-service page with duplicate query param
-    router.push(`/freelancer/services/post-service?duplicate=${serviceId}`);
-    toast.info("Duplicating service...");
-  }, [services, router]);
+      // Navigate to post-service page with duplicate query param
+      router.push(`/freelancer/services/post-service?duplicate=${serviceId}`);
+      toast.info("Duplicating service...");
+    },
+    [services, router],
+  );
 
   // Subtask 6.10: Implement pause/activate functionality
   const handlePause = useCallback(async (serviceId: string) => {
     try {
       const updatedService = await updateServiceStatus(serviceId, "paused");
       setServices((prev) =>
-        prev.map((s) => (s.id === serviceId ? updatedService : s))
+        prev.map((s) => (s.id === serviceId ? updatedService : s)),
       );
       toast.success("Service paused successfully");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to pause service";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to pause service";
       toast.error(errorMessage);
     }
   }, []);
@@ -293,11 +313,12 @@ export default function MyServicesPage() {
     try {
       const updatedService = await updateServiceStatus(serviceId, "active");
       setServices((prev) =>
-        prev.map((s) => (s.id === serviceId ? updatedService : s))
+        prev.map((s) => (s.id === serviceId ? updatedService : s)),
       );
       toast.success("Service activated successfully");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to activate service";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to activate service";
       toast.error(errorMessage);
     }
   }, []);
@@ -331,7 +352,7 @@ export default function MyServicesPage() {
   }
 
   return (
-    <div className="h-full">
+    <div>
       <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
         {/* Header with statistics, search, filters, and actions */}
         <MyServicesHeader
@@ -345,7 +366,7 @@ export default function MyServicesPage() {
           approvedServices={statistics.approvedServices}
           pendingServices={statistics.pendingServices}
           totalViews={statistics.totalViews}
-          totalProposals={statistics.totalProposals}
+          totalBids={statistics.totalBids}
           filteredCount={sortedServices.length}
           onCreateNew={handleCreateNew}
           onRefresh={handleRefresh}

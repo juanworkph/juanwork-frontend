@@ -82,11 +82,6 @@ export const pageNavigation: Record<
       href: "/freelancer/payment",
       icon: CreditCard,
     },
-    {
-      name: "Settings",
-      href: "/freelancer/settings",
-      icon: Settings,
-    },
   ],
 
   client: [
@@ -137,11 +132,6 @@ export const pageNavigation: Record<
       href: "/client/payment",
       icon: CreditCard,
     },
-    {
-      name: "Settings",
-      href: "/client/settings",
-      icon: Settings,
-    },
   ],
 };
 
@@ -149,7 +139,7 @@ export const pageNavigation: Record<
  * Gets page navigation items specific to a user role
  */
 export const pageNavigationWhereUserRole = (
-  userRole: Exclude<UserRole, "guest" | "admin">
+  userRole: Exclude<UserRole, "guest" | "admin">,
 ): PageNavItem[] => {
   return pageNavigation[userRole] || pageNavigation.freelancer;
 };

@@ -1,20 +1,79 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { ProjectsHeader, ProjectsList } from "@/features/projects/components";
 import {
-  mockClientProjectsData,
   ProjectsState,
+  Project,
 } from "@/features/projects/schema";
 import { toast } from "sonner";
+import { 
+  getClientWorkspaces, 
+  updateClientWorkspaceStatus 
+} from "@/features/projects/actions/client-projects.actions";
 
 export default function ClientProjectsPage() {
   // State for projects data
-  const [projectsData, setProjectsData] = useState<ProjectsState>(
-    mockClientProjectsData
-  );
-  const [isLoading, setIsLoading] = useState(false);
+  const [projectsData, setProjectsData] = useState<ProjectsState>({
+    projects: [],
+    stats: {
+      total: 0,
+      active: 0,
+      completed: 0,
+      paused: 0,
+      cancelled: 0,
+      pending: 0,
+      totalEarnings: 0,
+      totalSpent: 0,
+      averageRating: 0,
+      onTimeDelivery: 0,
+    },
+    filters: {
+      status: "all",
+      priority: "all",
+      search: "",
+      sortBy: "updated",
+      sortDirection: "desc",
+    },
+  });
+  const [isLoading, setIsLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  // Fetch projects on mount
+  const fetchProjects = async () => {
+    setIsLoading(true);
+    try {
+      const workspaces = await getClientWorkspaces();
+      
+      const stats = {
+        total: workspaces.length,
+        active: workspaces.filter((p) => p.status === "active").length,
+        completed: workspaces.filter((p) => p.status === "completed").length,
+        paused: workspaces.filter((p) => p.status === "paused").length,
+        cancelled: workspaces.filter((p) => p.status === "cancelled").length,
+        pending: workspaces.filter((p) => p.status === "pending").length,
+        totalEarnings: 0,
+        totalSpent: workspaces.reduce((sum, p) => sum + (p.budget?.amount || 0), 0),
+        averageRating: 0,
+        onTimeDelivery: 0,
+      };
+
+      setProjectsData((prev) => ({
+        ...prev,
+        projects: workspaces,
+        stats,
+      }));
+    } catch (error) {
+      toast.error("Failed to load projects");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
   // Filter projects based on current filters
   const filteredProjects = useMemo(() => {
@@ -110,16 +169,10 @@ export default function ClientProjectsPage() {
 
   // Handle refreshing projects
   const handleRefresh = () => {
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setProjectsData(mockClientProjectsData);
-      setIsLoading(false);
-      toast.success("Projects refreshed successfully");
-    }, 800);
+    fetchProjects();
   };
 
-  // Handle pinning a project
+  // Handle pinning a project (Local state only for now)
   const handlePinProject = (id: string) => {
     setProjectsData((prev) => {
       const updatedProjects = prev.projects.map((project) =>
@@ -141,100 +194,65 @@ export default function ClientProjectsPage() {
     toast.success("Project pin status updated");
   };
 
-  // Handle pausing a project (client can pause their own projects)
-  const handlePauseProject = (id: string) => {
+  // Generic status update handler with optimistic UI
+  const handleStatusUpdate = async (id: string, newStatus: "active" | "paused" | "completed") => {
+    const originalProjects = [...projectsData.projects];
+    
+    // Optimistic update
     setProjectsData((prev) => {
       const updatedProjects = prev.projects.map((project) =>
         project.id === id
           ? {
               ...project,
-              status: "paused" as const,
+              status: newStatus,
+              ...(newStatus === "completed" ? { completedAt: new Date().toISOString() } : {}),
               updatedAt: new Date().toISOString(),
+              progress: newStatus === "completed" 
+                ? {
+                    ...project.progress,
+                    progressPercentage: 100,
+                    completedTasks: project.progress.totalTasks,
+                    completedMilestones: project.progress.totalMilestones,
+                  }
+                : project.progress
             }
           : project
       );
 
-      const stats = {
-        ...prev.stats,
-        active: updatedProjects.filter((p) => p.status === "active").length,
-        paused: updatedProjects.filter((p) => p.status === "paused").length,
-      };
-
       return {
         ...prev,
         projects: updatedProjects,
-        stats,
+        stats: {
+          ...prev.stats,
+          active: updatedProjects.filter((p) => p.status === "active").length,
+          paused: updatedProjects.filter((p) => p.status === "paused").length,
+          completed: updatedProjects.filter((p) => p.status === "completed").length,
+        }
       };
     });
 
-    toast.success("Project paused successfully");
-  };
-
-  // Handle resuming a project
-  const handleResumeProject = (id: string) => {
-    setProjectsData((prev) => {
-      const updatedProjects = prev.projects.map((project) =>
-        project.id === id
-          ? {
-              ...project,
-              status: "active" as const,
-              updatedAt: new Date().toISOString(),
-            }
-          : project
-      );
-
-      const stats = {
-        ...prev.stats,
-        active: updatedProjects.filter((p) => p.status === "active").length,
-        paused: updatedProjects.filter((p) => p.status === "paused").length,
-      };
-
-      return {
+    try {
+      await updateClientWorkspaceStatus(id, newStatus);
+      toast.success(`Project ${newStatus} successfully`);
+    } catch (error) {
+      toast.error("Failed to update project status");
+      // Revert optimistic update
+      setProjectsData((prev) => ({
         ...prev,
-        projects: updatedProjects,
-        stats,
-      };
-    });
-
-    toast.success("Project resumed successfully");
+        projects: originalProjects,
+        stats: {
+          ...prev.stats,
+          active: originalProjects.filter((p) => p.status === "active").length,
+          paused: originalProjects.filter((p) => p.status === "paused").length,
+          completed: originalProjects.filter((p) => p.status === "completed").length,
+        }
+      }));
+    }
   };
 
-  // Handle completing a project (client can mark as completed)
-  const handleCompleteProject = (id: string) => {
-    setProjectsData((prev) => {
-      const updatedProjects = prev.projects.map((project) =>
-        project.id === id
-          ? {
-              ...project,
-              status: "completed" as const,
-              completedAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              progress: {
-                ...project.progress,
-                progressPercentage: 100,
-                completedTasks: project.progress.totalTasks,
-                completedMilestones: project.progress.totalMilestones,
-              },
-            }
-          : project
-      );
-
-      const stats = {
-        ...prev.stats,
-        active: updatedProjects.filter((p) => p.status === "active").length,
-        completed: updatedProjects.filter((p) => p.status === "completed")
-          .length,
-      };
-
-      return {
-        ...prev,
-        projects: updatedProjects,
-        stats,
-      };
-    });
-
-    toast.success("Project marked as completed");
-  };
+  const handlePauseProject = (id: string) => handleStatusUpdate(id, "paused");
+  const handleResumeProject = (id: string) => handleStatusUpdate(id, "active");
+  const handleCompleteProject = (id: string) => handleStatusUpdate(id, "completed");
 
   // Handle loading more projects
   const handleLoadMore = () => {

@@ -39,7 +39,10 @@ const saveFormDataToStorage = (formData: ProjectFormData): void => {
       ...formData,
       attachments: [], // Don't persist file objects
     };
-    localStorage.setItem(FORM_DATA_STORAGE_KEY, JSON.stringify(serializableData));
+    localStorage.setItem(
+      FORM_DATA_STORAGE_KEY,
+      JSON.stringify(serializableData),
+    );
   } catch (error) {
     console.error("Error saving form data to localStorage:", error);
   }
@@ -73,7 +76,9 @@ export default function PostAProjectPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   // Fetch upgrade types for calculating total cost
   const { upgradeTypes } = useProjectFormData();
@@ -113,7 +118,7 @@ export default function PostAProjectPage() {
 
   const validateStep = (step: number): boolean => {
     const errors: Record<string, string> = {};
-    
+
     switch (step) {
       case 1:
         // Validate project name
@@ -124,7 +129,7 @@ export default function PostAProjectPage() {
         } else if (formData.projectName.trim().length > 200) {
           errors.projectName = "Project name must not exceed 200 characters";
         }
-        
+
         // Validate description
         if (!formData.description.trim()) {
           errors.description = "Description is required";
@@ -133,7 +138,7 @@ export default function PostAProjectPage() {
         } else if (formData.description.trim().length > 5000) {
           errors.description = "Description must not exceed 5000 characters";
         }
-        
+
         // Validate budget (both min and max are required for both payment types)
         if (!formData.budget.min || formData.budget.min <= 0) {
           errors.budgetMin = "Minimum budget must be greater than 0";
@@ -141,10 +146,15 @@ export default function PostAProjectPage() {
         if (!formData.budget.max || formData.budget.max <= 0) {
           errors.budgetMax = "Maximum budget must be greater than 0";
         }
-        if (formData.budget.min && formData.budget.max && formData.budget.min > formData.budget.max) {
-          errors.budget = "Minimum budget cannot be greater than maximum budget";
+        if (
+          formData.budget.min &&
+          formData.budget.max &&
+          formData.budget.min > formData.budget.max
+        ) {
+          errors.budget =
+            "Minimum budget cannot be greater than maximum budget";
         }
-        
+
         // Validate delivery days only for fixed price projects
         if (formData.projectType === "fixed") {
           if (!formData.deliveryDays || formData.deliveryDays <= 0) {
@@ -153,10 +163,10 @@ export default function PostAProjectPage() {
             errors.deliveryDays = "Delivery days must not exceed 365";
           }
         }
-        
+
         // Set all errors at once
         setValidationErrors(errors);
-        
+
         // Show toast with first error if any
         if (Object.keys(errors).length > 0) {
           const firstError = Object.values(errors)[0];
@@ -209,12 +219,12 @@ export default function PostAProjectPage() {
     try {
       // Step 1: Transform form data to API request format
       const apiRequest = mapFormDataToApiRequest(formData);
-      
+
       // DEBUG: Log the request data
-      console.log('=== API Request Data ===');
+      console.log("=== API Request Data ===");
       console.log(JSON.stringify(apiRequest, null, 2));
-      console.log('Experience Level:', apiRequest.experienceLevel);
-      console.log('=======================');
+      console.log("Experience Level:", apiRequest.experienceLevel);
+      console.log("=======================");
 
       // Step 2: Validate the transformed data using Zod schema
       try {
@@ -235,28 +245,28 @@ export default function PostAProjectPage() {
       // Step 4: Handle success
       setCreatedProjectId(response.id);
       setIsSubmitted(true);
-      
+
       // Clear saved form data from localStorage after successful submission
       clearFormDataFromStorage();
-      
+
       toast.success(`Project "${response.name}" created successfully!`);
     } catch (error) {
       // Step 5: Handle errors
       const errorMessage = handleApiError(error);
-      
+
       // Check if it's a 401 error (unauthorized)
       if (errorMessage === "Please log in to continue") {
         // Save form data before redirecting to login
         saveFormDataToStorage(formData);
         toast.error("Your session has expired. Please log in again.");
-        
+
         // Redirect to login page after a short delay
         setTimeout(() => {
           router.push("/auth");
         }, 1500);
         return;
       }
-      
+
       // For other errors, display the error message
       toast.error(errorMessage);
       console.error("Submit error:", error);
@@ -280,7 +290,8 @@ export default function PostAProjectPage() {
               Project Submitted Successfully!
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-2 max-w-2xl mx-auto">
-              Your project "{formData.projectName}" has been created successfully.
+              Your project "{formData.projectName}" has been created
+              successfully.
             </p>
             {createdProjectId && (
               <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">
@@ -288,7 +299,8 @@ export default function PostAProjectPage() {
               </p>
             )}
             <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-              Freelancers can now view and bid on your project. You'll receive notifications when proposals come in.
+              Freelancers can now view and bid on your project. You'll receive
+              notifications when proposals come in.
             </p>
             <div className="flex gap-4 justify-center">
               <Button
@@ -382,7 +394,7 @@ export default function PostAProjectPage() {
   }
 
   return (
-    <div className="position-relative h-full">
+    <div className="relative">
       <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
         {/* Header */}
         <div>
@@ -402,8 +414,8 @@ export default function PostAProjectPage() {
         <Card>
           <CardContent className="p-6 lg:p-8">
             {currentStep === 1 && (
-              <Step1BasicDetails 
-                formData={formData} 
+              <Step1BasicDetails
+                formData={formData}
                 onUpdate={handleUpdate}
                 validationErrors={validationErrors}
               />
@@ -481,7 +493,7 @@ export default function PostAProjectPage() {
                   $
                   {calculateTotalUpgradeCost(
                     formData.selectedUpgrades,
-                    upgradeTypes
+                    upgradeTypes,
                   ).toFixed(2)}{" "}
                   USD
                 </span>

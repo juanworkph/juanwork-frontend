@@ -22,7 +22,9 @@ import {
   formatDeliveryTime,
   formatRelativeTime,
   mapProviderLevel,
+  ServiceStatus,
 } from "../schema/discover-services-data";
+import { ServiceDetailsData } from "../schema/single-view-data";
 
 /**
  * Custom error class for API errors
@@ -31,7 +33,7 @@ export class DiscoverServicesError extends Error {
   constructor(
     message: string,
     public statusCode?: number,
-    public originalError?: unknown
+    public originalError?: unknown,
   ) {
     super(message);
     this.name = "DiscoverServicesError";
@@ -41,12 +43,14 @@ export class DiscoverServicesError extends Error {
 /**
  * Transform API service to frontend format
  */
-export const transformAPIServiceToFrontend = (apiService: APIService): Service => {
+export const transformAPIServiceToFrontend = (
+  apiService: APIService,
+): Service => {
   // Construct full name from first_name and last_name
   const getProviderName = () => {
     if (apiService.freelancer?.first_name || apiService.freelancer?.last_name) {
-      const firstName = apiService.freelancer.first_name || '';
-      const lastName = apiService.freelancer.last_name || '';
+      const firstName = apiService.freelancer.first_name || "";
+      const lastName = apiService.freelancer.last_name || "";
       return `${firstName} ${lastName}`.trim();
     }
     // Fallback to name field if first_name/last_name not available
@@ -65,7 +69,7 @@ export const transformAPIServiceToFrontend = (apiService: APIService): Service =
     skills: apiService.skills.map((s) => s.name),
     pricing: {
       type: apiService.paymentType,
-      starting: parseFloat(apiService.budgetMin.toString()),  // Convert string to number
+      starting: parseFloat(apiService.budgetMin.toString()), // Convert string to number
       currency: "PHP",
     },
     experienceLevel: apiService.experienceLevel,
@@ -83,23 +87,84 @@ export const transformAPIServiceToFrontend = (apiService: APIService): Service =
     totalOrders: 0, // TODO: Add to backend when available
     rating: 0, // TODO: Add to backend when available
     reviewCount: 0, // TODO: Add to backend when available
-    isFeatured: apiService.upgrades?.some((u) => u.name === "Featured") || false,
+    isFeatured:
+      apiService.upgrades?.some((u) => u.name === "Featured") || false,
     isUrgent: apiService.upgrades?.some((u) => u.name === "Urgent") || false,
     serviceUrl: `/client/services/${apiService.id}`,
-    upgrades: apiService.upgrades?.map((upgrade) => ({
-      id: upgrade.id,
-      name: upgrade.name,
-      pricePaid: parseFloat(upgrade.pricePaid.toString()),
-      startDate: upgrade.startDate,
-      endDate: upgrade.endDate,
-    })) || [],
+    status: (apiService.status === "active" || apiService.status === "completed"
+      ? "active"
+      : apiService.status === "cancelled" || apiService.status === "paused"
+        ? "paused"
+        : apiService.status) as ServiceStatus,
+    upgrades:
+      apiService.upgrades?.map((upgrade) => ({
+        id: upgrade.id,
+        name: upgrade.name,
+        slug: upgrade.name.toLowerCase(),
+        pricePaid: parseFloat(upgrade.pricePaid.toString()),
+        startDate: upgrade.startDate,
+        endDate: upgrade.endDate,
+      })) || [],
+  };
+};
+
+/**
+ * Transform API service detail to frontend ServiceDetailsData format
+ */
+export const transformAPIServiceDetailToFrontend = (
+  apiService: APIService,
+): ServiceDetailsData => {
+  // Use the basic transformation for shared fields
+  const baseService = transformAPIServiceToFrontend(apiService);
+
+  // Extract gallery and thumbnail from attachments
+  const attachments = apiService.attachments || [];
+  const imageAttachments = attachments.filter((a) =>
+    a.fileType.startsWith("image/"),
+  );
+
+  const hasImages = imageAttachments.length > 0;
+  const thumbnail = hasImages
+    ? imageAttachments[0].fileUrl
+    : "/images/service-placeholder.png";
+  const gallery = hasImages ? imageAttachments.map((a) => a.fileUrl) : [];
+
+  return {
+    ...baseService,
+    longDescription: apiService.longDescription || apiService.description,
+    upgrades: baseService.upgrades,
+    createdAt: baseService.postedDate,
+    updatedAt: apiService.updatedAt || baseService.postedDate,
+    category: apiService.category.name,
+    thumbnail,
+    gallery,
+    hasImages,
+    revisions: apiService.revisions || 3,
+    features: apiService.skills.map((s) => s.name), // Fallback: use skills as features if separate features not available
+    faqs: apiService.faqs || [],
+    provider: {
+      ...baseService.provider,
+      title: "Service Provider", // Fallback
+      country: "Philippines",
+      countryCode: "PH",
+      rating: 4.8, // Fallback
+      reviewsCount: 12, // Fallback
+      verified: true,
+      responseTime: "1 hour",
+    },
+    rating: 4.8,
+    reviewsCount: 12,
+    totalOrders: 0,
+    isTopRated: false,
   };
 };
 
 /**
  * Transform API category to frontend format
  */
-export const transformAPICategoryToFrontend = (apiCategory: APICategory): Category => {
+export const transformAPICategoryToFrontend = (
+  apiCategory: APICategory,
+): Category => {
   return {
     id: apiCategory.id,
     name: apiCategory.name,
@@ -115,7 +180,7 @@ export const transformAPICategoryToFrontend = (apiCategory: APICategory): Catego
 const handleAPIError = (error: unknown): never => {
   // Log the error for debugging
   console.error("[handleAPIError] Caught error:", error);
-  
+
   if (error instanceof AxiosError) {
     const axiosError = error as AxiosError<APIError>;
 
@@ -125,7 +190,7 @@ const handleAPIError = (error: unknown): never => {
       throw new DiscoverServicesError(
         "Network error, please check your connection",
         undefined,
-        error
+        error,
       );
     }
 
@@ -142,7 +207,7 @@ const handleAPIError = (error: unknown): never => {
         throw new DiscoverServicesError(
           "Authentication required, but you can continue browsing",
           401,
-          error
+          error,
         );
       case 404:
         throw new DiscoverServicesError("No services found", 404, error);
@@ -150,7 +215,7 @@ const handleAPIError = (error: unknown): never => {
         throw new DiscoverServicesError(
           "Server error, please try again later",
           500,
-          error
+          error,
         );
       default:
         // Use API error message if available
@@ -158,13 +223,13 @@ const handleAPIError = (error: unknown): never => {
           throw new DiscoverServicesError(
             errorData.message || "An error occurred",
             statusCode,
-            error
+            error,
           );
         }
         throw new DiscoverServicesError(
           "An unexpected error occurred",
           statusCode,
-          error
+          error,
         );
     }
   }
@@ -174,7 +239,7 @@ const handleAPIError = (error: unknown): never => {
   throw new DiscoverServicesError(
     "An unexpected error occurred",
     undefined,
-    error
+    error,
   );
 };
 
@@ -186,7 +251,7 @@ const validateServicesResponse = (data: unknown): ServicesResponse => {
     throw new DiscoverServicesError(
       "Invalid response format from server",
       undefined,
-      data
+      data,
     );
   }
   return data;
@@ -200,7 +265,7 @@ const validateCategoriesResponse = (data: unknown): CategoriesResponse => {
     throw new DiscoverServicesError(
       "Invalid response format from server",
       undefined,
-      data
+      data,
     );
   }
   return data;
@@ -208,12 +273,12 @@ const validateCategoriesResponse = (data: unknown): CategoriesResponse => {
 
 /**
  * Fetch services from API with filters and pagination
- * 
+ *
  * @param params - Query parameters for filtering and pagination
  * @returns Promise with services and pagination metadata
  */
 export const fetchServices = async (
-  params: ServiceQueryParams = {}
+  params: ServiceQueryParams = {},
 ): Promise<{
   services: Service[];
   pagination: {
@@ -235,7 +300,7 @@ export const fetchServices = async (
 
     // Remove undefined values
     const cleanParams = Object.fromEntries(
-      Object.entries(queryParams).filter(([_, value]) => value !== undefined)
+      Object.entries(queryParams).filter(([_, value]) => value !== undefined),
     );
 
     // Make API request
@@ -263,7 +328,9 @@ export const fetchServices = async (
   } catch (error) {
     // Handle 401 errors gracefully for public browsing
     if (error instanceof DiscoverServicesError && error.statusCode === 401) {
-      console.warn("Authentication required, but continuing with public browsing");
+      console.warn(
+        "Authentication required, but continuing with public browsing",
+      );
       // Return empty result instead of throwing
       return {
         services: [],
@@ -284,7 +351,7 @@ export const fetchServices = async (
 
 /**
  * Fetch all categories from API
- * 
+ *
  * @returns Promise with array of categories
  */
 export const fetchCategories = async (): Promise<Category[]> => {
@@ -297,7 +364,7 @@ export const fetchCategories = async (): Promise<Category[]> => {
 
     // Transform categories to frontend format
     const categories = validatedData.data.categories.map(
-      transformAPICategoryToFrontend
+      transformAPICategoryToFrontend,
     );
 
     return categories;
@@ -309,21 +376,24 @@ export const fetchCategories = async (): Promise<Category[]> => {
 
 /**
  * Fetch a single service by ID
- * 
+ *
  * @param serviceId - The service ID
  * @returns Promise with service data
  */
-export const fetchServiceById = async (serviceId: string): Promise<Service> => {
+export const fetchServiceById = async (
+  serviceId: string,
+): Promise<ServiceDetailsData> => {
   try {
-    const response = await apiClient.get<{ success: boolean; data: APIService }>(
-      `/services/${serviceId}`
-    );
+    const response = await apiClient.get<{
+      success: boolean;
+      data: APIService;
+    }>(`/services/${serviceId}`);
 
     if (!response.data.success || !response.data.data) {
       throw new DiscoverServicesError("Service not found", 404);
     }
 
-    return transformAPIServiceToFrontend(response.data.data);
+    return transformAPIServiceDetailToFrontend(response.data.data);
   } catch (error) {
     handleAPIError(error);
     throw new Error("Unreachable");
@@ -332,15 +402,18 @@ export const fetchServiceById = async (serviceId: string): Promise<Service> => {
 
 /**
  * Fetch skills for a specific category
- * 
+ *
  * @param categoryId - The category ID
  * @returns Promise with array of skill names
  */
-export const fetchSkillsByCategory = async (categoryId: string): Promise<string[]> => {
+export const fetchSkillsByCategory = async (
+  categoryId: string,
+): Promise<string[]> => {
   try {
-    const response = await apiClient.get<{ success: boolean; data: { skills: Array<{ id: string; name: string }> } }>(
-      `/categories/${categoryId}/skills`
-    );
+    const response = await apiClient.get<{
+      success: boolean;
+      data: { skills: Array<{ id: string; name: string }> };
+    }>(`/categories/${categoryId}/skills`);
 
     if (!response.data.success || !response.data.data) {
       return [];

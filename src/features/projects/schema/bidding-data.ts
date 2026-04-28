@@ -1,12 +1,18 @@
 // Bidding data schema for project proposals
 
-export type BidStatus = "pending" | "accepted" | "rejected" | "withdrawn";
+export type BidStatus = 
+  | "pending" 
+  | "shortlisted" 
+  | "lost" 
+  | "accepted" 
+  | "rejected" 
+  | "withdrawn";
 
 export interface BidFormData {
   projectId: string;
   bidAmount: number;
   deliveryDays: number;
-  coverLetter: string;
+  coverLetter?: string;
   attachments: File[];
 }
 
@@ -59,7 +65,8 @@ export const defaultBidValidationRules: BidValidationRules = {
 // Validation function
 export const validateBid = (
   data: BidFormData,
-  rules: BidValidationRules = defaultBidValidationRules
+  paymentType: "fixed" | "hourly" = "fixed",
+  rules: BidValidationRules = defaultBidValidationRules,
 ): BidValidationResult => {
   const errors: Record<string, string> = {};
 
@@ -72,9 +79,10 @@ export const validateBid = (
     errors.bidAmount = `Maximum bid is $${rules.maxBidAmount}`;
   }
 
-  // Validate delivery days
+  // Validate delivery days (required for all project types)
   if (!data.deliveryDays || data.deliveryDays <= 0) {
-    errors.deliveryDays = "Delivery time is required and must be greater than 0";
+    errors.deliveryDays =
+      "Delivery time is required and must be greater than 0";
   } else if (data.deliveryDays < rules.minDeliveryDays) {
     errors.deliveryDays = `Minimum delivery time is ${rules.minDeliveryDays} day${
       rules.minDeliveryDays > 1 ? "s" : ""
@@ -85,11 +93,11 @@ export const validateBid = (
     errors.deliveryDays = "Delivery time must be a whole number";
   }
 
-  // Validate cover letter
-  if (!data.coverLetter || data.coverLetter.trim().length === 0) {
-    errors.coverLetter = "Cover letter is required";
-  } else if (data.coverLetter.trim().length < rules.minCoverLetterLength) {
-    errors.coverLetter = `Cover letter must be at least ${rules.minCoverLetterLength} characters (currently ${data.coverLetter.trim().length})`;
+  // Validate cover letter (optional)
+  if (data.coverLetter && data.coverLetter.trim().length > 0) {
+    if (data.coverLetter.trim().length < rules.minCoverLetterLength) {
+      errors.coverLetter = `Cover letter must be at least ${rules.minCoverLetterLength} characters (currently ${data.coverLetter.trim().length})`;
+    }
   }
 
   // Validate attachments
@@ -100,7 +108,7 @@ export const validateBid = (
   // Validate individual attachment sizes
   if (data.attachments && data.attachments.length > 0) {
     const oversizedFiles = data.attachments.filter(
-      (file) => file.size > rules.maxAttachmentSize
+      (file) => file.size > rules.maxAttachmentSize,
     );
     if (oversizedFiles.length > 0) {
       const maxSizeMB = rules.maxAttachmentSize / (1024 * 1024);
@@ -130,6 +138,10 @@ export const getBidStatusColor = (status: BidStatus): string => {
   switch (status) {
     case "pending":
       return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
+    case "shortlisted":
+      return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+    case "lost":
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400";
     case "accepted":
       return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
     case "rejected":
@@ -146,6 +158,10 @@ export const getBidStatusLabel = (status: BidStatus): string => {
   switch (status) {
     case "pending":
       return "Pending Review";
+    case "shortlisted":
+      return "Shortlisted";
+    case "lost":
+      return "Lost";
     case "accepted":
       return "Accepted";
     case "rejected":

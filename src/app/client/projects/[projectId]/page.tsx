@@ -3,8 +3,26 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
-import { ProjectDetailView } from "@/features/projects/components";
+import {
+  ArrowLeft,
+  AlertCircle,
+  RefreshCw,
+  X,
+  ChevronRight,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  SingleViewHeader,
+  SingleViewParameters,
+  SingleViewDescription,
+  SingleViewSkills,
+  SingleViewAttachments,
+  SingleViewUpgrades,
+  SingleViewInsights,
+  SingleViewPricingCard,
+  SingleViewStatusAlert,
+} from "@/components/single-view";
+import { SingleViewBidsSection } from "@/features/projects/components";
 import { AccessDenied } from "@/features/projects/components/access-denied";
 import { NetworkStatusIndicator } from "@/features/projects/components/network-status-indicator";
 import { ErrorRetryCard } from "@/features/projects/components/error-retry-card";
@@ -23,7 +41,7 @@ import {
   getProjectInsights,
   closeProjectBids,
   shortlistBid,
-  interviewBid,
+  acceptBid,
   rejectBid,
 } from "@/features/projects/actions/project-detail.actions";
 import { addConnectionListeners } from "@/lib/network-utils";
@@ -42,12 +60,15 @@ export default function ProjectDetailPage({
   const [isLoadingProject, setIsLoadingProject] = useState(true);
   const [projectError, setProjectError] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState<boolean>(false);
-  const [hasCheckedOwnership, setHasCheckedOwnership] = useState<boolean>(false);
+  const [hasCheckedOwnership, setHasCheckedOwnership] =
+    useState<boolean>(false);
 
   // State for new data
   const [bids, setBids] = useState<FreelancerBid[]>([]);
   const [insights, setInsights] = useState<ProjectInsights | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(
+    null,
+  );
   const [isLoadingBids, setIsLoadingBids] = useState(true);
   const [isLoadingInsights, setIsLoadingInsights] = useState(true);
   const [bidsError, setBidsError] = useState<string | null>(null);
@@ -62,7 +83,6 @@ export default function ProjectDetailPage({
   const projectAbortController = useRef<AbortController | null>(null);
   const bidsAbortController = useRef<AbortController | null>(null);
   const insightsAbortController = useRef<AbortController | null>(null);
-  const pollingAbortController = useRef<AbortController | null>(null);
 
   // Note: Confirmation dialogs are handled by child components (TimeRemainingCard and BidCard)
   // No need for page-level dialog state
@@ -120,124 +140,146 @@ export default function ProjectDetailPage({
     }
   }, [resolvedParams.projectId, timeRemaining, user, isOwner]);
 
-  const handleMessageFreelancer = useCallback((freelancerId: string) => {
-    // Guard: Check ownership
-    if (!user || !isOwner) {
-      toast.error("You don't have permission to perform this action");
-      return;
-    }
+  const handleMessageFreelancer = useCallback(
+    (freelancerId: string) => {
+      // Guard: Check ownership
+      if (!user || !isOwner) {
+        toast.error("You don't have permission to perform this action");
+        return;
+      }
 
-    toast.info(`Opening message with freelancer ${freelancerId}`);
-    // In a real app, navigate to messages
-    // router.push(`/client/messages?userId=${freelancerId}`);
-  }, [user, isOwner]);
+      toast.info(`Opening message with freelancer ${freelancerId}`);
+      // In a real app, navigate to messages
+      // router.push(`/client/messages?userId=${freelancerId}`);
+    },
+    [user, isOwner],
+  );
 
-  const handleViewProfile = useCallback((freelancerId: string) => {
-    // Guard: Check ownership
-    if (!user || !isOwner) {
-      toast.error("You don't have permission to perform this action");
-      return;
-    }
+  const handleViewProfile = useCallback(
+    (freelancerId: string) => {
+      // Guard: Check ownership
+      if (!user || !isOwner) {
+        toast.error("You don't have permission to perform this action");
+        return;
+      }
 
-    toast.info(`Viewing profile of freelancer ${freelancerId}`);
-    // In a real app, navigate to freelancer profile
-    // router.push(`/freelancers/${freelancerId}`);
-  }, [user, isOwner]);
+      toast.info(`Viewing profile of freelancer ${freelancerId}`);
+      // In a real app, navigate to freelancer profile
+      // router.push(`/freelancers/${freelancerId}`);
+    },
+    [user, isOwner],
+  );
 
-  const handleShortlist = useCallback(async (bidId: string) => {
-    // Guard: Check ownership
-    if (!user || !isOwner) {
-      toast.error("You don't have permission to perform this action");
-      return;
-    }
+  const handleShortlist = useCallback(
+    async (bidId: string) => {
+      // Guard: Check ownership
+      if (!user || !isOwner) {
+        toast.error("You don't have permission to perform this action");
+        return;
+      }
 
-    try {
-      await shortlistBid(resolvedParams.projectId, bidId);
-      toast.success("Bid shortlisted successfully");
-      // Update local state
-      setBids((prev) =>
-        prev.map((bid) =>
-          bid.id === bidId ? { ...bid, status: "shortlisted" as const } : bid
-        )
-      );
-    } catch (error) {
-      toast.error("Failed to shortlist bid");
-      console.error("Error shortlisting bid:", error);
-    }
-  }, [resolvedParams.projectId, user, isOwner]);
+      try {
+        await shortlistBid(resolvedParams.projectId, bidId);
+        toast.success("Bid shortlisted successfully");
+        // Update local state
+        setBids((prev) =>
+          prev.map((bid) =>
+            bid.id === bidId ? { ...bid, status: "shortlisted" as const } : bid,
+          ),
+        );
+      } catch (error) {
+        toast.error("Failed to shortlist bid");
+        console.error("Error shortlisting bid:", error);
+      }
+    },
+    [resolvedParams.projectId, user, isOwner],
+  );
 
-  const handleInterview = useCallback(async (bidId: string) => {
-    // Guard: Check ownership
-    if (!user || !isOwner) {
-      toast.error("You don't have permission to perform this action");
-      return;
-    }
+  const handleAcceptBid = useCallback(
+    async (bidId: string) => {
+      // Guard: Check ownership
+      if (!user || !isOwner) {
+        toast.error("You don't have permission to perform this action");
+        return;
+      }
 
-    try {
-      await interviewBid(resolvedParams.projectId, bidId);
-      toast.success("Bid marked for interview");
-      // Update local state
-      setBids((prev) =>
-        prev.map((bid) =>
-          bid.id === bidId ? { ...bid, status: "interviewed" as const } : bid
-        )
-      );
-    } catch (error) {
-      toast.error("Failed to mark bid for interview");
-      console.error("Error marking bid for interview:", error);
-    }
-  }, [resolvedParams.projectId, user, isOwner]);
+      try {
+        await acceptBid(resolvedParams.projectId, bidId);
+        toast.success("Bid accepted successfully");
+        // Update local state: mark accepted bid as 'accepted', mark other pending bids as 'lost'
+        // Shortlisted bids remain 'shortlisted'.
+        setBids((prev) =>
+          prev.map((bid) => {
+            if (bid.id === bidId) return { ...bid, status: "accepted" as const };
+            if (bid.status === "pending") return { ...bid, status: "lost" as const };
+            return bid;
+          }),
+        );
+      } catch (error) {
+        toast.error("Failed to accept bid");
+        console.error("Error accepting bid:", error);
+      }
+    },
+    [resolvedParams.projectId, user, isOwner],
+  );
 
   // Note: Confirmation dialog is handled by BidCard component
-  const handleReject = useCallback(async (bidId: string) => {
-    // Guard: Check ownership
-    if (!user || !isOwner) {
-      toast.error("You don't have permission to perform this action");
-      return;
-    }
+  const handleReject = useCallback(
+    async (bidId: string) => {
+      // Guard: Check ownership
+      if (!user || !isOwner) {
+        toast.error("You don't have permission to perform this action");
+        return;
+      }
 
-    try {
-      await rejectBid(resolvedParams.projectId, bidId);
-      toast.success("Bid rejected successfully");
-      // Update local state
-      setBids((prev) =>
-        prev.map((bid) =>
-          bid.id === bidId ? { ...bid, status: "rejected" as const } : bid
-        )
-      );
-    } catch (error) {
-      toast.error("Failed to reject bid");
-      console.error("Error rejecting bid:", error);
-    }
-  }, [resolvedParams.projectId, user, isOwner]);
+      try {
+        await rejectBid(resolvedParams.projectId, bidId);
+        toast.success("Bid rejected successfully");
+        // Update local state
+        setBids((prev) =>
+          prev.map((bid) =>
+            bid.id === bidId ? { ...bid, status: "rejected" as const } : bid,
+          ),
+        );
+      } catch (error) {
+        toast.error("Failed to reject bid");
+        console.error("Error rejecting bid:", error);
+      }
+    },
+    [resolvedParams.projectId, user, isOwner],
+  );
 
-  const handleReport = useCallback((bidId: string) => {
-    // Guard: Check ownership
-    if (!user || !isOwner) {
-      toast.error("You don't have permission to perform this action");
-      return;
-    }
+  const handleReport = useCallback(
+    (bidId: string) => {
+      // Guard: Check ownership
+      if (!user || !isOwner) {
+        toast.error("You don't have permission to perform this action");
+        return;
+      }
 
-    toast.info(`Report functionality for bid ${bidId} not implemented yet`);
-    // In a real app, show report dialog
-  }, [user, isOwner]);
+      toast.info(`Report functionality for bid ${bidId} not implemented yet`);
+      // In a real app, show report dialog
+    },
+    [user, isOwner],
+  );
 
   // Retry functions for manual retry
   const retryFetchProject = useCallback(async () => {
     try {
       setIsLoadingProject(true);
       setProjectError(null);
-      
+
       // Create new AbortController
       projectAbortController.current = new AbortController();
-      
+
       const projectData = await getProjectById(
         resolvedParams.projectId,
-        projectAbortController.current.signal
+        projectAbortController.current.signal,
       );
       setProject(projectData);
     } catch (error: any) {
-      const errorMessage = error.message || "Failed to load project. Please try again.";
+      const errorMessage =
+        error.message || "Failed to load project. Please try again.";
       setProjectError(errorMessage);
       console.error("Error fetching project:", error);
       toast.error(errorMessage);
@@ -250,17 +292,18 @@ export default function ProjectDetailPage({
     try {
       setIsLoadingBids(true);
       setBidsError(null);
-      
+
       // Create new AbortController
       bidsAbortController.current = new AbortController();
-      
+
       const bidsData = await getProjectBids(
         resolvedParams.projectId,
-        bidsAbortController.current.signal
+        bidsAbortController.current.signal,
       );
       setBids(bidsData);
     } catch (error: any) {
-      const errorMessage = error.message || "Failed to load bids. Please try again.";
+      const errorMessage =
+        error.message || "Failed to load bids. Please try again.";
       setBidsError(errorMessage);
       console.error("Error fetching bids:", error);
     } finally {
@@ -272,17 +315,18 @@ export default function ProjectDetailPage({
     try {
       setIsLoadingInsights(true);
       setInsightsError(null);
-      
+
       // Create new AbortController
       insightsAbortController.current = new AbortController();
-      
+
       const insightsData = await getProjectInsights(
         resolvedParams.projectId,
-        insightsAbortController.current.signal
+        insightsAbortController.current.signal,
       );
       setInsights(insightsData);
     } catch (error: any) {
-      const errorMessage = error.message || "Failed to load insights. Please try again.";
+      const errorMessage =
+        error.message || "Failed to load insights. Please try again.";
       setInsightsError(errorMessage);
       console.error("Error fetching insights:", error);
     } finally {
@@ -293,16 +337,16 @@ export default function ProjectDetailPage({
   // Add online/offline event listeners
   useEffect(() => {
     const handleOnline = () => {
-      console.log('[Network] Connection restored');
+      console.log("[Network] Connection restored");
       setIsOnline(true);
       setRetryCount(0);
-      toast.success('Connection restored!');
+      toast.success("Connection restored!");
     };
 
     const handleOffline = () => {
-      console.log('[Network] Connection lost');
+      console.log("[Network] Connection lost");
       setIsOnline(false);
-      toast.error('Connection lost. Please check your internet connection.');
+      toast.error("Connection lost. Please check your internet connection.");
     };
 
     const cleanup = addConnectionListeners(handleOnline, handleOffline);
@@ -316,23 +360,29 @@ export default function ProjectDetailPage({
       try {
         setIsLoadingProject(true);
         setProjectError(null);
-        
+
         // Create AbortController for this request
         projectAbortController.current = new AbortController();
-        
+
         const projectData = await getProjectById(
           resolvedParams.projectId,
-          projectAbortController.current.signal
+          projectAbortController.current.signal,
         );
         setProject(projectData);
       } catch (error: any) {
         // Don't show error if request was cancelled
-        if (error.name === 'AbortError' || error.name === 'CanceledError') {
-          console.log('[Project] Request cancelled');
+        if (
+          error.name === "AbortError" ||
+          error.name === "CanceledError" ||
+          error.message === "canceled" ||
+          error.code === "ERR_CANCELED"
+        ) {
+          console.log("[Project] Request cancelled");
           return;
         }
-        
-        const errorMessage = error.message || "Failed to load project. Please try again.";
+
+        const errorMessage =
+          error.message || "Failed to load project. Please try again.";
         setProjectError(errorMessage);
         console.error("Error fetching project:", error);
         toast.error(errorMessage);
@@ -342,12 +392,12 @@ export default function ProjectDetailPage({
     };
 
     fetchProjectData();
-    
+
     // Cleanup: Cancel request on unmount
     return () => {
       if (projectAbortController.current) {
         projectAbortController.current.abort();
-        console.log('[Project] Aborting request on unmount');
+        console.log("[Project] Aborting request on unmount");
       }
     };
   }, [resolvedParams.projectId]);
@@ -366,7 +416,7 @@ export default function ProjectDetailPage({
         toast.error("You don't have permission to view this project", {
           duration: 3000,
         });
-        
+
         // Redirect after showing error
         const redirectTimer = setTimeout(() => {
           router.push("/client/projects/my-projects");
@@ -380,7 +430,14 @@ export default function ProjectDetailPage({
       router.push("/auth");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project?.clientId, user?.id, isLoadingProject, isAuthLoading, router, resolvedParams.projectId]);
+  }, [
+    project?.clientId,
+    user?.id,
+    isLoadingProject,
+    isAuthLoading,
+    router,
+    resolvedParams.projectId,
+  ]);
 
   // Fetch bids and insights data on mount
   useEffect(() => {
@@ -389,21 +446,27 @@ export default function ProjectDetailPage({
       try {
         setIsLoadingBids(true);
         setBidsError(null);
-        
+
         // Create AbortController for this request
         bidsAbortController.current = new AbortController();
-        
+
         const bidsData = await getProjectBids(
           resolvedParams.projectId,
-          bidsAbortController.current.signal
+          bidsAbortController.current.signal,
         );
         setBids(bidsData);
       } catch (error: any) {
         // Don't show error if request was cancelled
-        if (error.name === 'AbortError' || error.name === 'CanceledError') {
-          console.log('[Bids] Request cancelled');
+        if (
+          error.name === "AbortError" ||
+          error.name === "CanceledError" ||
+          error.message === "canceled" ||
+          error.code === "ERR_CANCELED"
+        ) {
+          console.log("[Bids] Request cancelled");
         } else {
-          const errorMessage = error.message || "Failed to load bids. Please try again.";
+          const errorMessage =
+            error.message || "Failed to load bids. Please try again.";
           setBidsError(errorMessage);
           console.error("Error fetching bids:", error);
         }
@@ -415,21 +478,27 @@ export default function ProjectDetailPage({
       try {
         setIsLoadingInsights(true);
         setInsightsError(null);
-        
+
         // Create AbortController for this request
         insightsAbortController.current = new AbortController();
-        
+
         const insightsData = await getProjectInsights(
           resolvedParams.projectId,
-          insightsAbortController.current.signal
+          insightsAbortController.current.signal,
         );
         setInsights(insightsData);
       } catch (error: any) {
         // Don't show error if request was cancelled
-        if (error.name === 'AbortError' || error.name === 'CanceledError') {
-          console.log('[Insights] Request cancelled');
+        if (
+          error.name === "AbortError" ||
+          error.name === "CanceledError" ||
+          error.message === "canceled" ||
+          error.code === "ERR_CANCELED"
+        ) {
+          console.log("[Insights] Request cancelled");
         } else {
-          const errorMessage = error.message || "Failed to load insights. Please try again.";
+          const errorMessage =
+            error.message || "Failed to load insights. Please try again.";
           setInsightsError(errorMessage);
           console.error("Error fetching insights:", error);
         }
@@ -444,16 +513,16 @@ export default function ProjectDetailPage({
     };
 
     fetchData();
-    
+
     // Cleanup: Cancel requests on unmount
     return () => {
       if (bidsAbortController.current) {
         bidsAbortController.current.abort();
-        console.log('[Bids] Aborting request on unmount');
+        console.log("[Bids] Aborting request on unmount");
       }
       if (insightsAbortController.current) {
         insightsAbortController.current.abort();
-        console.log('[Insights] Aborting request on unmount');
+        console.log("[Insights] Aborting request on unmount");
       }
     };
   }, [resolvedParams.projectId]);
@@ -480,110 +549,6 @@ export default function ProjectDetailPage({
     return () => clearInterval(interval);
   }, [timeRemaining, resolvedParams.projectId]);
 
-  // Poll for new bids every 30 seconds
-  useEffect(() => {
-    // Don't poll if bidding is closed or expired
-    if (!timeRemaining || timeRemaining.isExpired) {
-      return;
-    }
-
-    // Create AbortController for polling
-    pollingAbortController.current = new AbortController();
-
-    // Set up polling interval (30 seconds)
-    const pollInterval = setInterval(async () => {
-      try {
-        // Check if polling was cancelled
-        if (pollingAbortController.current?.signal.aborted) {
-          console.log('[Polling] Cancelled');
-          return;
-        }
-        
-        console.log('[Polling] Checking for new bids...');
-        
-        // Fetch latest bids with AbortSignal
-        const latestBids = await getProjectBids(
-          resolvedParams.projectId,
-          pollingAbortController.current?.signal
-        );
-        
-        // Success - reset retry count and update online status
-        if (!isOnline) {
-          setIsOnline(true);
-          setRetryCount(0);
-          toast.success('Connection restored!');
-          console.log('[Polling] Connection restored');
-        }
-        
-        // Check if there are new bids
-        if (latestBids.length !== bids.length) {
-          const newBidsCount = latestBids.length - bids.length;
-          
-          // Update bids state
-          setBids(latestBids);
-          
-          // Fetch updated insights
-          const latestInsights = await getProjectInsights(
-            resolvedParams.projectId,
-            pollingAbortController.current?.signal
-          );
-          setInsights(latestInsights);
-          
-          // Show notification for new bids
-          if (newBidsCount > 0) {
-            toast.info(`${newBidsCount} new bid${newBidsCount > 1 ? 's' : ''} received!`);
-          }
-          
-          console.log(`[Polling] Updated: ${newBidsCount} new bid(s)`);
-        } else {
-          console.log('[Polling] No new bids');
-        }
-      } catch (error: any) {
-        // Don't show error if request was cancelled
-        if (error.name === 'AbortError' || error.name === 'CanceledError') {
-          console.log('[Polling] Request cancelled');
-          return;
-        }
-        
-        console.error('[Polling] Error fetching bids:', error);
-        
-        // Handle network error
-        if (isOnline) {
-          setIsOnline(false);
-          toast.error('Connection lost. Attempting to reconnect...');
-          console.log('[Polling] Connection lost, will retry');
-        }
-        
-        // Increment retry count
-        setRetryCount((prev) => {
-          const newCount = prev + 1;
-          
-          if (newCount >= maxRetries) {
-            toast.error(
-              'Failed to reconnect after multiple attempts. Please refresh the page.',
-              { duration: 5000 }
-            );
-            console.log(`[Polling] Max retries (${maxRetries}) reached`);
-          } else {
-            console.log(`[Polling] Retry attempt ${newCount}/${maxRetries}`);
-          }
-          
-          return newCount;
-        });
-      }
-    }, 30000); // Poll every 30 seconds
-
-    // Cleanup interval and abort controller on unmount
-    return () => {
-      console.log('[Polling] Cleaning up polling interval');
-      clearInterval(pollInterval);
-      
-      if (pollingAbortController.current) {
-        pollingAbortController.current.abort();
-        console.log('[Polling] Aborting polling requests');
-      }
-    };
-  }, [resolvedParams.projectId, bids.length, timeRemaining, isOnline, retryCount, maxRetries]);
 
   // Handle loading state (including auth loading)
   if (isLoadingProject || isAuthLoading || !hasCheckedOwnership) {
@@ -663,31 +628,122 @@ export default function ProjectDetailPage({
           maxRetries={maxRetries}
         />
 
-        {/* Project Detail */}
-        <ProjectDetailView
-          project={projectWithBiddersCount}
-          bids={bids}
-          insights={insights}
-          timeRemaining={timeRemaining}
-          isLoadingBids={isLoadingBids}
-          isLoadingInsights={isLoadingInsights}
-          bidsError={bidsError}
-          insightsError={insightsError}
-          isOwner={isOwner}
+        {/* Header */}
+        <SingleViewHeader
+          serviceName={projectWithBiddersCount.name}
+          status={projectWithBiddersCount.status}
+          category={projectWithBiddersCount.category}
+          upgrades={projectWithBiddersCount.upgrades}
+          createdAt={projectWithBiddersCount.createdAt.toString()}
+          updatedAt={projectWithBiddersCount.updatedAt.toString()}
+          userType="client" // Shows Edit/Delete actions for Owner
+          isOwner={true}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onDuplicate={handleDuplicate}
           onShare={handleShare}
-          onCloseBids={handleCloseBids}
-          onMessageFreelancer={handleMessageFreelancer}
-          onViewProfile={handleViewProfile}
-          onShortlist={handleShortlist}
-          onInterview={handleInterview}
-          onReject={handleReject}
-          onReport={handleReport}
-          onRetryBids={retryFetchBids}
-          onRetryInsights={retryFetchInsights}
         />
+
+        {/* Status Alert */}
+        <SingleViewStatusAlert
+          status={projectWithBiddersCount.status}
+          userType="client" // Shows Owner-specific messages
+        />
+
+        {/* Navigation Tabs */}
+        <Tabs defaultValue="overview" className="w-full mt-6">
+          <TabsList variant="line" className="w-full mb-6">
+            <TabsTrigger value="overview" variant="line">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="bids" variant="line" className="gap-2">
+              Bids{" "}
+              <span className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded text-[10px] border border-zinc-200 dark:border-zinc-800">
+                {projectWithBiddersCount.biddersCount}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Main Content Area - 2/3 width */}
+            <div className="lg:col-span-2 space-y-6">
+              <TabsContent value="overview" className="mt-0 space-y-6">
+                <SingleViewParameters
+                  deliveryDays={projectWithBiddersCount.deliveryDays}
+                  experienceLevel={projectWithBiddersCount.experienceLevel}
+                  category={projectWithBiddersCount.category.name}
+                  paymentType={projectWithBiddersCount.paymentType}
+                />
+
+                <SingleViewDescription
+                  description={projectWithBiddersCount.description}
+                />
+
+                <SingleViewSkills skills={projectWithBiddersCount.skills} />
+
+                <SingleViewUpgrades
+                  upgrades={projectWithBiddersCount.upgrades}
+                />
+
+                <SingleViewAttachments
+                  attachments={[]} // Placeholder as per logic
+                />
+              </TabsContent>
+
+              <TabsContent value="bids" className="mt-0">
+                <SingleViewBidsSection
+                  bids={bids}
+                  isLoading={isLoadingBids}
+                  error={bidsError}
+                  isOwner={isOwner}
+                  onMessageFreelancer={handleMessageFreelancer}
+                  onViewProfile={handleViewProfile}
+                  onShortlist={handleShortlist}
+                  onAccept={handleAcceptBid}
+                  onReject={handleReject}
+                  onReport={handleReport}
+                  onRetry={retryFetchBids}
+                />
+              </TabsContent>
+            </div>
+
+            {/* Sidebar - 1/3 width - Rendered once */}
+            <aside
+              className="space-y-6 hidden lg:block"
+              aria-label="Project statistics and actions"
+            >
+              <SingleViewInsights
+                views={insights?.totalViews || 0}
+                bidsCount={insights?.totalBids || 0}
+              />
+
+              <SingleViewPricingCard
+                budgetMin={projectWithBiddersCount.budgetMin}
+                budgetMax={projectWithBiddersCount.budgetMax}
+                currency={projectWithBiddersCount.currency}
+                paymentType={projectWithBiddersCount.paymentType}
+                userType="client" // View-only budget card for client
+                isOwner={true}
+              />
+
+              {/* Close Project Action */}
+              <button
+                onClick={handleCloseBids}
+                className="w-full flex items-center justify-between p-4 border border-rose-500/20 rounded-xl hover:bg-rose-500/5 transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center">
+                    <X className="h-3 w-3 text-white stroke-[3px]" />
+                  </div>
+                  <span className="text-sm font-bold text-rose-500">
+                    Close This Project
+                  </span>
+                </div>
+                <ChevronRight className="h-3 w-3 text-rose-500/50 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </aside>
+          </div>
+        </Tabs>
       </div>
     </div>
   );

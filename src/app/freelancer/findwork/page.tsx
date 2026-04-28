@@ -17,7 +17,7 @@ import {
 const DEFAULT_FILTERS: FindWorkFilters = {
   search: "",
   category: "All Categories",
-  budgetRange: { min: 0, max: 10000 },
+  budgetRange: { min: 0, max: 1000000 }, // Increased for PHP values
   projectType: "all",
   skills: [],
   experienceLevel: "all",
@@ -107,7 +107,7 @@ export default function FindWorkPage() {
         setIsLoadingMore(false);
       }
     },
-    [filters.category, categories]
+    [filters.category, categories],
   );
 
   // Fetch projects on mount and when category filter changes
@@ -129,7 +129,7 @@ export default function FindWorkPage() {
           project.title.toLowerCase().includes(query) ||
           project.description.toLowerCase().includes(query) ||
           project.skills.some((skill) => skill.toLowerCase().includes(query)) ||
-          project.category.toLowerCase().includes(query)
+          project.category.toLowerCase().includes(query),
       );
     }
 
@@ -153,21 +153,21 @@ export default function FindWorkPage() {
     // Filter by project type
     if (filters.projectType !== "all") {
       result = result.filter(
-        (project) => project.budget.type === filters.projectType
+        (project) => project.budget.type === filters.projectType,
       );
     }
 
     // Filter by skills (OR logic)
     if (filters.skills.length > 0) {
       result = result.filter((project) =>
-        filters.skills.some((skill) => project.skills.includes(skill))
+        filters.skills.some((skill) => project.skills.includes(skill)),
       );
     }
 
     // Filter by experience level
     if (filters.experienceLevel !== "all") {
       result = result.filter(
-        (project) => project.experienceLevel === filters.experienceLevel
+        (project) => project.experienceLevel === filters.experienceLevel,
       );
     }
 
@@ -175,7 +175,7 @@ export default function FindWorkPage() {
     if (filters.deliveryDays < 180) {
       // Only filter if not at max (assuming 180 is max/any)
       result = result.filter(
-        (project) => project.deliveryDays <= filters.deliveryDays
+        (project) => project.deliveryDays <= filters.deliveryDays,
       );
     }
 

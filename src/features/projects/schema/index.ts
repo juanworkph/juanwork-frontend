@@ -29,9 +29,7 @@ export type {
   ApiSuccessResponse,
   ApiErrorResponse,
 } from "./project-post.schema";
-export {
-  createProjectSchema,
-} from "./project-post.schema";
+export { createProjectSchema } from "./project-post.schema";
 
 // Export my-projects types and functions
 export type {
@@ -86,14 +84,6 @@ export {
   getBidStatusColor,
   getBidStatusLabel,
 } from "./bidding-data";
-
-// Export mock project details (legacy - kept for backward compatibility)
-export {
-  mockProjectDetails,
-  mockHourlyProjectDetails,
-  mockNewProjectDetails,
-  getMockProjectDetails,
-} from "./mock-project-details";
 
 // Export comprehensive mock data for testing
 export {

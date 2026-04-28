@@ -1,5 +1,5 @@
-import { ProjectDetails, ExtendedClientInfo, Project } from "./projects-data"
-import { Bid } from "./bidding-data"
+import { ProjectDetails, ExtendedClientInfo, Project } from "./projects-data";
+import { Bid } from "./bidding-data";
 
 // ============================================================================
 // COMPREHENSIVE MOCK DATA FOR PROJECT DETAILS VIEW
@@ -16,7 +16,8 @@ import { Bid } from "./bidding-data"
 export const mockVerifiedClient: ExtendedClientInfo = {
   id: "client-verified-1",
   name: "Sarah Johnson",
-  avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=150&h=150&fit=crop&crop=face",
+  avatar:
+    "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=150&h=150&fit=crop&crop=face",
   country: "United States",
   countryCode: "US",
   verified: true,
@@ -29,12 +30,13 @@ export const mockVerifiedClient: ExtendedClientInfo = {
   memberSince: "2022-03-15T00:00:00Z",
   responseRate: 95,
   reviewCount: 21,
-}
+};
 
 export const mockUnverifiedClient: ExtendedClientInfo = {
   id: "client-unverified-1",
   name: "John Smith",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+  avatar:
+    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
   country: "Canada",
   countryCode: "CA",
   verified: false,
@@ -47,13 +49,13 @@ export const mockUnverifiedClient: ExtendedClientInfo = {
   memberSince: "2024-01-10T00:00:00Z",
   responseRate: 75,
   reviewCount: 4,
-}
-
+};
 
 export const mockNewClient: ExtendedClientInfo = {
   id: "client-new-1",
   name: "Emily Rodriguez",
-  avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+  avatar:
+    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
   country: "Spain",
   countryCode: "ES",
   verified: false,
@@ -66,12 +68,13 @@ export const mockNewClient: ExtendedClientInfo = {
   memberSince: "2024-02-01T00:00:00Z",
   responseRate: 100,
   reviewCount: 0,
-}
+};
 
 export const mockHighRatedClient: ExtendedClientInfo = {
   id: "client-highrated-1",
   name: "Ahmed Hassan",
-  avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+  avatar:
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
   country: "United Arab Emirates",
   countryCode: "AE",
   verified: true,
@@ -84,12 +87,13 @@ export const mockHighRatedClient: ExtendedClientInfo = {
   memberSince: "2021-06-20T00:00:00Z",
   responseRate: 98,
   reviewCount: 43,
-}
+};
 
 export const mockInactiveClient: ExtendedClientInfo = {
   id: "client-inactive-1",
   name: "Lisa Chen",
-  avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
+  avatar:
+    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
   country: "Singapore",
   countryCode: "SG",
   verified: true,
@@ -102,8 +106,7 @@ export const mockInactiveClient: ExtendedClientInfo = {
   memberSince: "2022-08-20T00:00:00Z",
   responseRate: 88,
   reviewCount: 17,
-}
-
+};
 
 // ----------------------------------------------------------------------------
 // MOCK PROJECT DETAILS - COMPREHENSIVE TEST SCENARIOS
@@ -160,6 +163,22 @@ We have provided design mockups, brand guidelines, and current site analytics in
   updatedAt: new Date().toISOString(),
   experienceLevel: "intermediate",
   duration: "6 weeks",
+  upgrades: [
+    {
+      id: "upg-1",
+      name: "Featured Project",
+      slug: "featured",
+      pricePaid: 25,
+      startDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "upg-2",
+      name: "Urgent Listing",
+      slug: "urgent",
+      pricePaid: 15,
+      startDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ],
   attachments: [
     {
       id: "att-1",
@@ -185,17 +204,40 @@ We have provided design mockups, brand guidelines, and current site analytics in
       url: "/attachments/current-site-analytics.xlsx",
       uploadedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     },
+    {
+      id: "att-img-1",
+      name: "homepage-mockup.jpg",
+      size: 1572864, // 1.5 MB
+      type: "image/jpeg",
+      url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop",
+      uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "att-img-2",
+      name: "mobile-responsive-view.jpg",
+      size: 1048576, // 1 MB
+      type: "image/jpeg",
+      url: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop",
+      uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "att-img-3",
+      name: "checkout-flow-diagram.png",
+      size: 2097152, // 2 MB
+      type: "image/png",
+      url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=800&fit=crop",
+      uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    },
   ],
-  proposalStats: {
-    totalProposals: 28,
+  bidStats: {
+    totalBids: 28,
     averageBid: 4200,
     lowestBid: 3200,
     highestBid: 5800,
     averageDeliveryTime: 42,
   },
   clientDetails: mockVerifiedClient,
-}
-
+};
 
 // Scenario 2: Hourly project with multiple attachments and urgent priority
 export const mockHourlyProjectWithAttachments: ProjectDetails = {
@@ -221,7 +263,13 @@ Technical requirements:
 
 We're looking for an experienced mobile developer who can start immediately and work efficiently. The project is time-sensitive and requires daily progress updates.`,
   category: "Mobile Development",
-  skills: ["React Native", "Firebase", "Stripe API", "Google Maps", "TypeScript"],
+  skills: [
+    "React Native",
+    "Firebase",
+    "Stripe API",
+    "Google Maps",
+    "TypeScript",
+  ],
   status: "active",
   priority: "urgent",
   client: mockHighRatedClient,
@@ -253,6 +301,22 @@ We're looking for an experienced mobile developer who can start immediately and 
   isUrgent: true,
   experienceLevel: "expert",
   duration: "10-12 weeks",
+  upgrades: [
+    {
+      id: "upg-3",
+      name: "Urgent Priority",
+      slug: "urgent",
+      pricePaid: 35,
+      startDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "upg-4",
+      name: "Sealed Bidding",
+      slug: "sealed",
+      pricePaid: 10,
+      startDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ],
   attachments: [
     {
       id: "att-4",
@@ -287,16 +351,15 @@ We're looking for an experienced mobile developer who can start immediately and 
       uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
-  proposalStats: {
-    totalProposals: 42,
+  bidStats: {
+    totalBids: 42,
     averageBid: 58,
     lowestBid: 45,
     highestBid: 75,
     averageDeliveryTime: 65,
   },
   clientDetails: mockHighRatedClient,
-}
-
+};
 
 // Scenario 3: Project with NO proposals (be the first bidder)
 export const mockProjectNoProposals: ProjectDetails = {
@@ -351,16 +414,15 @@ This is a straightforward project for an experienced backend developer. We're lo
   updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
   experienceLevel: "intermediate",
   duration: "4 weeks",
-  proposalStats: {
-    totalProposals: 0,
+  bidStats: {
+    totalBids: 0,
     averageBid: 0,
     lowestBid: 0,
     highestBid: 0,
     averageDeliveryTime: 0,
   },
   clientDetails: mockNewClient,
-}
-
+};
 
 // Scenario 4: Project with NO attachments
 export const mockProjectNoAttachments: ProjectDetails = {
@@ -415,16 +477,15 @@ The plugin should integrate seamlessly with WooCommerce and provide actionable i
   updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
   experienceLevel: "intermediate",
   duration: "5 weeks",
-  proposalStats: {
-    totalProposals: 8,
+  bidStats: {
+    totalBids: 8,
     averageBid: 1150,
     lowestBid: 900,
     highestBid: 1500,
     averageDeliveryTime: 32,
   },
   clientDetails: mockUnverifiedClient,
-}
-
+};
 
 // Scenario 5: Entry-level project with low competition
 export const mockEntryLevelProject: ProjectDetails = {
@@ -487,16 +548,15 @@ This is a great opportunity for someone looking to build their portfolio. We're 
       uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
-  proposalStats: {
-    totalProposals: 5,
+  bidStats: {
+    totalBids: 5,
     averageBid: 320,
     lowestBid: 250,
     highestBid: 400,
     averageDeliveryTime: 12,
   },
   clientDetails: mockNewClient,
-}
-
+};
 
 // Scenario 6: Expert-level project with inactive client
 export const mockExpertLevelProject: ProjectDetails = {
@@ -524,7 +584,15 @@ Required expertise:
 
 This is a complex, long-term project requiring deep technical expertise. We're looking for a senior developer who can architect and implement a scalable solution.`,
   category: "Data Science",
-  skills: ["Python", "Node.js", "React", "Apache Kafka", "D3.js", "PostgreSQL", "AWS"],
+  skills: [
+    "Python",
+    "Node.js",
+    "React",
+    "Apache Kafka",
+    "D3.js",
+    "PostgreSQL",
+    "AWS",
+  ],
   status: "active",
   priority: "high",
   client: mockInactiveClient,
@@ -573,16 +641,15 @@ This is a complex, long-term project requiring deep technical expertise. We're l
       uploadedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
-  proposalStats: {
-    totalProposals: 12,
+  bidStats: {
+    totalBids: 12,
     averageBid: 75,
     lowestBid: 60,
     highestBid: 95,
     averageDeliveryTime: 110,
   },
   clientDetails: mockInactiveClient,
-}
-
+};
 
 // ----------------------------------------------------------------------------
 // MOCK SIMILAR PROJECTS DATA
@@ -592,7 +659,8 @@ export const mockSimilarProjects: Project[] = [
   {
     id: "similar-1",
     name: "React Dashboard Development",
-    description: "Build a modern admin dashboard using React and TypeScript with data visualization components.",
+    description:
+      "Build a modern admin dashboard using React and TypeScript with data visualization components.",
     category: "Web Development",
     skills: ["React", "TypeScript", "Chart.js", "Material-UI"],
     status: "active",
@@ -600,7 +668,8 @@ export const mockSimilarProjects: Project[] = [
     client: {
       id: "client-similar-1",
       name: "David Kim",
-      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face",
+      avatar:
+        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face",
       country: "South Korea",
       countryCode: "KR",
       verified: true,
@@ -632,8 +701,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-1",
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
-    proposalStats: {
-      totalProposals: 8,
+    bidStats: {
+      totalBids: 8,
       averageBid: 3000,
       lowestBid: 2500,
       highestBid: 3800,
@@ -643,7 +712,8 @@ export const mockSimilarProjects: Project[] = [
   {
     id: "similar-2",
     name: "Next.js E-learning Platform",
-    description: "Develop an e-learning platform with course management, video streaming, and progress tracking.",
+    description:
+      "Develop an e-learning platform with course management, video streaming, and progress tracking.",
     category: "Web Development",
     skills: ["Next.js", "React", "Node.js", "PostgreSQL", "AWS"],
     status: "active",
@@ -651,7 +721,8 @@ export const mockSimilarProjects: Project[] = [
     client: {
       id: "client-similar-2",
       name: "Emma Wilson",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
       country: "United Kingdom",
       countryCode: "GB",
       verified: true,
@@ -685,8 +756,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-2",
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
-    proposalStats: {
-      totalProposals: 22,
+    bidStats: {
+      totalBids: 22,
       averageBid: 58,
       lowestBid: 45,
       highestBid: 75,
@@ -696,7 +767,8 @@ export const mockSimilarProjects: Project[] = [
   {
     id: "similar-3",
     name: "SaaS Application Frontend",
-    description: "Build responsive frontend for SaaS application with complex forms and data tables.",
+    description:
+      "Build responsive frontend for SaaS application with complex forms and data tables.",
     category: "Web Development",
     skills: ["React", "TypeScript", "Redux", "Tailwind CSS"],
     status: "active",
@@ -704,7 +776,8 @@ export const mockSimilarProjects: Project[] = [
     client: {
       id: "client-similar-3",
       name: "Michael Brown",
-      avatar: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face",
+      avatar:
+        "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face",
       country: "Canada",
       countryCode: "CA",
       verified: true,
@@ -736,8 +809,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-3",
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
-    proposalStats: {
-      totalProposals: 15,
+    bidStats: {
+      totalBids: 15,
       averageBid: 3600,
       lowestBid: 3000,
       highestBid: 4500,
@@ -747,7 +820,8 @@ export const mockSimilarProjects: Project[] = [
   {
     id: "similar-4",
     name: "Mobile Fitness App",
-    description: "Cross-platform fitness tracking app with workout plans, nutrition tracking, and social features.",
+    description:
+      "Cross-platform fitness tracking app with workout plans, nutrition tracking, and social features.",
     category: "Mobile Development",
     skills: ["React Native", "TypeScript", "Firebase", "Redux"],
     status: "active",
@@ -755,7 +829,8 @@ export const mockSimilarProjects: Project[] = [
     client: {
       id: "client-similar-4",
       name: "Jennifer Lee",
-      avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
+      avatar:
+        "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
       country: "Australia",
       countryCode: "AU",
       verified: true,
@@ -787,8 +862,8 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-4",
     createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
-    proposalStats: {
-      totalProposals: 12,
+    bidStats: {
+      totalBids: 12,
       averageBid: 4500,
       lowestBid: 3800,
       highestBid: 5500,
@@ -798,7 +873,8 @@ export const mockSimilarProjects: Project[] = [
   {
     id: "similar-5",
     name: "E-commerce Store Setup",
-    description: "Set up and customize Shopify store with custom theme and payment integration.",
+    description:
+      "Set up and customize Shopify store with custom theme and payment integration.",
     category: "Web Development",
     skills: ["Shopify", "Liquid", "JavaScript", "CSS"],
     status: "active",
@@ -806,7 +882,8 @@ export const mockSimilarProjects: Project[] = [
     client: {
       id: "client-similar-5",
       name: "Robert Taylor",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+      avatar:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
       country: "United States",
       countryCode: "US",
       verified: false,
@@ -838,16 +915,15 @@ export const mockSimilarProjects: Project[] = [
     projectUrl: "/freelancer/projects/similar-5",
     createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    proposalStats: {
-      totalProposals: 18,
+    bidStats: {
+      totalBids: 18,
       averageBid: 1650,
       lowestBid: 1200,
       highestBid: 2200,
       averageDeliveryTime: 25,
     },
   },
-]
-
+];
 
 // ----------------------------------------------------------------------------
 // MOCK BID DATA - EXISTING BID SCENARIOS
@@ -887,7 +963,7 @@ Best regards`,
   status: "pending",
   submittedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
   updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-}
+};
 
 // Scenario: Accepted bid
 export const mockAcceptedBid: Bid = {
@@ -918,7 +994,7 @@ Best regards`,
   status: "accepted",
   submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
   updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
-}
+};
 
 // Scenario: Rejected bid
 export const mockRejectedBid: Bid = {
@@ -938,7 +1014,7 @@ Thank you for considering my proposal.`,
   status: "rejected",
   submittedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
   updatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), // 8 days ago
-}
+};
 
 // Scenario: Withdrawn bid
 export const mockWithdrawnBid: Bid = {
@@ -958,8 +1034,7 @@ Looking forward to working with you!`,
   status: "withdrawn",
   submittedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
   updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days ago
-}
-
+};
 
 // ----------------------------------------------------------------------------
 // DATA FETCHING FUNCTIONS
@@ -970,7 +1045,9 @@ Looking forward to working with you!`,
  * Returns comprehensive project data including attachments, client details, and proposal stats
  * Supports both numeric IDs (1, 2, 3) and prefixed IDs (proj-fixed-1, proj-hourly-1)
  */
-export const getProjectDetailsById = (projectId: string): ProjectDetails | undefined => {
+export const getProjectDetailsById = (
+  projectId: string,
+): ProjectDetails | undefined => {
   const allProjects = [
     mockFixedProjectWithAttachments,
     mockHourlyProjectWithAttachments,
@@ -978,14 +1055,14 @@ export const getProjectDetailsById = (projectId: string): ProjectDetails | undef
     mockProjectNoAttachments,
     mockEntryLevelProject,
     mockExpertLevelProject,
-  ]
+  ];
 
   // First try direct match
-  let project = allProjects.find((project) => project.id === projectId)
-  
+  let project = allProjects.find((project) => project.id === projectId);
+
   // If not found and projectId is numeric, map to mock projects
   if (!project && /^\d+$/.test(projectId)) {
-    const numericId = parseInt(projectId, 10)
+    const numericId = parseInt(projectId, 10);
     const projectMap: Record<number, ProjectDetails> = {
       1: mockFixedProjectWithAttachments,
       2: mockHourlyProjectWithAttachments,
@@ -997,12 +1074,12 @@ export const getProjectDetailsById = (projectId: string): ProjectDetails | undef
       8: mockHourlyProjectWithAttachments,
       9: mockProjectNoProposals,
       10: mockProjectNoAttachments,
-    }
-    project = projectMap[numericId]
+    };
+    project = projectMap[numericId];
   }
 
-  return project
-}
+  return project;
+};
 
 /**
  * Get similar projects based on category and skills
@@ -1015,46 +1092,46 @@ export const getSimilarProjects = (
   currentProjectId: string,
   category: string,
   skills: string[],
-  maxResults: number = 5
+  maxResults: number = 5,
 ): Project[] => {
   // Filter out current project
   const availableProjects = mockSimilarProjects.filter(
-    (project) => project.id !== currentProjectId
-  )
+    (project) => project.id !== currentProjectId,
+  );
 
   // Calculate match scores
   const projectsWithScores = availableProjects.map((project) => {
     const matchingSkills = project.skills.filter((skill) =>
-      skills.includes(skill)
-    ).length
-    const sameCategory = project.category === category
+      skills.includes(skill),
+    ).length;
+    const sameCategory = project.category === category;
 
-    let score = 0
+    let score = 0;
     if (matchingSkills >= 3) {
-      score = 3 // Highest priority
+      score = 3; // Highest priority
     } else if (sameCategory && matchingSkills >= 1) {
-      score = 2 // Medium priority
+      score = 2; // Medium priority
     } else if (sameCategory) {
-      score = 1 // Low priority
+      score = 1; // Low priority
     }
 
-    return { project, score, matchingSkills }
-  })
+    return { project, score, matchingSkills };
+  });
 
   // Sort by score (descending) and matching skills (descending)
   const sortedProjects = projectsWithScores
     .filter((item) => item.score > 0) // Only include projects with some match
     .sort((a, b) => {
       if (b.score !== a.score) {
-        return b.score - a.score
+        return b.score - a.score;
       }
-      return b.matchingSkills - a.matchingSkills
+      return b.matchingSkills - a.matchingSkills;
     })
     .slice(0, maxResults)
-    .map((item) => item.project)
+    .map((item) => item.project);
 
-  return sortedProjects
-}
+  return sortedProjects;
+};
 
 /**
  * Get existing bid for a project by freelancer
@@ -1062,19 +1139,19 @@ export const getSimilarProjects = (
  */
 export const getExistingBid = (
   projectId: string,
-  freelancerId: string = "freelancer-1"
+  freelancerId: string = "freelancer-1",
 ): Bid | undefined => {
   const allBids = [
     mockPendingBid,
     mockAcceptedBid,
     mockRejectedBid,
     mockWithdrawnBid,
-  ]
+  ];
 
   return allBids.find(
-    (bid) => bid.projectId === projectId && bid.freelancerId === freelancerId
-  )
-}
+    (bid) => bid.projectId === projectId && bid.freelancerId === freelancerId,
+  );
+};
 
 /**
  * Get all mock project details
@@ -1088,8 +1165,8 @@ export const getAllMockProjects = (): ProjectDetails[] => {
     mockProjectNoAttachments,
     mockEntryLevelProject,
     mockExpertLevelProject,
-  ]
-}
+  ];
+};
 
 /**
  * Get mock clients
@@ -1102,19 +1179,13 @@ export const getAllMockClients = (): ExtendedClientInfo[] => {
     mockNewClient,
     mockHighRatedClient,
     mockInactiveClient,
-  ]
-}
+  ];
+};
 
 /**
  * Get all mock bids
  * Useful for testing bid-related features
  */
 export const getAllMockBids = (): Bid[] => {
-  return [
-    mockPendingBid,
-    mockAcceptedBid,
-    mockRejectedBid,
-    mockWithdrawnBid,
-  ]
-}
-
+  return [mockPendingBid, mockAcceptedBid, mockRejectedBid, mockWithdrawnBid];
+};

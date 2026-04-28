@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronLeft, ChevronRight, Loader2, CheckCircle, AlertCircle, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Step1BasicDetails,
@@ -31,9 +38,9 @@ const STEPS = ["Basic Details", "Categories & Skills", "Upgrades", "Review"];
 
 /**
  * Service Post Page Component
- * 
+ *
  * This page implements a 4-step wizard for freelancers to create and publish service offerings.
- * 
+ *
  * Features:
  * - Multi-step form with progress tracking
  * - Step-by-step validation using Zod schemas
@@ -41,26 +48,28 @@ const STEPS = ["Basic Details", "Categories & Skills", "Upgrades", "Review"];
  * - API integration with backend service creation endpoint
  * - Success/error handling with user feedback
  * - Redirect to service detail page on successful submission
- * 
+ *
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 13.1, 13.2, 13.3, 13.4, 13.5
  */
 export default function PostAServicePage() {
   const router = useRouter();
-  
+
   // Form state
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ServiceFormData>(initialFormData);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
+
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedServiceId, setSubmittedServiceId] = useState<string>("");
-  
+
   // Error state for persistent error display
   const [submitError, setSubmitError] = useState<{
     message: string;
-    type: 'validation' | 'auth' | 'permission' | 'network' | 'server';
+    type: "validation" | "auth" | "permission" | "network" | "server";
     canRetry: boolean;
   } | null>(null);
 
@@ -85,32 +94,40 @@ export default function PostAServicePage() {
         // Validate service name
         const nameResult = serviceNameSchema.safeParse(formData.serviceName);
         if (!nameResult.success) {
-          errors.serviceName = nameResult.error.issues[0]?.message || "Invalid service name";
+          errors.serviceName =
+            nameResult.error.issues[0]?.message || "Invalid service name";
           isValid = false;
         }
 
         // Validate description
         const descResult = descriptionSchema.safeParse(formData.description);
         if (!descResult.success) {
-          errors.description = descResult.error.issues[0]?.message || "Invalid description";
+          errors.description =
+            descResult.error.issues[0]?.message || "Invalid description";
           isValid = false;
         }
 
         // Validate budget
         const budgetResult = budgetSchema.safeParse(formData.budget);
         if (!budgetResult.success) {
-          errors.budget = budgetResult.error.issues[0]?.message || "Invalid budget";
+          errors.budget =
+            budgetResult.error.issues[0]?.message || "Invalid budget";
           isValid = false;
         }
 
         // Validate delivery days (conditional on payment type)
-        if (formData.paymentType === 'fixed') {
-          const deliveryResult = deliveryDaysSchema.safeParse(formData.deliveryDays);
+        if (formData.paymentType === "fixed") {
+          const deliveryResult = deliveryDaysSchema.safeParse(
+            formData.deliveryDays,
+          );
           if (!deliveryResult.success) {
-            errors.deliveryDays = deliveryResult.error.issues[0]?.message || "Invalid delivery days";
+            errors.deliveryDays =
+              deliveryResult.error.issues[0]?.message ||
+              "Invalid delivery days";
             isValid = false;
           } else if (formData.deliveryDays < 1 || formData.deliveryDays > 365) {
-            errors.deliveryDays = "Delivery days must be between 1 and 365 for fixed-price services";
+            errors.deliveryDays =
+              "Delivery days must be between 1 and 365 for fixed-price services";
             isValid = false;
           }
         }
@@ -129,14 +146,17 @@ export default function PostAServicePage() {
         // Validate skills (at least 1, max 20)
         const skillsResult = skillsSchema.safeParse(formData.skills);
         if (!skillsResult.success) {
-          errors.skills = skillsResult.error.issues[0]?.message || "Invalid skills selection";
+          errors.skills =
+            skillsResult.error.issues[0]?.message || "Invalid skills selection";
           isValid = false;
         }
 
         // Validate custom skill names are not empty
         // Requirement: 3.7 - Custom skill names must not be empty
         if (formData.customSkillNames.length > 0) {
-          const emptyCustomSkills = formData.customSkillNames.filter(name => !name.trim());
+          const emptyCustomSkills = formData.customSkillNames.filter(
+            (name) => !name.trim(),
+          );
           if (emptyCustomSkills.length > 0) {
             errors.customSkills = "Custom skill names cannot be empty";
             isValid = false;
@@ -232,110 +252,131 @@ export default function PostAServicePage() {
       // Requirement: 13.5 - Clear form data after successful submission
       setFormData(initialFormData);
       setValidationErrors({});
-      
     } catch (error: unknown) {
       // Error handling
       // Requirement: 5.6, 7.6, 7.7, 14.5, 14.6 - Handle API errors with detailed messages
       console.error("Error creating service:", error);
 
       // Handle different error types
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response: { status: number; data: { message?: string; error?: string; details?: Array<{ message: string }>; validationErrors?: Record<string, string> } } };
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response: {
+            status: number;
+            data: {
+              message?: string;
+              error?: string;
+              details?: Array<{ message: string }>;
+              validationErrors?: Record<string, string>;
+            };
+          };
+        };
         const status = axiosError.response.status;
         const errorData = axiosError.response.data;
-        const message = errorData?.message || errorData?.error || "An error occurred";
+        const message =
+          errorData?.message || errorData?.error || "An error occurred";
 
         switch (status) {
           case 400:
             // Validation errors - parse and display details
             let validationMessage = "Validation Error: ";
-            
+
             if (errorData?.details && Array.isArray(errorData.details)) {
               // If backend returns array of validation errors
-              validationMessage += errorData.details.map((d) => d.message).join(", ");
+              validationMessage += errorData.details
+                .map((d) => d.message)
+                .join(", ");
             } else if (errorData?.validationErrors) {
               // If backend returns object of validation errors
-              validationMessage += Object.values(errorData.validationErrors).join(", ");
+              validationMessage += Object.values(
+                errorData.validationErrors,
+              ).join(", ");
             } else {
               validationMessage += message;
             }
-            
+
             setSubmitError({
               message: validationMessage,
-              type: 'validation',
-              canRetry: true
+              type: "validation",
+              canRetry: true,
             });
             toast.error(validationMessage);
             break;
-            
+
           case 401:
             // Unauthorized - redirect to login
             setSubmitError({
-              message: "You must be logged in to create a service. Redirecting to login...",
-              type: 'auth',
-              canRetry: false
+              message:
+                "You must be logged in to create a service. Redirecting to login...",
+              type: "auth",
+              canRetry: false,
             });
             toast.error("You must be logged in to create a service");
-            
+
             // Redirect to login after 2 seconds
             setTimeout(() => {
               router.push("/auth?redirect=/freelancer/services/post-service");
             }, 2000);
             break;
-            
+
           case 403:
             // Forbidden - permission error
             setSubmitError({
-              message: "You don't have permission to create services. Only freelancers can create services.",
-              type: 'permission',
-              canRetry: false
+              message:
+                "You don't have permission to create services. Only freelancers can create services.",
+              type: "permission",
+              canRetry: false,
             });
-            toast.error("Permission denied: Only freelancers can create services");
+            toast.error(
+              "Permission denied: Only freelancers can create services",
+            );
             break;
-            
+
           case 404:
             // Not found - resource error
             setSubmitError({
-              message: "Resource not found. Please check your selections and try again.",
-              type: 'validation',
-              canRetry: true
+              message:
+                "Resource not found. Please check your selections and try again.",
+              type: "validation",
+              canRetry: true,
             });
             toast.error("Resource not found. Please try again.");
             break;
-            
+
           case 500:
             // Server error
             setSubmitError({
-              message: "Server error occurred. Our team has been notified. Please try again later.",
-              type: 'server',
-              canRetry: true
+              message:
+                "Server error occurred. Our team has been notified. Please try again later.",
+              type: "server",
+              canRetry: true,
             });
             toast.error("Server error. Please try again later.");
             break;
-            
+
           default:
             // Other errors
             setSubmitError({
               message: `Error: ${message}`,
-              type: 'server',
-              canRetry: true
+              type: "server",
+              canRetry: true,
             });
             toast.error(`Error: ${message}`);
         }
-      } else if (error && typeof error === 'object' && 'request' in error) {
+      } else if (error && typeof error === "object" && "request" in error) {
         // Network error - no response received
         setSubmitError({
-          message: "Unable to connect to server. Please check your internet connection and try again.",
-          type: 'network',
-          canRetry: true
+          message:
+            "Unable to connect to server. Please check your internet connection and try again.",
+          type: "network",
+          canRetry: true,
         });
         toast.error("Network error. Please check your connection.");
       } else {
         // Other errors
         setSubmitError({
           message: "An unexpected error occurred. Please try again.",
-          type: 'server',
-          canRetry: true
+          type: "server",
+          canRetry: true,
         });
         toast.error("An unexpected error occurred. Please try again.");
       }
@@ -395,7 +436,9 @@ export default function PostAServicePage() {
                 Post Another Service
               </Button>
               <Button
-                onClick={() => router.push(`/freelancer/services/${submittedServiceId}`)}
+                onClick={() =>
+                  router.push(`/freelancer/services/${submittedServiceId}`)
+                }
                 className="bg-[#F45A0B] hover:bg-[#F45A0B]/90"
               >
                 View Service
@@ -412,7 +455,7 @@ export default function PostAServicePage() {
    * Requirement: 1.1 - Display 4-step wizard interface
    */
   return (
-    <div className="position-relative h-full">
+    <div className="relative">
       <div className="max-w-7xl mx-auto space-y-8 p-6 lg:p-8">
         {/* Header */}
         <div>
@@ -431,19 +474,19 @@ export default function PostAServicePage() {
         {/* Error Display */}
         {/* Requirement: 14.5, 14.6 - Display error messages and allow retry */}
         {submitError && (
-          <Alert 
-            variant="destructive" 
+          <Alert
+            variant="destructive"
             className="border-red-200 dark:border-red-800"
           >
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between gap-4">
               <div className="flex-1">
                 <p className="font-semibold mb-1">
-                  {submitError.type === 'validation' && 'Validation Error'}
-                  {submitError.type === 'auth' && 'Authentication Required'}
-                  {submitError.type === 'permission' && 'Permission Denied'}
-                  {submitError.type === 'network' && 'Network Error'}
-                  {submitError.type === 'server' && 'Server Error'}
+                  {submitError.type === "validation" && "Validation Error"}
+                  {submitError.type === "auth" && "Authentication Required"}
+                  {submitError.type === "permission" && "Permission Denied"}
+                  {submitError.type === "network" && "Network Error"}
+                  {submitError.type === "server" && "Server Error"}
                 </p>
                 <p className="text-sm">{submitError.message}</p>
               </div>
@@ -463,7 +506,7 @@ export default function PostAServicePage() {
                         Retrying...
                       </>
                     ) : (
-                      'Retry'
+                      "Retry"
                     )}
                   </Button>
                 )}
@@ -487,13 +530,13 @@ export default function PostAServicePage() {
           <CardContent className="p-6 lg:p-8">
             {/* Step 1: Basic Details */}
             {currentStep === 1 && (
-              <Step1BasicDetails 
-                formData={formData} 
+              <Step1BasicDetails
+                formData={formData}
                 onUpdate={handleUpdate}
                 validationErrors={validationErrors}
               />
             )}
-            
+
             {/* Step 2: Categories & Skills */}
             {currentStep === 2 && (
               <Step2CategoriesSkills
@@ -502,18 +545,15 @@ export default function PostAServicePage() {
                 validationErrors={validationErrors}
               />
             )}
-            
+
             {/* Step 3: Upgrades */}
             {currentStep === 3 && (
-              <Step3Upgrades 
-                formData={formData} 
-                onUpdate={handleUpdate} 
-              />
+              <Step3Upgrades formData={formData} onUpdate={handleUpdate} />
             )}
-            
+
             {/* Step 4: Preview */}
             {currentStep === 4 && (
-              <Step4Preview 
+              <Step4Preview
                 formData={formData}
                 onNavigateToStep={handleNavigateToStep}
               />

@@ -48,8 +48,8 @@ export type ServiceSortOption =
   | "oldest"
   | "most-views"
   | "least-views"
-  | "most-proposals"
-  | "least-proposals"
+  | "most-bids"
+  | "least-bids"
   | "name-asc"
   | "name-desc";
 
@@ -87,7 +87,10 @@ export interface MyService {
     slug: string;
   }>;
   views: number;
-  proposalsCount: number;
+  bidsCount: number;
+  thumbnail?: string;
+  gallery?: string[];
+  hasImages: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -111,7 +114,13 @@ export interface IServiceResponse {
   budgetMax: string | number;
   deliveryDays: number;
   experienceLevel: "beginner" | "intermediate" | "expert";
-  status: "draft" | "pending" | "approved" | "declined" | "paused" | "cancelled";
+  status:
+    | "draft"
+    | "pending"
+    | "approved"
+    | "declined"
+    | "paused"
+    | "cancelled";
   currency?: string;
   createdAt: string;
   updatedAt: string;
@@ -139,7 +148,7 @@ export interface ServiceStatistics {
   approvedServices: number;
   pendingServices: number;
   totalViews: number;
-  totalProposals: number;
+  totalBids: number;
 }
 
 // ============================================================================
@@ -152,12 +161,14 @@ export interface ServiceStatistics {
 export const statusConfig = {
   approved: {
     label: "Approved",
-    color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    color:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
     icon: "✓",
   },
   pending: {
     label: "Pending Review",
-    color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    color:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
     icon: "⏳",
   },
   declined: {
@@ -172,7 +183,8 @@ export const statusConfig = {
   },
   paused: {
     label: "Paused",
-    color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+    color:
+      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
     icon: "⏸",
   },
   cancelled: {
@@ -194,12 +206,14 @@ export const experienceLevelConfig = {
   intermediate: {
     label: "Intermediate",
     description: "2-5 years",
-    color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+    color:
+      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
   },
   expert: {
     label: "Expert",
     description: "5+ years",
-    color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+    color:
+      "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
   },
 } as const;
 
@@ -230,8 +244,8 @@ export const sortOptions: Array<{
   { value: "oldest", label: "Oldest First" },
   { value: "most-views", label: "Most Views" },
   { value: "least-views", label: "Least Views" },
-  { value: "most-proposals", label: "Most Proposals" },
-  { value: "least-proposals", label: "Least Proposals" },
+  { value: "most-bids", label: "Most Bids" },
+  { value: "least-bids", label: "Least Bids" },
   { value: "name-asc", label: "Name (A-Z)" },
   { value: "name-desc", label: "Name (Z-A)" },
 ];
@@ -243,7 +257,9 @@ export const sortOptions: Array<{
 /**
  * Transform API service response to UI model
  */
-export const transformServiceResponse = (apiService: IServiceResponse): MyService => {
+export const transformServiceResponse = (
+  apiService: IServiceResponse,
+): MyService => {
   return {
     id: apiService.id,
     name: apiService.name,
@@ -259,12 +275,14 @@ export const transformServiceResponse = (apiService: IServiceResponse): MyServic
       isCustom: skill.isCustom,
     })),
     paymentType: apiService.paymentType,
-    budgetMin: typeof apiService.budgetMin === "string" 
-      ? parseFloat(apiService.budgetMin) 
-      : apiService.budgetMin,
-    budgetMax: typeof apiService.budgetMax === "string" 
-      ? parseFloat(apiService.budgetMax) 
-      : apiService.budgetMax,
+    budgetMin:
+      typeof apiService.budgetMin === "string"
+        ? parseFloat(apiService.budgetMin)
+        : apiService.budgetMin,
+    budgetMax:
+      typeof apiService.budgetMax === "string"
+        ? parseFloat(apiService.budgetMax)
+        : apiService.budgetMax,
     deliveryDays: apiService.deliveryDays,
     currency: apiService.currency || "PHP",
     status: apiService.status,
@@ -275,7 +293,15 @@ export const transformServiceResponse = (apiService: IServiceResponse): MyServic
       slug: upgrade.slug || upgrade.name.toLowerCase().replace(/\s+/g, "-"),
     })),
     views: 0, // TODO: Backend needs to provide this
-    proposalsCount: 0, // TODO: Backend needs to provide this
+    bidsCount: 0, // TODO: Backend needs to provide this
+    thumbnail:
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop", // Mock data
+    gallery: [
+      "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=800&h=600&fit=crop",
+    ], // Mock data
+    hasImages: true,
     createdAt: new Date(apiService.createdAt),
     updatedAt: new Date(apiService.updatedAt),
   };
@@ -285,7 +311,7 @@ export const transformServiceResponse = (apiService: IServiceResponse): MyServic
  * Transform array of API service responses to UI models
  */
 export const transformServicesResponse = (
-  apiServices: IServiceResponse[]
+  apiServices: IServiceResponse[],
 ): MyService[] => {
   return apiServices.map(transformServiceResponse);
 };
@@ -305,7 +331,10 @@ export const formatBudget = (service: MyService): string => {
 /**
  * Format budget with currency
  */
-export const formatCurrency = (amount: number, currency: string = "PHP"): string => {
+export const formatCurrency = (
+  amount: number,
+  currency: string = "PHP",
+): string => {
   return `${currency} ${amount.toLocaleString()}`;
 };
 
@@ -354,17 +383,34 @@ export const formatRelativeTime = (date: Date): string => {
 export const isServiceStatus = (value: unknown): value is ServiceStatus => {
   return (
     typeof value === "string" &&
-    ["draft", "pending", "approved", "declined", "paused", "cancelled"].includes(value)
+    [
+      "draft",
+      "pending",
+      "approved",
+      "declined",
+      "paused",
+      "cancelled",
+    ].includes(value)
   );
 };
 
 /**
  * Type guard for ServiceFilterStatus
  */
-export const isServiceFilterStatus = (value: unknown): value is ServiceFilterStatus => {
+export const isServiceFilterStatus = (
+  value: unknown,
+): value is ServiceFilterStatus => {
   return (
     typeof value === "string" &&
-    ["all", "draft", "pending", "approved", "declined", "paused", "cancelled"].includes(value)
+    [
+      "all",
+      "draft",
+      "pending",
+      "approved",
+      "declined",
+      "paused",
+      "cancelled",
+    ].includes(value)
   );
 };
 
@@ -379,7 +425,10 @@ export const isPaymentType = (value: unknown): value is PaymentType => {
  * Type guard for ExperienceLevel
  */
 export const isExperienceLevel = (value: unknown): value is ExperienceLevel => {
-  return typeof value === "string" && ["beginner", "intermediate", "expert"].includes(value);
+  return (
+    typeof value === "string" &&
+    ["beginner", "intermediate", "expert"].includes(value)
+  );
 };
 
 /**
@@ -387,7 +436,7 @@ export const isExperienceLevel = (value: unknown): value is ExperienceLevel => {
  */
 export const isMyService = (value: unknown): value is MyService => {
   if (typeof value !== "object" || value === null) return false;
-  
+
   const service = value as MyService;
   return (
     typeof service.id === "string" &&
@@ -412,7 +461,7 @@ export const isMyService = (value: unknown): value is MyService => {
  */
 export const filterServicesByStatus = (
   services: MyService[],
-  status: ServiceFilterStatus
+  status: ServiceFilterStatus,
 ): MyService[] => {
   if (status === "all") {
     return services;
@@ -425,7 +474,7 @@ export const filterServicesByStatus = (
  */
 export const searchServices = (
   services: MyService[],
-  query: string
+  query: string,
 ): MyService[] => {
   if (!query.trim()) {
     return services;
@@ -434,10 +483,14 @@ export const searchServices = (
   const lowerQuery = query.toLowerCase();
   return services.filter((service) => {
     const nameMatch = service.name.toLowerCase().includes(lowerQuery);
-    const descriptionMatch = service.description.toLowerCase().includes(lowerQuery);
-    const categoryMatch = service.category.name.toLowerCase().includes(lowerQuery);
+    const descriptionMatch = service.description
+      .toLowerCase()
+      .includes(lowerQuery);
+    const categoryMatch = service.category.name
+      .toLowerCase()
+      .includes(lowerQuery);
     const skillsMatch = service.skills.some((skill) =>
-      skill.name.toLowerCase().includes(lowerQuery)
+      skill.name.toLowerCase().includes(lowerQuery),
     );
 
     return nameMatch || descriptionMatch || categoryMatch || skillsMatch;
@@ -449,23 +502,27 @@ export const searchServices = (
  */
 export const sortServices = (
   services: MyService[],
-  sortBy: ServiceSortOption
+  sortBy: ServiceSortOption,
 ): MyService[] => {
   const sorted = [...services];
 
   switch (sortBy) {
     case "newest":
-      return sorted.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      return sorted.sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
     case "oldest":
-      return sorted.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      return sorted.sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+      );
     case "most-views":
       return sorted.sort((a, b) => b.views - a.views);
     case "least-views":
       return sorted.sort((a, b) => a.views - b.views);
-    case "most-proposals":
-      return sorted.sort((a, b) => b.proposalsCount - a.proposalsCount);
-    case "least-proposals":
-      return sorted.sort((a, b) => a.proposalsCount - b.proposalsCount);
+    case "most-bids":
+      return sorted.sort((a, b) => b.bidsCount - a.bidsCount);
+    case "least-bids":
+      return sorted.sort((a, b) => a.bidsCount - b.bidsCount);
     case "name-asc":
       return sorted.sort((a, b) => a.name.localeCompare(b.name));
     case "name-desc":
@@ -482,13 +539,15 @@ export const sortServices = (
 /**
  * Calculate service statistics
  */
-export const calculateStatistics = (services: MyService[]): ServiceStatistics => {
+export const calculateStatistics = (
+  services: MyService[],
+): ServiceStatistics => {
   return {
     totalServices: services.length,
     approvedServices: services.filter((s) => s.status === "approved").length,
     pendingServices: services.filter((s) => s.status === "pending").length,
     totalViews: services.reduce((sum, s) => sum + s.views, 0),
-    totalProposals: services.reduce((sum, s) => sum + s.proposalsCount, 0),
+    totalBids: services.reduce((sum, s) => sum + s.bidsCount, 0),
   };
 };
 

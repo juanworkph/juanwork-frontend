@@ -58,7 +58,7 @@ interface MyServicesHeaderProps {
   approvedServices: number;
   pendingServices: number;
   totalViews: number;
-  totalProposals: number;
+  totalBids: number;
   filteredCount: number;
   onCreateNew: () => void;
   onRefresh: () => void;
@@ -118,7 +118,7 @@ export const MyServicesHeader = React.memo<MyServicesHeaderProps>(({
   approvedServices,
   pendingServices,
   totalViews,
-  totalProposals,
+  totalBids,
   filteredCount,
   onCreateNew,
   onRefresh,
@@ -220,10 +220,10 @@ export const MyServicesHeader = React.memo<MyServicesHeaderProps>(({
           colorClass="bg-purple-100 dark:bg-purple-900/30"
         />
 
-        {/* Total Proposals Card - Requirement 7.5 */}
+        {/* Total Bids Card */}
         <StatCard
-          title="Total Proposals"
-          value={totalProposals}
+          title="Total Bids"
+          value={totalBids}
           icon={<MessageCircle className="h-5 w-5 text-orange-600 dark:text-orange-400" />}
           colorClass="bg-orange-100 dark:bg-orange-900/30"
         />

@@ -7,7 +7,6 @@ export {
 export { MyServicesHeader } from "./my-services-header";
 export { ServiceCardSkeleton } from "./service-card-skeleton";
 export { ConfirmDialog } from "./confirm-dialog";
-export { ServiceDetailView } from "./service-detail-view";
 export { ProgressIndicator } from "./progress-indicator";
 export { Step1BasicDetails } from "./step-1-basic-details";
 export { Step2CategoriesSkills } from "./step-2-categories-skills";
@@ -19,16 +18,21 @@ export { ServiceFilterSidebar } from "./service-filter-sidebar";
 export { DiscoverServicesHeader } from "./discover-services-header";
 export { LoadingOverlay } from "./loading-overlay";
 // Single View Components
-export { SingleViewHeader } from "./single-view-header";
-export { SingleViewGallery } from "./single-view-gallery";
-export { SingleViewLightbox } from "./single-view-lightbox";
-export { SingleViewOverview } from "./single-view-overview";
-export { SingleViewFeatures } from "./single-view-features";
-export { SingleViewPricingCard } from "./single-view-pricing-card";
+export { SingleViewGallery } from "@/components/single-view/gallery";
+export { SingleViewPricingCard } from "@/components/single-view/pricing-card";
 export { SingleViewProviderCard } from "./single-view-provider-card";
-export { SingleViewActions } from "./single-view-actions";
 export { SingleViewProposalModal } from "./single-view-proposal-modal";
 export { SingleViewShareModal } from "./single-view-share-modal";
-export { SingleViewSkeleton } from "./single-view-skeleton";
+export { SingleViewSkeleton } from "@/components/single-view/skeleton";
 export { ErrorState } from "./error-state";
 export type { ErrorType } from "./error-state";
+// New Modular Components
+export { SingleViewStatusAlert } from "@/components/single-view/status-alert";
+export { SingleViewParameters } from "@/components/single-view/parameters";
+export { SingleViewDescription } from "@/components/single-view/description";
+export { SingleViewSkills } from "@/components/single-view/skills";
+export { SingleViewUpgrades } from "@/components/single-view/upgrades";
+export { SingleViewAttachments } from "@/components/single-view/attachments";
+export { SingleViewInsights } from "@/components/single-view/insights";
+export { SingleViewHeader } from "@/components/single-view/header";
+export { SingleViewProposalsTab } from "./single-view-proposals-tab";

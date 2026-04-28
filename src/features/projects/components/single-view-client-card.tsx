@@ -1,8 +1,5 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   CheckCircle,
   Star,
@@ -11,6 +8,7 @@ import {
   UserCheck,
   Clock,
   CreditCard,
+  User,
 } from "lucide-react";
 import { ExtendedClientInfo } from "../schema/projects-data";
 import { formatTimeAgo } from "@/features/findwork/utils/findwork";
@@ -21,174 +19,114 @@ interface SingleViewClientCardProps {
 
 const SingleViewClientCard: React.FC<SingleViewClientCardProps> = ({
   client,
-}) => {
-  // Format member since date
-  const formatMemberSince = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      year: "numeric",
-    });
-  };
-
+}: SingleViewClientCardProps) => {
   // Render star rating
   const renderStarRating = () => {
     const rating = client.rating || 0;
     const reviewCount = client.reviewCount || 0;
 
     return (
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-1 mb-6">
+        <div className="flex text-amber-500">
           {[1, 2, 3, 4, 5].map((star) => (
             <Star
               key={star}
-              className={`h-4 w-4 ${
+              className={`text-[16px] ${
                 star <= Math.floor(rating)
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-muted-foreground/30"
-              }`}
+                  ? "fill-current"
+                  : star - rating <= 0.5
+                    ? "fill-current/50"
+                    : "text-muted"
+              }`} // Basic approximation of star filling
+              fill={star <= Math.floor(rating) ? "currentColor" : "none"}
             />
           ))}
         </div>
-        <span className="text-sm font-medium text-foreground">
+        <span className="text-xs font-bold text-foreground ml-1">
           {rating.toFixed(1)}
         </span>
-        {reviewCount > 0 && (
-          <span className="text-sm text-muted-foreground">
-            ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
-          </span>
-        )}
+        <span className="text-[10px] text-muted-foreground ml-1">
+          ({reviewCount} reviews)
+        </span>
       </div>
     );
   };
 
-  // Get country flag emoji from country code
-  const getCountryFlag = (countryCode: string): string => {
-    const codePoints = countryCode
-      .toUpperCase()
-      .split("")
-      .map((char) => 127397 + char.charCodeAt(0));
-    return String.fromCodePoint(...codePoints);
-  };
-
   return (
-    <Card className="gap-0 p-0">
-      <CardHeader className="p-4 sm:p-6">
-        <CardTitle className="text-base sm:text-lg">About the Client</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0">
-        {/* Client Avatar and Name */}
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className="relative h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-full border">
-            {client.avatar ? (
-              <Image
-                src={client.avatar}
-                alt={client.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 48px, 64px"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                <UserCheck className="h-6 w-6 sm:h-8 sm:w-8" />
-              </div>
+    <div className="bg-background-light dark:bg-background-dark border border-zinc-200 dark:border-zinc-800 rounded-xl p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <span className="w-1 h-4 bg-primary rounded-full"></span>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground">
+          About the Client
+        </h3>
+      </div>
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+          {client.avatar ? (
+            <Image
+              src={client.avatar}
+              alt={client.name}
+              width={48}
+              height={48}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <User className="text-3xl text-muted-foreground" />
+          )}
+        </div>
+        <div>
+          <div className="flex items-center gap-1">
+            <p className="font-semibold text-sm text-foreground">
+              {client.name}
+            </p>
+            {client.verified && (
+              <CheckCircle className="text-blue-500 w-4 h-4 fill-blue-500/10" />
             )}
           </div>
-          <div className="flex-1 space-y-0.5 sm:space-y-1 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">
-                {client.name}
-              </h3>
-              {client.verified && (
-                <CheckCircle
-                  className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0"
-                  aria-label="Verified client"
-                />
-              )}
-            </div>
-            <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-muted-foreground">
-              <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-              <span className="mr-0.5 sm:mr-1">
-                {getCountryFlag(client.countryCode)}
-              </span>
-              <span className="truncate">{client.country}</span>
-            </div>
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
+            <MapPin className="w-3 h-3" /> {client.country}
           </div>
         </div>
+      </div>
 
-        {/* Star Rating */}
-        <div>{renderStarRating()}</div>
+      {renderStarRating()}
 
-        {/* Client Statistics - Condensed on mobile */}
-        <div className="space-y-2 sm:space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-              <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span>Total Projects</span>
-            </div>
-            <span className="text-xs sm:text-sm font-medium text-foreground">
-              {client.totalProjects || 0}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-              <UserCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span>Total Hires</span>
-            </div>
-            <span className="text-xs sm:text-sm font-medium text-foreground">
-              {client.totalHires}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span>Response Time</span>
-            </div>
-            <span className="text-xs sm:text-sm font-medium text-foreground">
-              {client.responseTime || "N/A"}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span>Response Rate</span>
-            </div>
-            <span className="text-xs sm:text-sm font-medium text-foreground">
-              {client.responseRate}%
-            </span>
-          </div>
+      <div className="space-y-4 pt-4 border-t border-border">
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-muted-foreground">Total Projects</span>
+          <span className="font-semibold text-foreground">
+            {client.totalProjects}
+          </span>
         </div>
-
-        {/* Last Active and Member Since */}
-        <div className="space-y-1.5 sm:space-y-2 border-t pt-3 sm:pt-4">
-          <div className="flex items-center justify-between text-xs sm:text-sm">
-            <span className="text-muted-foreground">Last Active</span>
-            <span className="font-medium text-foreground">
-              {client.lastActive ? formatTimeAgo(client.lastActive) : "Unknown"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-xs sm:text-sm">
-            <span className="text-muted-foreground">Member Since</span>
-            <span className="font-medium text-foreground">
-              {formatMemberSince(client.memberSince)}
-            </span>
-          </div>
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-muted-foreground">Total Hires</span>
+          <span className="font-semibold text-foreground">
+            {client.totalHires}
+          </span>
         </div>
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-muted-foreground">Response Rate</span>
+          <span className="font-semibold text-green-500">
+            {client.responseRate}%
+          </span>
+        </div>
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-muted-foreground">Last Active</span>
+          <span className="font-semibold text-foreground">
+            {client.lastActive ? formatTimeAgo(client.lastActive) : "N/A"}
+          </span>
+        </div>
+      </div>
 
-        {/* Payment Verification Status */}
-        {client.paymentVerified && (
-          <div className="flex items-center gap-1.5 sm:gap-2 rounded-lg border border-green-200 bg-green-50 p-2.5 sm:p-3 dark:border-green-900/30 dark:bg-green-900/10">
-            <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-            <span className="text-xs sm:text-sm font-medium text-green-700 dark:text-green-400">
-              Payment Verified
-            </span>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {client.paymentVerified && (
+        <div className="mt-6 p-3 bg-green-500/5 border border-green-500/10 rounded-lg flex items-center gap-2">
+          <CheckCircle className="text-green-500 w-4 h-4 fill-green-500/10" />
+          <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">
+            Payment Verified
+          </span>
+        </div>
+      )}
+    </div>
   );
 };
 

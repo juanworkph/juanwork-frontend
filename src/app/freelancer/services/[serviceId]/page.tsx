@@ -4,11 +4,26 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { ServiceDetailView } from "@/features/services/components";
+import {
+  SingleViewHeader,
+  SingleViewStatusAlert,
+  SingleViewParameters,
+  SingleViewDescription,
+  SingleViewSkills,
+  SingleViewUpgrades,
+  SingleViewAttachments,
+  SingleViewInsights,
+  SingleViewPricingCard,
+  SingleViewGallery,
+  SingleViewLightbox,
+  SingleViewSkeleton,
+} from "@/components/single-view";
+import { SingleViewProposalsTab } from "@/features/services/components";
 import { getFreelancerServices } from "@/features/services/actions/my-services.actions";
 import { MyService } from "@/features/services/schema/my-services-data";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ServiceDetailPage({
   params,
@@ -20,6 +35,16 @@ export default function ServiceDetailPage({
   const [service, setService] = useState<MyService | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Combine thumbnail and gallery for lightbox
+  const allImages = React.useMemo(() => {
+    if (!service) return [];
+    return [service.thumbnail, ...(service.gallery || [])].filter(
+      Boolean,
+    ) as string[];
+  }, [service]);
 
   // Fetch service data
   useEffect(() => {
@@ -27,8 +52,10 @@ export default function ServiceDetailPage({
       try {
         setIsLoading(true);
         const services = await getFreelancerServices();
-        const foundService = services.find((s) => s.id === resolvedParams.serviceId);
-        
+        const foundService = services.find(
+          (s) => s.id === resolvedParams.serviceId,
+        );
+
         if (foundService) {
           setService(foundService);
         } else {
@@ -47,16 +74,7 @@ export default function ServiceDetailPage({
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="max-w-7xl mx-auto p-6 lg:p-8">
-        <Skeleton className="h-10 w-48 mb-6" />
-        <div className="space-y-4">
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
-        </div>
-      </div>
-    );
+    return <SingleViewSkeleton />;
   }
 
   // Handle not found or error
@@ -93,7 +111,9 @@ export default function ServiceDetailPage({
   };
 
   const handleDuplicate = () => {
-    router.push(`/freelancer/services/post-service?duplicate=${resolvedParams.serviceId}`);
+    router.push(
+      `/freelancer/services/post-service?duplicate=${resolvedParams.serviceId}`,
+    );
     toast.info("Duplicating service...");
   };
 
@@ -105,6 +125,30 @@ export default function ServiceDetailPage({
 
   const handleBack = () => {
     router.push("/freelancer/services/my-services");
+  };
+
+  const handleManagePrice = () => {
+    toast.info("Manage price functionality coming soon");
+  };
+
+  // Handle lightbox
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handleLightboxClose = () => {
+    setLightboxOpen(false);
+  };
+
+  const handleLightboxNext = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+  };
+
+  const handleLightboxPrev = () => {
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + allImages.length) % allImages.length,
+    );
   };
 
   return (
@@ -120,15 +164,138 @@ export default function ServiceDetailPage({
           Back to My Services
         </Button>
 
-        {/* Service Detail */}
-        <ServiceDetailView
-          service={service}
+        {/* Service Header */}
+        <SingleViewHeader
+          serviceName={service.name}
+          status={
+            (service.status === "approved"
+              ? "active"
+              : service.status === "cancelled"
+                ? "paused"
+                : service.status) as
+              | "pending"
+              | "declined"
+              | "draft"
+              | "active"
+              | "paused"
+          }
+          category={service.category}
+          upgrades={service.upgrades}
+          createdAt={service.createdAt.toISOString()}
+          updatedAt={service.updatedAt.toISOString()}
+          isOwner={true}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onDuplicate={handleDuplicate}
           onShare={handleShare}
         />
+
+        {/* Status Alert */}
+        <SingleViewStatusAlert
+          status={
+            (service.status === "approved"
+              ? "active"
+              : service.status === "cancelled"
+                ? "paused"
+                : service.status) as
+              | "pending"
+              | "declined"
+              | "draft"
+              | "active"
+              | "paused"
+          }
+        />
+
+        {/* Navigation Tabs */}
+        <Tabs defaultValue="overview" className="w-full mt-6">
+          <TabsList variant="line" className="w-full">
+            <TabsTrigger value="overview" variant="line">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="proposals" variant="line" className="gap-2">
+              Proposals
+              <span className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded text-[10px] border border-zinc-200 dark:border-zinc-800">
+                {service.bidsCount}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+            {/* Main Content Column */}
+            <div className="lg:col-span-2 space-y-8">
+              <TabsContent value="overview" className="mt-0 space-y-8">
+                <div className="space-y-8">
+                  {/* Service Parameters */}
+                  <SingleViewParameters
+                    deliveryDays={service.deliveryDays}
+                    experienceLevel={service.experienceLevel}
+                    category={service.category.name}
+                    paymentType={service.paymentType}
+                  />
+
+                  {/* Service Gallery */}
+                  {service.hasImages && (
+                    <SingleViewGallery
+                      thumbnail={service!.thumbnail || ""}
+                      gallery={service!.gallery}
+                      serviceName={service!.name}
+                      onImageClick={handleImageClick}
+                    />
+                  )}
+
+                  {/* Service Description */}
+                  <SingleViewDescription description={service.description} />
+
+                  {/* Skills */}
+                  <SingleViewSkills skills={service.skills} />
+
+                  {/* Promoted Features */}
+                  <SingleViewUpgrades upgrades={service.upgrades} />
+
+                  {/* Attachments */}
+                  <SingleViewAttachments />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="proposals" className="mt-6">
+                <SingleViewProposalsTab />
+              </TabsContent>
+            </div>
+
+            {/* Right Column - Persistent Sidebar */}
+            <div className="space-y-8">
+              {/* INSIGHTS */}
+              <SingleViewInsights
+                views={service.views}
+                bidsCount={service.bidsCount}
+              />
+
+              {/* Pricing Card */}
+              <SingleViewPricingCard
+                budgetMin={service.budgetMin}
+                budgetMax={service.budgetMax}
+                currency={service.currency}
+                paymentType={service.paymentType}
+                userType="freelancer"
+                isOwner={true}
+                onManagePrice={handleManagePrice}
+              />
+            </div>
+          </div>
+        </Tabs>
       </div>
+
+      {/* Lightbox */}
+      <SingleViewLightbox
+        images={allImages}
+        currentIndex={currentImageIndex}
+        isOpen={lightboxOpen}
+        onClose={handleLightboxClose}
+        onNext={handleLightboxNext}
+        onPrevious={handleLightboxPrev}
+        onSelectIndex={setCurrentImageIndex}
+        serviceName={service!.name}
+      />
     </div>
   );
 }

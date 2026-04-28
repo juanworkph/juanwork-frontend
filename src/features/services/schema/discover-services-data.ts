@@ -1,9 +1,24 @@
-// Type definitions
 export type ServicePricingType = "fixed" | "hourly" | "package";
+export type ServiceStatus =
+  | "pending"
+  | "declined"
+  | "draft"
+  | "active"
+  | "paused";
 export type ExperienceLevel = "beginner" | "intermediate" | "expert";
 export type ProviderLevel = "new" | "level1" | "level2" | "top" | "expert";
-export type DeliveryTimeFilter = "24-hours" | "3-days" | "7-days" | "anytime" | "all";
-export type SortOption = "relevance" | "rating-high" | "price-low" | "price-high" | "popular";
+export type DeliveryTimeFilter =
+  | "24-hours"
+  | "3-days"
+  | "7-days"
+  | "anytime"
+  | "all";
+export type SortOption =
+  | "relevance"
+  | "rating-high"
+  | "price-low"
+  | "price-high"
+  | "popular";
 
 // Category interface
 export interface Category {
@@ -34,7 +49,8 @@ export interface ServiceProvider {
 export interface ServiceUpgrade {
   id: string;
   name: string;
-  pricePaid: number;
+  slug?: string;
+  pricePaid?: number;
   startDate?: string;
   endDate?: string;
 }
@@ -76,6 +92,7 @@ export interface Service {
   isFeatured: boolean;
   isUrgent: boolean;
   serviceUrl: string;
+  status: ServiceStatus;
   upgrades?: ServiceUpgrade[]; // Optional upgrades array
 }
 
@@ -127,7 +144,7 @@ export const defaultFilters: DiscoverServicesFilters = {
 // Helper functions
 export const formatCurrency = (
   amount: number,
-  currency: string = "PHP"
+  currency: string = "PHP",
 ): string => {
   return new Intl.NumberFormat("en-PH", {
     style: "currency",
@@ -151,21 +168,23 @@ export const formatRelativeTime = (date: string): string => {
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
-  
+
   if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-  if (diffDays < 30) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-  return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+  if (diffDays < 30) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? "s" : ""} ago`;
 };
 
 export const mapProviderLevel = (level?: string): ProviderLevel => {
   if (!level) return "new";
-  
+
   const levelLower = level.toLowerCase();
   if (levelLower.includes("top") || levelLower.includes("expert")) return "top";
-  if (levelLower.includes("level 2") || levelLower.includes("level2")) return "level2";
-  if (levelLower.includes("level 1") || levelLower.includes("level1")) return "level1";
+  if (levelLower.includes("level 2") || levelLower.includes("level2"))
+    return "level2";
+  if (levelLower.includes("level 1") || levelLower.includes("level1"))
+    return "level1";
   return "new";
 };
 
@@ -186,7 +205,9 @@ export const getDeliveryTimeLabel = (filter: DeliveryTimeFilter): string => {
   }
 };
 
-export const getPricingTypeLabel = (type: ServicePricingType | "all"): string => {
+export const getPricingTypeLabel = (
+  type: ServicePricingType | "all",
+): string => {
   switch (type) {
     case "fixed":
       return "Fixed Price";
@@ -199,7 +220,9 @@ export const getPricingTypeLabel = (type: ServicePricingType | "all"): string =>
   }
 };
 
-export const getExperienceLevelLabel = (level: ExperienceLevel | "all"): string => {
+export const getExperienceLevelLabel = (
+  level: ExperienceLevel | "all",
+): string => {
   switch (level) {
     case "beginner":
       return "Beginner";
@@ -266,4 +289,3 @@ export const availableSkills = [
   "WordPress",
   "Shopify",
 ];
-

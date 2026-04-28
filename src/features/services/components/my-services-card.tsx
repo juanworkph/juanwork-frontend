@@ -301,9 +301,9 @@ export const MyServiceCard = React.memo<MyServiceCardProps>(({
               <Eye className="h-4 w-4" aria-hidden="true" />
               <span className="font-medium">{formatNumber(service.views)} views</span>
             </div>
-            <div className="flex items-center gap-1" aria-label={`${formatNumber(service.proposalsCount)} proposals`}>
+            <div className="flex items-center gap-1" aria-label={`${formatNumber(service.bidsCount)} bids`}>
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              <span className="font-medium">{formatNumber(service.proposalsCount)} proposals</span>
+              <span className="font-medium">{formatNumber(service.bidsCount)} bids</span>
             </div>
           </div>
         </div>
