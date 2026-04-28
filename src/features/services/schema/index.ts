@@ -1,68 +1,60 @@
+/**
+ * Export all schema types and utilities
+ */
+
+// API Types
+export * from "./discover-services-api";
+
+// Frontend Types and Utilities
+export * from "./discover-services-data";
+
+// My Services (Freelancer) - Export specific types to avoid conflicts
+export type {
+  ServiceStatus,
+  ServiceFilterStatus,
+  PaymentType,
+  ServiceSortOption,
+  MyService,
+  IServiceResponse,
+  ServiceStatistics,
+} from "./my-services-data";
+
+export {
+  statusConfig,
+  experienceLevelConfig,
+  filterOptions,
+  sortOptions,
+  transformServiceResponse,
+  transformServicesResponse,
+  formatBudget,
+  formatCurrency,
+  formatNumber,
+  formatDate,
+  formatRelativeTime,
+  isServiceStatus,
+  isServiceFilterStatus,
+  isPaymentType,
+  isExperienceLevel,
+  isMyService,
+  filterServicesByStatus,
+  searchServices,
+  sortServices,
+  calculateStatistics,
+  validateServiceData,
+  canEditService,
+  canDeleteService,
+  canPauseService,
+  canActivateService,
+} from "./my-services-data";
+
+// Single Service View
+export * from "./single-view-data";
+export * from "./single-view-proposals-data";
+
+// Service Post/Create
 export * from "./post-service-data";
-export * from "./my-services-data";
+export * from "./service-form.schema";
+export * from "./service-post.schema";
 
-// Discover Services exports (avoiding naming conflicts)
-export type {
-  DiscoverService,
-  ServiceProvider,
-  ServicePricing,
-  ServicePricingType,
-  DeliveryTime,
-  DiscoverServicesFilters,
-  DiscoverServicesState,
-} from "./discover-services-data";
-
-export {
-  mockDiscoverServicesData,
-  getDeliveryTimeLabel,
-  getPricingTypeLabel,
-} from "./discover-services-data";
-
-// Re-export conflicting items with aliases for discover services
-export {
-  availableSkills as discoverServiceSkills,
-  categories as discoverServiceCategories,
-} from "./discover-services-data";
-
-// Service Details exports
-export type {
-  ServiceDetailsData,
-  PackageDetails,
-  PackageDetail,
-  FAQ,
-} from "./single-view-data";
-
-export {
-  mockServiceDetailsData,
-  getServiceDetailsById,
-} from "./single-view-data";
-
-// Bookmarks exports
-export type { Bookmark } from "./bookmarks-data";
-
-export {
-  mockBookmarksData,
-  isServiceBookmarked,
-  getUserBookmarks,
-  addBookmark,
-  removeBookmark,
-  CURRENT_USER_ID,
-} from "./bookmarks-data";
-
-// Proposals exports
-export type {
-  Proposal,
-  ProposalStatus,
-  ProposalFormData,
-} from "./single-view-proposals-data";
-
-export {
-  mockProposalsData,
-  getProposalsByServiceId,
-  getProposalsByClientId,
-  getProposalsByProviderId,
-  createProposal,
-  updateProposalStatus,
-  getProposalStatusLabel,
-  getProposalStatusColor,
-} from "./single-view-proposals-data";
+// Bookmarks
+export * from "./bookmarks-data";

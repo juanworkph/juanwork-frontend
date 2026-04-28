@@ -1,31 +1,71 @@
 // Export all from projects-data
 export * from "./projects-data";
 
-// Export post-project types and unique exports only (avoid conflicts)
+// Export post-project types from project-form.schema (new location)
 export type {
   PostProjectStatus,
-  ProjectUpgrade,
   ProjectFormData,
-} from "./post-project-data";
+  ProjectType,
+} from "./project-form.schema";
 export {
-  projectUpgrades,
   initialFormData,
-  calculateTotalUpgradeCost,
-} from "./post-project-data";
+  projectNameSchema,
+  descriptionSchema,
+  budgetSchema,
+  deliveryDaysSchema,
+  projectTypeSchema,
+  categorySchema,
+  skillsSchema,
+  attachmentsSchema,
+} from "./project-form.schema";
+
+// Export API types from project-post.schema
+export type {
+  CreateProjectRequest,
+  CreateProjectResponse,
+  Category,
+  Skill,
+  UpgradeType,
+  ApiSuccessResponse,
+  ApiErrorResponse,
+} from "./project-post.schema";
+export { createProjectSchema } from "./project-post.schema";
 
 // Export my-projects types and functions
 export type {
   MyProject,
-  MyProjectStatus,
+  ProjectStatus,
   ProjectFilterStatus,
+  PaymentType,
+  ExperienceLevel,
+  ProjectCategory,
+  ProjectSkill,
+  ProjectUpgrade,
+  IProjectResponse,
 } from "./my-projects-data";
 export {
   mockMyProjects,
   projectStatusConfig,
   projectFilterOptions,
+  upgradeDisplayNames,
   getProjectsByStatus,
-  getDurationLabel as getProjectDurationLabel,
-  getExperienceLevelLabel as getProjectExperienceLevelLabel,
+  getDeliveryDaysLabel,
+  getExperienceLevelLabel,
+  getBudgetDisplay,
+  getUpgradeDisplayName,
+  sortProjects,
+  searchProjects,
+  calculateProjectStatistics,
+  formatDate,
+  formatCurrency,
+  transformProjectResponse,
+  transformProjectsResponse,
+  safeTransformProjectResponse,
+  validateProjectData,
+  isProjectStatus,
+  isPaymentType,
+  isExperienceLevel,
+  isMyProject,
 } from "./my-projects-data";
 
 // Export bidding-data types and functions
@@ -44,14 +84,6 @@ export {
   getBidStatusColor,
   getBidStatusLabel,
 } from "./bidding-data";
-
-// Export mock project details (legacy - kept for backward compatibility)
-export {
-  mockProjectDetails,
-  mockHourlyProjectDetails,
-  mockNewProjectDetails,
-  getMockProjectDetails,
-} from "./mock-project-details";
 
 // Export comprehensive mock data for testing
 export {

@@ -1,15 +1,85 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { BidsHeader, BidsList } from '@/features/bids/components';
-import { mockBidsData } from '@/features/bids/schema';
-import { BidsState } from '@/features/bids/schema';
+import { BidsState, Bid } from '@/features/bids/schema';
+import { getFreelancerBids, withdrawFreelancerBid } from '@/features/bids/actions/freelancer-bids.actions';
+import { toast } from 'sonner';
 
 export default function FreelancerBidsPage() {
   // State for bids data
-  const [bidsData, setBidsData] = useState<BidsState>(mockBidsData);
-  const [isLoading, setIsLoading] = useState(false);
+  const [bidsData, setBidsData] = useState<BidsState>({
+    bids: [],
+    filters: {
+      status: 'all',
+      sortBy: 'date',
+      sortDirection: 'desc',
+      search: ''
+    },
+    stats: {
+      total: 0,
+      pending: 0,
+      accepted: 0,
+      rejected: 0,
+      withdrawn: 0,
+      expired: 0,
+      viewRate: 0,
+      responseRate: 0,
+      successRate: 0
+    },
+    pagination: {
+      currentPage: 1,
+      totalPages: 1,
+      itemsPerPage: 10,
+      totalItems: 0
+    }
+  });
+  
+  const [isLoading, setIsLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  // Fetch bids from API
+  const fetchBids = async () => {
+    setIsLoading(true);
+    try {
+      const bids = await getFreelancerBids();
+      
+      // Calculate stats
+      const total = bids.length;
+      const pending = bids.filter(b => b.status === "pending").length;
+      const accepted = bids.filter(b => b.status === "accepted").length;
+      const rejected = bids.filter(b => b.status === "rejected").length;
+      const withdrawn = bids.filter(b => b.status === "withdrawn").length;
+      const expired = bids.filter(b => b.status === "expired").length;
+      
+      const successRate = total > 0 ? Math.round((accepted / total) * 100) : 0;
+      
+      setBidsData(prev => ({
+        ...prev,
+        bids,
+        stats: {
+          ...prev.stats,
+          total,
+          pending,
+          accepted,
+          rejected,
+          withdrawn,
+          expired,
+          successRate
+        }
+      }));
+    } catch (error) {
+      console.error("Failed to fetch bids:", error);
+      toast.error("Failed to load your bids. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    fetchBids();
+  }, []);
 
   // Filter bids based on current filters
   const filteredBids = useMemo(() => {
@@ -90,38 +160,45 @@ export default function FreelancerBidsPage() {
 
   // Handle refreshing bids
   const handleRefresh = () => {
-    setIsLoading(true);
-    
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setBidsData(mockBidsData);
-      setIsLoading(false);
-    }, 800);
+    fetchBids();
   };
 
   // Handle withdrawing a bid
-  const handleWithdrawBid = (id: string) => {
-    setBidsData(prev => {
-      const updatedBids = prev.bids.map(bid => 
-        bid.id === id ? { ...bid, status: 'withdrawn' as const, lastUpdated: new Date().toISOString() } : bid
-      );
+  const handleWithdrawBid = async (id: string) => {
+    try {
+      // Find the bid to get its projectId for the API call
+      const bidToWithdraw = bidsData.bids.find(b => b.id === id);
+      if (!bidToWithdraw) return;
+
+      await withdrawFreelancerBid(bidToWithdraw.projectId);
+      toast.success("Bid withdrawn successfully");
       
-      // Update stats
-      const stats = {
-        ...prev.stats,
-        pending: updatedBids.filter(bid => bid.status === 'pending').length,
-        withdrawn: updatedBids.filter(bid => bid.status === 'withdrawn').length
-      };
-      
-      return {
-        ...prev,
-        bids: updatedBids,
-        stats
-      };
-    });
+      // Update UI immediately
+      setBidsData(prev => {
+        const updatedBids = prev.bids.map(bid => 
+          bid.id === id ? { ...bid, status: 'withdrawn' as const, lastUpdated: new Date().toISOString() } : bid
+        );
+        
+        // Update stats
+        const pending = updatedBids.filter(bid => bid.status === 'pending').length;
+        const withdrawn = updatedBids.filter(bid => bid.status === 'withdrawn').length;
+        
+        return {
+          ...prev,
+          bids: updatedBids,
+          stats: {
+            ...prev.stats,
+            pending,
+            withdrawn
+          }
+        };
+      });
+    } catch (error) {
+      toast.error("Failed to withdraw bid. Please try again.");
+    }
   };
 
-  // Handle pinning/unpinning a bid
+  // Handle pinning/unpinning a bid (client-side only for now)
   const handlePinBid = (id: string, isPinned: boolean) => {
     setBidsData(prev => {
       const updatedBids = prev.bids.map(bid => 
@@ -139,10 +216,9 @@ export default function FreelancerBidsPage() {
   const handleLoadMore = () => {
     setLoadingMore(true);
     
-    // Simulate API call with timeout
+    // To be implemented: API pagination support
     setTimeout(() => {
       setLoadingMore(false);
-      // In a real app, we would fetch more bids and append them to the existing list
     }, 1000);
   };
 
@@ -162,7 +238,7 @@ export default function FreelancerBidsPage() {
         onWithdraw={handleWithdrawBid}
         onPin={handlePinBid}
         onLoadMore={handleLoadMore}
-        hasMoreBids={false} // In a real app, this would be determined by the API response
+        hasMoreBids={false} // Would be driven by API pagination in the future
         loadingMore={loadingMore}
       />
     </div>

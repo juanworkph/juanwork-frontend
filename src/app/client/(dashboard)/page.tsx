@@ -1,20 +1,23 @@
 "use client";
 
-import React from "react";
+import React from 'react';
 import {
   DashboardHeader,
   StatsOverview,
   ProfileVisitChart,
-  RecentProjects,
-  UpcomingDeadlines,
-  Notes,
+  ActiveProjects,
+  ActivityDistribution,
+  ProjectNotes,
   RecentActivity,
   QuickActions,
-} from "@/features/dashboard/components";
-import { mockDashboardData } from "@/features/dashboard/schema";
+} from '@/features/dashboard/components';
+import { 
+  mockDashboardData, 
+  profileVisitChartData, 
+  activityDistributionData 
+} from '@/data/dashboard';
 
 export default function ClientPage() {
-  // Use the mock data from the dashboard feature
   const dashboardData = mockDashboardData;
 
   return (
@@ -25,28 +28,31 @@ export default function ClientPage() {
       {/* Stats Overview */}
       <StatsOverview stats={dashboardData.stats} />
 
-      {/* Main Content Grid */}
+      {/* Main Content Grid: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Profile Visit Chart */}
-        <ProfileVisitChart />
+        <ProfileVisitChart data={profileVisitChartData} />
 
-        {/* Recent Projects */}
-        <RecentProjects projects={dashboardData.recentProjects} />
+        {/* Activity Distribution */}
+        <ActivityDistribution data={activityDistributionData} />
       </div>
 
-      {/* Secondary Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
-        {/* Upcoming Deadlines */}
-        <UpcomingDeadlines deadlines={dashboardData.upcomingDeadlines} />
+      {/* Secondary Content Grid: Projects & Sidebar Actions */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
+        {/* Active Projects */}
+        <ActiveProjects projects={dashboardData.recentProjects} />
 
-        {/* Notes */}
-        <Notes />
+        {/* Right Sidebar Stack */}
+        <div className="flex flex-col gap-4 lg:gap-6">
+          {/* Recent Activity */}
+          <RecentActivity activities={dashboardData.recentActivities} />
 
-        {/* Recent Activity */}
-        <RecentActivity activities={dashboardData.recentActivities} />
+          {/* Notes */}
+          <ProjectNotes />
 
-        {/* Quick Actions */}
-        <QuickActions />
+          {/* Quick Actions */}
+          <QuickActions />
+        </div>
       </div>
     </div>
   );

@@ -8,10 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/contexts/auth-context";
-import { signupSchema, type SignupFormData } from "../schema/signup-schema";
+import { signupSchema, type SignupFormData, type RegisterRequest } from "../schema/auth";
+import { registerUser } from "@/features/auth/actions/auth";
+import { User } from "@/types/user";
 import { SocialLoginButton } from "./social-login-button";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { SiGmail, SiFacebook } from "react-icons/si";
+import { logError, logApiError } from "@/utils/logger";
 
 // Simple icons for social login
 const GmailIcon = () => <SiGmail />;
@@ -28,6 +31,8 @@ export function SignupForm() {
     agreeToTerms: false,
   });
   const [errors, setErrors] = useState<Partial<SignupFormData>>({});
+  const [generalError, setGeneralError] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -41,50 +46,147 @@ export function SignupForm() {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
+    // Clear general error when user makes changes
+    if (generalError) {
+      setGeneralError("");
+    }
+    // Clear success message when user makes changes
+    if (successMessage) {
+      setSuccessMessage("");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setGeneralError("");
+    setSuccessMessage("");
+    setErrors({});
 
     try {
-      // Validate form data
-      const validatedData = signupSchema.parse(formData);
+      // Validate form data using Zod schema (safeParse doesn't throw)
+      const validationResult = signupSchema.safeParse(formData);
       
-      // Mock signup - create a user object
-      const mockUser = {
-        id: "1",
-        email: validatedData.email,
-        name: `${validatedData.firstName} ${validatedData.lastName}`,
-        role: validatedData.role,
-        avatar: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      // Login user
-      login(mockUser);
-      
-      // Redirect to appropriate dashboard based on role
-      const redirectPath = validatedData.role === "freelancer" ? "/freelancer" : "/client";
-      router.push(redirectPath);
-    } catch (error) {
-      if (error instanceof Error && error.name === "ZodError") {
+      if (!validationResult.success) {
         // Handle validation errors
-        const zodError = error as { errors?: Array<{ path: string[]; message: string }> };
         const fieldErrors: Partial<SignupFormData> = {};
-        
-        zodError.errors?.forEach((err) => {
-          if (err.path[0]) {
+        validationResult.error.issues.forEach((err) => {
+          if (err.path && err.path[0]) {
             const fieldName = err.path[0] as keyof SignupFormData;
             (fieldErrors as Record<string, string>)[fieldName] = err.message;
           }
         });
-        
         setErrors(fieldErrors);
-      } else {
-        console.error("Signup error:", error);
-        alert("Signup failed. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Transform SignupFormData to RegisterRequest
+      // Remove frontend-only fields: confirmPassword and agreeToTerms
+      const registerData: RegisterRequest = {
+        firstName: validationResult.data.firstName,
+        lastName: validationResult.data.lastName,
+        email: validationResult.data.email,
+        password: validationResult.data.password,
+        role: validationResult.data.role,
+      };
+
+      // Call registerUser() with transformed data
+      const authResponse = await registerUser(registerData);
+      
+      // Success! Tokens are already stored by registerUser
+      
+      // Display success message with email verification notice
+      setSuccessMessage(
+        authResponse.message || 
+        "Registration successful! Please check your email to verify your account."
+      );
+
+      // Convert AuthUserData to User format for Auth Context
+      const user: User = {
+        id: authResponse.user.id,
+        email: authResponse.user.email,
+        name: `${authResponse.user.firstName} ${authResponse.user.lastName}`,
+        role: authResponse.user.role,
+        avatar: null,
+        balance: 0,
+        createdAt: authResponse.user.createdAt,
+        updatedAt: authResponse.user.updatedAt,
+      };
+
+      // Update Auth Context with user data
+      login(user);
+      
+      // Redirect to role-specific dashboard after a brief delay to show success message
+      setTimeout(() => {
+        const redirectPath = validationResult.data.role === "freelancer" ? "/freelancer" : "/client";
+        router.push(redirectPath);
+      }, 1500);
+
+    } catch (error: unknown) {
+      // Handle API errors from authService
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+        
+        // Log all errors to console for debugging (sensitive data redacted in production)
+        logError("Registration error", {
+          message: errorMessage,
+          error: error,
+        });
+
+        // Categorize and display errors appropriately
+        
+        // Check for duplicate email error
+        if (errorMessage.includes("already exists")) {
+          setErrors({ email: "An account with this email already exists" });
+        }
+        // Check for password strength errors
+        else if (
+          errorMessage.toLowerCase().includes("password") &&
+          (errorMessage.toLowerCase().includes("must") ||
+           errorMessage.toLowerCase().includes("require") ||
+           errorMessage.toLowerCase().includes("character") ||
+           errorMessage.toLowerCase().includes("uppercase") ||
+           errorMessage.toLowerCase().includes("lowercase") ||
+           errorMessage.toLowerCase().includes("number"))
+        ) {
+          setErrors({ password: errorMessage });
+        }
+        // Check for network errors
+        else if (errorMessage.includes("Unable to connect")) {
+          setGeneralError("Unable to connect to server. Please check your internet connection.");
+        }
+        // Check for server errors
+        else if (errorMessage.includes("Something went wrong")) {
+          setGeneralError("Something went wrong. Please try again later.");
+        }
+        // Handle other validation or field-specific errors
+        else if (
+          errorMessage.toLowerCase().includes("email") ||
+          errorMessage.toLowerCase().includes("first") ||
+          errorMessage.toLowerCase().includes("last") ||
+          errorMessage.toLowerCase().includes("name")
+        ) {
+          // Try to map to appropriate field, default to general error
+          if (errorMessage.toLowerCase().includes("email")) {
+            setErrors({ email: errorMessage });
+          } else if (errorMessage.toLowerCase().includes("first")) {
+            setErrors({ firstName: errorMessage });
+          } else if (errorMessage.toLowerCase().includes("last")) {
+            setErrors({ lastName: errorMessage });
+          } else {
+            setGeneralError(errorMessage);
+          }
+        }
+        // Default: display as general error
+        else {
+          setGeneralError(errorMessage);
+        }
+      }
+      // Fallback for unexpected errors
+      else {
+        logError("Unexpected error during signup:", error);
+        setGeneralError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -99,6 +201,21 @@ export function SignupForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* General Error Message */}
+        {generalError && (
+          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
+            <p className="text-sm text-destructive">{generalError}</p>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-green-800 dark:text-green-200">{successMessage}</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="firstName">First Name</Label>

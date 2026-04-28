@@ -10,11 +10,11 @@ interface SocialLoginButtonProps {
   onClick?: () => void;
 }
 
-export function SocialLoginButton({ 
-  provider, 
-  icon, 
+export function SocialLoginButton({
+  provider,
+  icon,
   className,
-  onClick 
+  onClick,
 }: SocialLoginButtonProps) {
   const handleClick = () => {
     if (onClick) {
@@ -28,15 +28,15 @@ export function SocialLoginButton({
     <Button
       variant="outline"
       className={cn(
-        "w-full h-10 flex items-center gap-3 text-sm font-medium px-4",
-        className
+        "flex items-center justify-center gap-2 p-3 h-auto text-sm font-medium",
+        className,
       )}
       onClick={handleClick}
     >
       <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
         {icon}
       </span>
-      <span className="flex-1 text-center">Continue with {provider}</span>
+      <span>{provider}</span>
     </Button>
   );
 }

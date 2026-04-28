@@ -1,150 +1,236 @@
+/**
+ * PortfolioHeader Component
+ * 
+ * Displays the header section for the Portfolio Management page including:
+ * - Page title and description
+ * - Statistics cards (Total, Completed, Featured, Average Rating, Total Clients)
+ * - Action buttons (Add New Portfolio, Refresh)
+ * - View mode toggle (Grid/List)
+ * 
+ * Requirements: 4.1-4.4, 5.1, 11.1-11.6, 19.1-19.4
+ */
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Briefcase, Users, Star, Trophy, Plus, Download } from "lucide-react";
-import { PortfolioStats } from "../schema/portfolio-data";
+import {
+  Plus,
+  RefreshCw,
+  Grid,
+  List,
+  Briefcase,
+  CheckCircle,
+  Star,
+  Users,
+} from "lucide-react";
 
+/**
+ * Props interface for PortfolioHeader component
+ */
 interface PortfolioHeaderProps {
-  stats: PortfolioStats;
-  isOwnProfile?: boolean;
+  totalProjects: number;
+  completedProjects: number;
+  featuredProjects: number;
+  averageRating: number;
+  totalClients: number;
+  onCreateNew: () => void;
+  onRefresh: () => void;
+  viewMode: 'grid' | 'list';
+  onViewModeChange: (mode: 'grid' | 'list') => void;
+  isLoading: boolean;
 }
 
-export function PortfolioHeader({
-  stats,
-  isOwnProfile = false,
-}: PortfolioHeaderProps) {
+/**
+ * StatCard Sub-component
+ * 
+ * Displays a single statistic card with icon, title, and value
+ */
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  colorClass: string;
+  bgClass: string;
+}
+
+const StatCard: React.FC<StatCardProps> = ({ 
+  title, 
+  value, 
+  icon, 
+  colorClass,
+  bgClass 
+}) => {
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+    <Card className="overflow-hidden" role="article" aria-label={`${title}: ${value}`}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1" id={`stat-${title.replace(/\s+/g, '-').toLowerCase()}-label`}>
+              {title}
+            </p>
+            <p 
+              className={`text-2xl font-bold ${colorClass}`}
+              aria-labelledby={`stat-${title.replace(/\s+/g, '-').toLowerCase()}-label`}
+            >
+              {value}
+            </p>
+          </div>
+          <div className={`p-3 rounded-lg ${bgClass}`} aria-hidden="true">
+            {icon}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+/**
+ * PortfolioHeader Component
+ * 
+ * Main header component for the Portfolio Management page with statistics,
+ * action buttons, and view mode toggle.
+ * 
+ * Optimized with React.memo to prevent unnecessary re-renders
+ */
+export const PortfolioHeader = React.memo<PortfolioHeaderProps>(({
+  totalProjects,
+  completedProjects,
+  featuredProjects,
+  averageRating,
+  totalClients,
+  onCreateNew,
+  onRefresh,
+  viewMode,
+  onViewModeChange,
+  isLoading,
+}) => {
+  // Format average rating to 1 decimal place
+  const formattedRating = averageRating.toFixed(1);
+
+  return (
+    <div className="space-y-6" role="region" aria-label="Portfolio header and statistics">
+      {/* Header Section - Title, Description, Action Buttons, and View Toggle */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             My Portfolio
           </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Showcasing {stats.completedProjects} completed projects across{" "}
-            {stats.yearsExperience} years of experience
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Showcase and manage your professional work portfolio
           </p>
         </div>
 
-        {isOwnProfile && (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button variant="outline" className="gap-2">
-              <Download className="h-4 w-4" />
-              Export Portfolio
+        {/* Action Buttons and View Toggle - Requirements 4.1-4.4, 5.1, 19.1-19.4 */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          {/* View Mode Toggle - Requirements 4.1-4.4 */}
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              size="sm"
+              className="gap-2"
+              onClick={() => onViewModeChange('grid')}
+              aria-label="Switch to grid view"
+              aria-pressed={viewMode === 'grid'}
+            >
+              <Grid className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Grid</span>
             </Button>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Project
+            
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              className="gap-2"
+              onClick={() => onViewModeChange('list')}
+              aria-label="Switch to list view"
+              aria-pressed={viewMode === 'list'}
+            >
+              <List className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">List</span>
             </Button>
           </div>
-        )}
+
+          {/* Refresh Button - Requirements 19.1-19.4 */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isLoading}
+            aria-label="Refresh portfolio list"
+            aria-busy={isLoading}
+          >
+            <RefreshCw 
+              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} 
+              aria-hidden="true" 
+            />
+            <span className="ml-2">Refresh</span>
+          </Button>
+
+          {/* Add New Portfolio Button - Requirement 5.1 */}
+          <Button
+            size="sm"
+            onClick={onCreateNew}
+            aria-label="Create and add a new portfolio project"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            <span className="ml-2">Add New Portfolio</span>
+          </Button>
+        </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="shadow-sm bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                <Briefcase className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-2xl lg:text-3xl font-bold text-blue-900 dark:text-blue-100">
-                  {stats.totalProjects}
-                </p>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Total Projects
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Statistics Cards Section - Requirements 11.1-11.6 */}
+      <div 
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" 
+        role="group" 
+        aria-label="Portfolio statistics"
+      >
+        {/* Total Projects Card - Requirement 11.1 */}
+        <StatCard
+          title="Total Projects"
+          value={totalProjects}
+          icon={<Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />}
+          colorClass="text-blue-900 dark:text-blue-100"
+          bgClass="bg-blue-100 dark:bg-blue-900/30"
+        />
 
-        <Card className="shadow-sm bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
-                <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-2xl lg:text-3xl font-bold text-green-900 dark:text-green-100">
-                  {stats.happyClients}
-                </p>
-                <p className="text-sm text-green-700 dark:text-green-300">
-                  Happy Clients
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Completed Projects Card - Requirement 11.2 */}
+        <StatCard
+          title="Completed"
+          value={completedProjects}
+          icon={<CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />}
+          colorClass="text-green-900 dark:text-green-100"
+          bgClass="bg-green-100 dark:bg-green-900/30"
+        />
 
-        <Card className="shadow-sm bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-                <Star className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
-              <div>
-                <p className="text-2xl lg:text-3xl font-bold text-yellow-900 dark:text-yellow-100">
-                  {stats.averageRating}
-                </p>
-                <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  Avg Rating
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Featured Projects Card - Requirement 11.3 */}
+        <StatCard
+          title="Featured"
+          value={featuredProjects}
+          icon={<Star className="h-5 w-5 text-purple-600 dark:text-purple-400" />}
+          colorClass="text-purple-900 dark:text-purple-100"
+          bgClass="bg-purple-100 dark:bg-purple-900/30"
+        />
 
-        <Card className="shadow-sm bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-                <Trophy className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-2xl lg:text-3xl font-bold text-purple-900 dark:text-purple-100">
-                  {stats.onTimeDelivery}%
-                </p>
-                <p className="text-sm text-purple-700 dark:text-purple-300">
-                  On-Time Delivery
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Average Rating Card - Requirement 11.4 */}
+        <StatCard
+          title="Avg Rating"
+          value={formattedRating}
+          icon={<Star className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />}
+          colorClass="text-yellow-900 dark:text-yellow-100"
+          bgClass="bg-yellow-100 dark:bg-yellow-900/30"
+        />
+
+        {/* Total Clients Card - Requirement 11.5 */}
+        <StatCard
+          title="Total Clients"
+          value={totalClients}
+          icon={<Users className="h-5 w-5 text-orange-600 dark:text-orange-400" />}
+          colorClass="text-orange-900 dark:text-orange-100"
+          bgClass="bg-orange-100 dark:bg-orange-900/30"
+        />
       </div>
-
-      {/* Achievement Highlight */}
-      <Card className="shadow-sm bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/20 dark:via-purple-950/20 dark:to-pink-950/20">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full">
-              <Trophy className="h-6 w-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Top Rated Freelancer
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Maintaining {stats.averageRating}/5.0 rating with{" "}
-                {stats.onTimeDelivery}% on-time delivery across{" "}
-                {stats.completedProjects} completed projects
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Badge className="bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800">
-                Top Rated
-              </Badge>
-              <Badge className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
-                {stats.yearsExperience}+ Years
-              </Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
-}
+});
+
+// Add display name for debugging
+PortfolioHeader.displayName = "PortfolioHeader";

@@ -37,7 +37,6 @@ export const navigation: Record<UserRole, NavSection> = {
     common: [
       { label: "Home", href: "/" },
       { label: "About Us", href: "/landing/about" },
-      { label: "Our Blog", href: "/landing/blog" },
       { label: "Contact Us", href: "/landing/contact" },
       { label: "Help Center", href: "/landing/help" },
     ],

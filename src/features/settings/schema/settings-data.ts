@@ -5,7 +5,36 @@ export type SettingsTab =
   | "social"
   | "notifications"
   | "privacy"
+  | "verification"
   | "deactivation";
+
+export type VerificationStatus =
+  | "pending"
+  | "documents"
+  | "processing"
+  | "verified"
+  | "rejected";
+
+export type VerificationIdType =
+  | "passport"
+  | "drivers_license"
+  | "national_id"
+  | "postal_id"
+  | "philhealth"
+  | "sss"
+  | "voters_id";
+
+export interface VerificationData {
+  status: VerificationStatus;
+  currentStep: 1 | 2 | 3;
+  idType?: VerificationIdType;
+  idNumber?: string;
+  selfiePhoto?: string;
+  idPhoto?: string;
+  submittedAt?: string;
+  verifiedAt?: string;
+  rejectionReason?: string;
+}
 
 export interface UserProfile {
   firstName: string;
@@ -20,6 +49,12 @@ export interface UserProfile {
   timezone: string;
   languages: string[];
   skills: string[];
+  tagline?: string;
+  birthday?: string;
+  videoIntro?: string;
+  availability?: string;
+  experienceLevel?: string;
+  talentCategory?: string;
 }
 
 export interface JuanPoints {
@@ -40,6 +75,7 @@ export interface JuanPointsHistory {
   points: number;
   description: string;
   date: string;
+  activityType?: string;
 }
 
 export interface SocialLinks {
@@ -52,6 +88,10 @@ export interface SocialLinks {
   portfolio?: string;
   behance?: string;
   dribbble?: string;
+  google?: string;
+  discord?: string;
+  stackoverflow?: string;
+  youtube?: string;
 }
 
 export interface NotificationSettings {
@@ -93,6 +133,7 @@ export interface SettingsState {
   notifications: NotificationSettings;
   privacy: PrivacySettings;
   availableRewards: Reward[];
+  verification: VerificationData;
 }
 
 // Helper functions
@@ -146,6 +187,12 @@ export const mockSettingsData: SettingsState = {
     timezone: "America/Los_Angeles",
     languages: ["English", "Spanish"],
     skills: ["React", "Node.js", "TypeScript", "Python", "AWS"],
+    tagline: "Turning complex problems into elegant code",
+    birthday: "1990-05-15",
+    videoIntro: "https://example.com/video-intro.mp4",
+    availability: "Full-time",
+    experienceLevel: "Senior",
+    talentCategory: "Development & IT",
   },
   juanPoints: {
     currentPoints: 2450,
@@ -162,58 +209,34 @@ export const mockSettingsData: SettingsState = {
     {
       id: "1",
       type: "earned",
-      points: 50,
+      points: 20,
       description: "Watched promotional video",
-      date: "2024-02-15T10:30:00Z",
+      date: "2024-02-15T18:30:00Z",
+      activityType: "Daily Action",
     },
     {
       id: "2",
       type: "earned",
       points: 100,
       description: "Completed profile verification",
-      date: "2024-02-14T14:20:00Z",
+      date: "2024-02-14T22:20:00Z",
+      activityType: "Achievement",
     },
     {
       id: "3",
       type: "redeemed",
-      points: -500,
+      points: -100,
       description: "Profile boost for 7 days",
-      date: "2024-02-13T09:15:00Z",
+      date: "2024-02-13T17:15:00Z",
+      activityType: "Redemption",
     },
     {
       id: "4",
       type: "bonus",
       points: 200,
       description: "Monthly login bonus",
-      date: "2024-02-12T08:00:00Z",
-    },
-    {
-      id: "5",
-      type: "earned",
-      points: 50,
-      description: "Watched promotional video",
-      date: "2024-02-11T16:45:00Z",
-    },
-    {
-      id: "6",
-      type: "earned",
-      points: 300,
-      description: "Completed 5-star project",
-      date: "2024-02-10T11:30:00Z",
-    },
-    {
-      id: "7",
-      type: "redeemed",
-      points: -250,
-      description: "Featured listing for 3 days",
-      date: "2024-02-09T15:20:00Z",
-    },
-    {
-      id: "8",
-      type: "earned",
-      points: 50,
-      description: "Watched promotional video",
-      date: "2024-02-08T13:10:00Z",
+      date: "2024-02-12T16:00:00Z",
+      activityType: "Loyalty",
     },
   ],
   socialLinks: {
@@ -222,6 +245,10 @@ export const mockSettingsData: SettingsState = {
     github: "https://github.com/johndoe",
     twitter: "https://twitter.com/johndoe",
     portfolio: "https://portfolio.johndoe.dev",
+    google: "johndoe@gmail.com",
+    discord: "johndoe#1234",
+    stackoverflow: "https://stackoverflow.com/users/12345/johndoe",
+    youtube: "https://youtube.com/@johndoe",
   },
   notifications: {
     emailNotifications: true,
@@ -246,50 +273,76 @@ export const mockSettingsData: SettingsState = {
     {
       id: "1",
       name: "Profile Boost",
-      description: "Increase your profile visibility for 7 days",
-      pointsCost: 500,
+      description:
+        "Increase your profile visibility for 7 days in search results.",
+      pointsCost: 100,
       type: "boost",
       available: true,
     },
     {
       id: "2",
       name: "Featured Listing",
-      description: "Feature your profile on homepage for 3 days",
-      pointsCost: 250,
+      description: "Feature your profile on homepage for 3 days.",
+      pointsCost: 150,
       type: "feature",
       available: true,
     },
     {
       id: "3",
       name: "Premium Badge",
-      description: "Get a premium badge on your profile for 30 days",
-      pointsCost: 1000,
+      description: "Exclusive badge on your profile for 30 days.",
+      pointsCost: 500,
       type: "badge",
       available: true,
     },
     {
       id: "4",
-      name: "10% Connect Discount",
-      description: "Get 10% off on your next project connect",
-      pointsCost: 300,
-      type: "discount",
+      name: "Profile Analytics",
+      description: "Unlock detailed profile and visitor analytics for 30 days.",
+      pointsCost: 200,
+      type: "feature",
       available: true,
     },
     {
       id: "5",
-      name: "Profile Analytics",
-      description: "Unlock detailed profile analytics for 30 days",
-      pointsCost: 750,
+      name: "Priority Support",
+      description: "Get priority customer support for 30 days.",
+      pointsCost: 350,
       type: "feature",
       available: true,
     },
     {
       id: "6",
-      name: "Priority Support",
-      description: "Get priority customer support for 30 days",
-      pointsCost: 1500,
+      name: "Connect Discount",
+      description: "Get 10% off on your next project connect.",
+      pointsCost: 150,
+      type: "discount",
+      available: true,
+    },
+    {
+      id: "7",
+      name: "Skill Verification",
+      description: "Get verified badge for one of your skills.",
+      pointsCost: 250,
+      type: "badge",
+      available: true,
+    },
+    {
+      id: "8",
+      name: "Ad-Free Week",
+      description: "Enjoy ad-free experience for 7 days.",
+      pointsCost: 100,
       type: "feature",
-      available: false,
+      available: true,
     },
   ],
+  verification: {
+    status: "pending",
+    currentStep: 1,
+  },
+};
+
+export const mockVerificationData: VerificationData = {
+  status: "pending",
+  currentStep: 1,
 };
